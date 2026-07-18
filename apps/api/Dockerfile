@@ -13,7 +13,7 @@ RUN apk add --no-cache \
     autoconf \
     g++ \
     make \
-    && docker-php-ext-install pdo_mysql mbstring zip pcntl posix \
+    && docker-php-ext-install pdo_mysql mbstring zip pcntl posix bcmath \
     && pecl install imagick \
     && docker-php-ext-enable imagick
 
@@ -24,7 +24,7 @@ WORKDIR /var/www/html
 
 # Copy composer files first for layer caching
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-req=ext-pcntl
+RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-reqs
 
 COPY . .
 RUN composer dump-autoload --optimize \
