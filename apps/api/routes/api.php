@@ -64,8 +64,7 @@ Route::middleware('auth:sanctum')->prefix('billing')->group(function () {
     Route::post('/sync',     [BillingController::class, 'sync']);
 });
 
-Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])
-    ->name('cashier.webhook');
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 
 Route::post('/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebhook']);
 
