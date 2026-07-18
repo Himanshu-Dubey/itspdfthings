@@ -10,6 +10,9 @@ RUN apk add --no-cache \
     imagemagick-dev \
     libzip-dev \
     oniguruma-dev \
+    autoconf \
+    g++ \
+    make \
     && docker-php-ext-install pdo_mysql mbstring zip pcntl posix \
     && pecl install imagick \
     && docker-php-ext-enable imagick
