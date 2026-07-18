@@ -27,7 +27,10 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-reqs
 
 COPY . .
-RUN composer dump-autoload --optimize \
+RUN mkdir -p /var/www/html/bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && composer dump-autoload --optimize \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
@@ -35,11 +38,8 @@ RUN composer dump-autoload --optimize \
 # Nginx config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# Supervisor config (manages php-fpm + nginx in one container)
+# Supervisor config
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-RUN chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
 
