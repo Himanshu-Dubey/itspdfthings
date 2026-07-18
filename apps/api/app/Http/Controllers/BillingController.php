@@ -1,0 +1,139 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Razorpay\Api\Api as RazorpayApi;
+
+class BillingController extends Controller
+{
+    /** Start a checkout flow for a plan (or the default Premium plan if no plan_id given). */
+    public function checkout(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->isPremium()) {
+            return response()->json(['message' => 'You already have a Premium subscription.'], 422);
+        }
+
+        $planId = $request->input('plan_id');
+        $country = $request->input('country', 'US');
+
+        // Geo-based routing: India → Razorpay, rest → Stripe
+        $provider = $country === 'IN' ? 'razorpay' : 'stripe';
+
+        return $provider === 'razorpay'
+            ? $this->razorpayCheckout($user)
+            : $this->stripeCheckout($user, $planId ? (int) $planId : null);
+    }
+
+    /**
+     * Directly query Stripe for the current user's active subscription and
+     * update the local `plan` column.  Called on the success-redirect so the
+     * plan flips to Premium immediately even when the webhook hasn't arrived yet
+     * (e.g. local dev without Stripe CLI).
+     */
+    public function sync(Request $request): JsonResponse
+    {
+        $user   = $request->user();
+        $secret = config('cashier.secret');
+
+        if (! $secret) {
+            return response()->json(['user' => $user]);
+        }
+
+        if (! $user->hasStripeId()) {
+            return response()->json(['user' => $user]);
+        }
+
+        try {
+            $stripe = new \Stripe\StripeClient($secret);
+            $subs   = $stripe->subscriptions->all([
+                'customer' => $user->stripe_id,
+                'status'   => 'active',
+                'limit'    => 1,
+            ]);
+
+            $newPlan = count($subs->data) > 0 ? 'premium' : 'free';
+            $user->forceFill(['plan' => $newPlan])->save();
+        } catch (\Exception) {
+            // Stripe unreachable — return existing user without crashing.
+        }
+
+        return response()->json(['user' => $user->fresh()]);
+    }
+
+    /** Return a self-service billing management URL, via whichever provider is active. */
+    public function portal(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (config('services.billing_provider') === 'razorpay') {
+            return response()->json([
+                'message' => 'Self-service subscription management isn\'t available for Razorpay yet. Contact support to change or cancel your plan.',
+            ], 501);
+        }
+
+        if (! $user->hasStripeId()) {
+            return response()->json(['message' => 'No billing account found.'], 422);
+        }
+
+        $url = $user->billingPortalUrl(config('services.stripe.cancel_url'));
+
+        return response()->json(['portal_url' => $url]);
+    }
+
+    // ── Stripe ───────────────────────────────────────────────────────────────
+
+    private function stripeCheckout(User $user, ?int $planId = null): JsonResponse
+    {
+        if ($planId) {
+            $plan    = \App\Models\Plan::find($planId);
+            $priceId = $plan?->stripe_price_id;
+        } else {
+            $priceId = config('services.stripe.premium_price_id');
+        }
+
+        if (! $priceId) {
+            return response()->json(['message' => 'Billing is not configured yet.'], 503);
+        }
+
+        $checkout = $user->newSubscription('default', $priceId)->checkout([
+            'success_url' => config('services.stripe.success_url'),
+            'cancel_url'  => config('services.stripe.cancel_url'),
+        ]);
+
+        return response()->json(['checkout_url' => $checkout->url]);
+    }
+
+    // ── Razorpay ─────────────────────────────────────────────────────────────
+
+    private function razorpayCheckout(User $user): JsonResponse
+    {
+        $key    = config('services.razorpay.key');
+        $secret = config('services.razorpay.secret');
+        $planId = config('services.razorpay.plan_id');
+
+        if (! $key || ! $secret || ! $planId) {
+            return response()->json(['message' => 'Billing is not configured yet.'], 503);
+        }
+
+        $api = new RazorpayApi($key, $secret);
+
+        $subscription = $api->subscription->create([
+            'plan_id'         => $planId,
+            'customer_notify' => 1,
+            'total_count'     => 12, // 12 billing cycles; Razorpay requires a bound, renews via new subscription after
+            'notes'           => ['user_id' => (string) $user->id],
+        ]);
+
+        $user->forceFill([
+            'razorpay_subscription_id'     => $subscription->id,
+            'razorpay_subscription_status' => $subscription->status,
+        ])->save();
+
+        return response()->json(['checkout_url' => $subscription->short_url]);
+    }
+}

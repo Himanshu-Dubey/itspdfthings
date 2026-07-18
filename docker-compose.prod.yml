@@ -1,0 +1,95 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - loveupdf
+
+  app:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - PHP_OPCACHE_ENABLE=1
+    networks:
+      - loveupdf
+
+  queue-worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=120
+    volumes:
+      - ./apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - loveupdf
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  scheduler:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+    volumes:
+      - ./apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - loveupdf
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: loveupdf
+      MYSQL_USER: loveupdf
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - loveupdf
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - loveupdf
+
+volumes:
+  mysql-data:
+  redis-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  loveupdf:
+    driver: bridge

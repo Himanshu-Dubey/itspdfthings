@@ -1,0 +1,296 @@
+openapi: 3.1.0
+info:
+  title: PDFThings API
+  version: 0.1.0
+  description: |
+    Laravel API for itspdfthings.com. All endpoints are under /api/.
+    Authentication uses Sanctum SPA cookie mode — call GET /sanctum/csrf-cookie
+    before any mutating request to receive the XSRF-TOKEN cookie.
+
+servers:
+  - url: http://api.itspdfthings.com
+    description: Local dev (Laragon)
+  - url: https://api.itspdfthings.com
+    description: Production
+
+# ---------------------------------------------------------------------------
+# Schemas
+# ---------------------------------------------------------------------------
+components:
+  schemas:
+    User:
+      type: object
+      required: [id, name, email, plan, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Jane Doe
+        email:
+          type: string
+          format: email
+          example: jane@example.com
+        plan:
+          type: string
+          enum: [free, premium]
+          example: free
+        email_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    JobStatus:
+      type: string
+      enum: [pending, processing, completed, failed]
+
+    Job:
+      type: object
+      required: [id, status, tool_type, created_at, download_url, error_message]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          $ref: "#/components/schemas/JobStatus"
+        tool_type:
+          type: string
+          example: merge
+        created_at:
+          type: string
+          format: date-time
+        download_url:
+          type: string
+          format: uri
+          nullable: true
+          description: Short-lived signed URL (15 min TTL). Present only when status=completed.
+        error_message:
+          type: string
+          nullable: true
+
+    ValidationError:
+      type: object
+      required: [message, errors]
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+  securitySchemes:
+    sanctumCookie:
+      type: apiKey
+      in: cookie
+      name: PDFThings-session
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+paths:
+  /sanctum/csrf-cookie:
+    get:
+      summary: Initialize Sanctum CSRF cookie
+      description: |
+        Must be called before any POST/PUT/DELETE request. Sets the XSRF-TOKEN
+        cookie which Laravel reads as the CSRF token on subsequent requests.
+      tags: [Auth]
+      responses:
+        "204":
+          description: Cookies set — no body.
+
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, password_confirmation]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                password_confirmation:
+                  type: string
+      responses:
+        "201":
+          description: User created and logged in.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+        "422":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /api/auth/login:
+    post:
+      summary: Log in
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                remember:
+                  type: boolean
+                  default: false
+      responses:
+        "200":
+          description: Logged in. Session cookie set.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+        "422":
+          description: Invalid credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /api/auth/logout:
+    post:
+      summary: Log out
+      tags: [Auth]
+      security:
+        - sanctumCookie: []
+      responses:
+        "200":
+          description: Logged out. Session invalidated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out."
+
+  /api/auth/user:
+    get:
+      summary: Get the authenticated user
+      tags: [Auth]
+      security:
+        - sanctumCookie: []
+      responses:
+        "200":
+          description: Authenticated user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthenticated.
+
+  /api/jobs:
+    post:
+      summary: Upload a file and enqueue a PDF job
+      tags: [Jobs]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, tool_type]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                tool_type:
+                  type: string
+                  enum: [echo, merge, split, compress, organize, image_to_pdf, pdf_to_image, watermark, page_numbers, protect, unlock]
+      responses:
+        "202":
+          description: Job accepted. Poll /api/jobs/{id} for status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        $ref: "#/components/schemas/JobStatus"
+                      tool_type:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+        "422":
+          description: Validation error or file rejected (type/size/virus).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "429":
+          description: Rate limit exceeded.
+
+  /api/jobs/{id}:
+    get:
+      summary: Poll job status / get signed download URL
+      tags: [Jobs]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Job status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job:
+                    $ref: "#/components/schemas/Job"
+        "404":
+          description: Job not found.

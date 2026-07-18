@@ -1,0 +1,100 @@
+services:
+  app:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - PHP_OPCACHE_ENABLE=1
+    networks:
+      - loveupdf
+
+  queue-worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=120
+    volumes:
+      - ./apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - loveupdf
+    # Hard memory cap for the PDF-tool subprocesses this worker shells out to —
+    # per-subprocess ulimits aren't portable, so this is enforced at the container level.
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  horizon:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: php artisan horizon
+    volumes:
+      - ./apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - loveupdf
+
+  scheduler:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
+    volumes:
+      - ./apps/api:/var/www/html
+      - /var/www/html/vendor
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - loveupdf
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: loveupdf
+      MYSQL_USER: loveupdf
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - loveupdf
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - loveupdf
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  loveupdf:
+    driver: bridge

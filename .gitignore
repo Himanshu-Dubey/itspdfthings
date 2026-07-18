@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+apps/api/vendor/
+
+# Laravel
+apps/api/.env
+apps/api/storage/app/
+apps/api/storage/logs/
+apps/api/bootstrap/cache/
+
+# Next.js
+apps/web/.env.local
+apps/web/.next/
+apps/web/out/
+apps/admin/.env.local
+apps/admin/.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Docker local overrides
+docker-compose.override.yml
+
+# Misc
+dump.rdb
+*.sqlite
+.phpunit.result.cache

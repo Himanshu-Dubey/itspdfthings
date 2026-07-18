@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  /* Material-Dashboard-style light theme, brand red as primary */
+  --page: #f4f6fb;
+  --surface: #ffffff;
+  --border-soft: #e9ecf5;
+  --ink: #1a2035;      /* headings / primary text — deep navy, not pure black */
+  --ink-2: #67748e;    /* secondary text — muted blue-grey */
+  --brand: #dc2626;    /* red-600 */
+  --brand-dark: #b91c1c;
+  --background: var(--page);
+  --foreground: var(--ink);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-border-soft: var(--border-soft);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  color-scheme: light;
+}
+
+::selection {
+  background: rgba(220, 38, 38, 0.18);
+}
+
+:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sidebar-scroll,
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd3e1 transparent;
+}
+.sidebar-scroll::-webkit-scrollbar,
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb,
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: #cbd3e1;
+  border-radius: 999px;
+}
+
+/* Material-Dashboard signature: soft, diffuse, colored shadows instead of hard drop shadows */
+.shadow-soft {
+  box-shadow: 0 20px 27px 0 rgba(0, 0, 0, 0.05);
+}
+.shadow-brand {
+  box-shadow: 0 4px 12px -2px rgba(220, 38, 38, 0.35);
+}
+
+.input {
+  @apply w-full bg-slate-50 border border-border-soft rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
