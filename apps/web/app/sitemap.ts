@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://app.itspdfthings.com";
+const BASE_URL = "https://itspdfthings.com";
 
 const TOOL_PAGES = [
   "merge-pdf",

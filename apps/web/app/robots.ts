@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/dashboard", "/login", "/register"],
     },
-    sitemap: "https://app.itspdfthings.com/sitemap.xml",
+    sitemap: "https://itspdfthings.com/sitemap.xml",
   };
 }

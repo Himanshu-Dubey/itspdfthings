@@ -120,7 +120,7 @@ export default function AdminLoginPage() {
         <p className="mt-6 text-center text-xs text-ink-2">
           Admin access only — not your account?{" "}
           <a
-            href="http://app.itspdfthings.com"
+            href="https://itspdfthings.com"
             className="text-ink-2 hover:text-brand transition-colors underline"
           >
             Go to app
