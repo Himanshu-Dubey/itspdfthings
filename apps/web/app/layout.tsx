@@ -5,6 +5,8 @@ import { AuthProvider } from "@/lib/auth-context";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { Wrench } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,9 +38,13 @@ interface SiteStatus {
 async function getSiteStatus(): Promise<SiteStatus> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://api.itspdfthings.com";
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(`${apiUrl}/api/tools/status`, {
       next: { revalidate: 30 },
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     if (!res.ok) return { maintenance_mode: false, announcement: { message: null, link: null, expires_at: null } };
     return res.json();
   } catch {
