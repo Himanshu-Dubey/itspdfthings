@@ -1,11 +1,11 @@
 "use client";
 
+import { Suspense, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { jobs, billing } from "@/lib/api";
 import type { JobHistoryEntry } from "@/types/api";
 import { UpgradeButton } from "@/components/billing/UpgradeButton";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Crown, X } from "lucide-react";
 
 const TOOL_LABELS: Record<string, string> = {
@@ -28,6 +28,14 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="max-w-5xl mx-auto px-4 py-12 text-ink-2 text-sm">Loading…</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const { user, loading: authLoading, refreshUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,13 +52,11 @@ export default function DashboardPage() {
     if (!authLoading && !user) router.push("/login");
   }, [authLoading, user, router]);
 
-  // After a successful Stripe redirect, sync plan from Stripe then refresh UI.
   useEffect(() => {
     if (!upgraded || !user) return;
     billing.sync()
       .then(() => refreshUser())
-      .catch(() => refreshUser()); // even on error, re-fetch so UI reflects DB
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      .catch(() => refreshUser());
   }, [upgraded]);
 
   useEffect(() => {
