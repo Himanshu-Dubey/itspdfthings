@@ -101,14 +101,18 @@ const FLOAT_CHIPS = [
 async function getEnabledTools(): Promise<Record<string, boolean>> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://api.itspdfthings.com";
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(`${apiUrl}/api/tools/status`, {
-      next: { revalidate: 60 }, // re-check every 60 s
+      next: { revalidate: 60 },
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     if (!res.ok) return {};
     const data = await res.json();
     return (data.tools_enabled as Record<string, boolean>) ?? {};
   } catch {
-    return {}; // API unreachable — show all tools
+    return {};
   }
 }
 
