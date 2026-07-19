@@ -11,6 +11,10 @@ services:
       - caddy-config:/config
     networks:
       - loveupdf
+    deploy:
+      resources:
+        limits:
+          memory: 128M
 
   app:
     build:
@@ -27,11 +31,13 @@ services:
       - PHP_OPCACHE_ENABLE=1
     networks:
       - loveupdf
+    deploy:
+      resources:
+        limits:
+          memory: 768M
 
   queue-worker:
-    build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+    image: loveupdf-app
     restart: unless-stopped
     command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=120
     volumes:
@@ -45,12 +51,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1g
+          memory: 512M
 
   scheduler:
-    build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+    image: loveupdf-app
     restart: unless-stopped
     command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done"
     volumes:
@@ -61,6 +65,10 @@ services:
       - redis
     networks:
       - loveupdf
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
   mysql:
     image: mysql:8.0
@@ -74,11 +82,19 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - loveupdf
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --innodb-buffer-pool-size=128M
+      --max-connections=50
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --maxmemory 64mb --maxmemory-policy allkeys-lru
     volumes:
       - redis-data:/data
     networks:
