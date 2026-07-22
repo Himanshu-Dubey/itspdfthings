@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { Heart, AlertCircle } from "lucide-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
-import { SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
 import { AuthSuccess } from "@/components/auth/AuthSuccess";
 
 export default function RegisterPage() {
@@ -50,8 +49,6 @@ export default function RegisterPage() {
       </div>
       <h1 className="text-2xl font-bold text-ink mb-1 text-center">Create new account</h1>
       <p className="text-sm text-ink-2 text-center mb-8">Free forever, no credit card needed</p>
-
-      <SocialAuthButtons />
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

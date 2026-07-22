@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Heart, AlertCircle } from "lucide-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
-import { SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -45,8 +44,6 @@ export default function LoginPage() {
       </div>
       <h1 className="text-2xl font-bold text-ink mb-1 text-center">Welcome back</h1>
       <p className="text-sm text-ink-2 text-center mb-8">Log in to access your dashboard</p>
-
-      <SocialAuthButtons />
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
