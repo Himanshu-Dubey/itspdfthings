@@ -24,7 +24,7 @@ import type {
   UsersResponse,
 } from "@/types/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://api.itspdfthings.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.itspdfthings.com";
 
 async function fetchCsrfCookie(): Promise<void> {
   await fetch(`${API_URL}/sanctum/csrf-cookie`, { credentials: "include" });
