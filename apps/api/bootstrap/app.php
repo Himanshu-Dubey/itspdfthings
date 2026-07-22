@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-            Route::middleware(['api', \Illuminate\Session\Middleware\StartSession::class, \Illuminate\Cookie\Middleware\EncryptCookies::class, \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class])
+            Route::middleware('web')
                 ->prefix('api/admin')
                 ->group(base_path('routes/admin.php'));
         },
