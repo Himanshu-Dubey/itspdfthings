@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Page;
 use Illuminate\Http\JsonResponse;
 
-class PageController extends Controller
+class PagePublicController extends Controller
 {
     /** Public: get a single published page by slug. */
     public function show(string $slug): JsonResponse
