@@ -24,6 +24,7 @@ services:
     volumes:
       - ./apps/api:/var/www/html
       - /var/www/html/vendor
+      - ./apps/api/.env.production:/var/www/html/.env
     depends_on:
       - mysql
       - redis
@@ -43,6 +44,7 @@ services:
     volumes:
       - ./apps/api:/var/www/html
       - /var/www/html/vendor
+      - ./apps/api/.env.production:/var/www/html/.env
     depends_on:
       - mysql
       - redis
@@ -60,6 +62,7 @@ services:
     volumes:
       - ./apps/api:/var/www/html
       - /var/www/html/vendor
+      - ./apps/api/.env.production:/var/www/html/.env
     depends_on:
       - mysql
       - redis

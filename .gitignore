@@ -4,15 +4,20 @@ apps/api/vendor/
 
 # Laravel
 apps/api/.env
+apps/api/.env.local
+!apps/api/.env.production
+!apps/api/.env.example
 apps/api/storage/app/
 apps/api/storage/logs/
 apps/api/bootstrap/cache/
 
 # Next.js
 apps/web/.env.local
+!apps/web/.env.example
 apps/web/.next/
 apps/web/out/
 apps/admin/.env.local
+!apps/admin/.env.example
 apps/admin/.next/
 
 # OS
