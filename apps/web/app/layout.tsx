@@ -5,6 +5,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import CookieConsent from "@/components/CookieConsent";
 import { Wrench } from "lucide-react";
+import { Analytics } from "@vercel/analytics/next";
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +125,7 @@ export default async function RootLayout({
             <CookieConsent />
           </AuthProvider>
         )}
+        <Analytics />
       </body>
     </html>
   );
