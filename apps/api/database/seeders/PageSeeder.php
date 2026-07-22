@@ -1,17 +1,19 @@
 <?php
 
-require dirname(__DIR__, 2) . '/vendor/autoload.php';
-$app = require_once dirname(__DIR__, 2) . '/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
+namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\Page;
 
-$pages = [
-    [
-        'title'            => 'Privacy Policy',
-        'slug'             => 'privacy',
-        'content'          => '<h2>Privacy Policy</h2>
+class PageSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $pages = [
+            [
+                'title'            => 'Privacy Policy',
+                'slug'             => 'privacy',
+                'content'          => '<h2>Privacy Policy</h2>
 <p><strong>Last updated:</strong> July 2026</p>
 
 <h3>1. Information We Collect</h3>
@@ -46,17 +48,17 @@ $pages = [
 
 <h3>8. Changes to This Policy</h3>
 <p>We may update this policy from time to time. Significant changes will be communicated via email.</p>',
-        'meta_title'       => 'Privacy Policy - PDFThings',
-        'meta_description' => 'Learn how PDFThings handles your files and data. We prioritize your privacy.',
-        'is_published'     => true,
-        'show_in_header'   => false,
-        'show_in_footer'   => true,
-        'menu_order'       => 1,
-    ],
-    [
-        'title'            => 'Terms of Service',
-        'slug'             => 'terms',
-        'content'          => '<h2>Terms of Service</h2>
+                'meta_title'       => 'Privacy Policy - PDFThings',
+                'meta_description' => 'Learn how PDFThings handles your files and data. We prioritize your privacy.',
+                'is_published'     => true,
+                'show_in_header'   => false,
+                'show_in_footer'   => true,
+                'menu_order'       => 1,
+            ],
+            [
+                'title'            => 'Terms of Service',
+                'slug'             => 'terms',
+                'content'          => '<h2>Terms of Service</h2>
 <p><strong>Last updated:</strong> July 2026</p>
 
 <h3>1. Acceptance of Terms</h3>
@@ -86,17 +88,17 @@ $pages = [
 
 <h3>8. Changes to Terms</h3>
 <p>We may modify these terms at any time. Continued use of the service constitutes acceptance of updated terms.</p>',
-        'meta_title'       => 'Terms of Service - PDFThings',
-        'meta_description' => 'Terms and conditions for using PDFThings PDF tools.',
-        'is_published'     => true,
-        'show_in_header'   => false,
-        'show_in_footer'   => true,
-        'menu_order'       => 2,
-    ],
-    [
-        'title'            => 'About Us',
-        'slug'             => 'about',
-        'content'          => '<h2>About PDFThings</h2>
+                'meta_title'       => 'Terms of Service - PDFThings',
+                'meta_description' => 'Terms and conditions for using PDFThings PDF tools.',
+                'is_published'     => true,
+                'show_in_header'   => false,
+                'show_in_footer'   => true,
+                'menu_order'       => 2,
+            ],
+            [
+                'title'            => 'About Us',
+                'slug'             => 'about',
+                'content'          => '<h2>About PDFThings</h2>
 
 <p>PDFThings is a free, privacy-first suite of PDF tools designed to make working with PDFs simple and accessible for everyone.</p>
 
@@ -127,18 +129,17 @@ $pages = [
 
 <h3>Contact Us</h3>
 <p>Have questions or feedback? We would love to hear from you.</p>',
-        'meta_title'       => 'About PDFThings - Free Online PDF Tools',
-        'meta_description' => 'Learn about PDFThings, a free privacy-first suite of online PDF tools.',
-        'is_published'     => true,
-        'show_in_header'   => true,
-        'show_in_footer'   => true,
-        'menu_order'       => 0,
-    ],
-];
+                'meta_title'       => 'About PDFThings - Free Online PDF Tools',
+                'meta_description' => 'Learn about PDFThings, a free privacy-first suite of online PDF tools.',
+                'is_published'     => true,
+                'show_in_header'   => true,
+                'show_in_footer'   => true,
+                'menu_order'       => 0,
+            ],
+        ];
 
-foreach ($pages as $data) {
-    Page::updateOrCreate(['slug' => $data['slug']], $data);
+        foreach ($pages as $data) {
+            Page::updateOrCreate(['slug' => $data['slug']], $data);
+        }
+    }
 }
-
-echo "Pages seeded successfully!" . PHP_EOL;
-echo "Total pages: " . Page::count() . PHP_EOL;
