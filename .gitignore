@@ -31,3 +31,7 @@ docker-compose.override.yml
 dump.rdb
 *.sqlite
 .phpunit.result.cache
+
+# Logs
+*.log
+server_log.txt

@@ -3,13 +3,19 @@ import { ListOrdered } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "Organize PDF — Rotate & Reorder Pages Online",
-  description: "Delete, reorder, or rotate pages in your PDF. Free and secure.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("organize-pdf", seo);
+}
 
-export default function OrganizePdfPage() {
+export default async function OrganizePdfPage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["organize-pdf"];
+
   return (
     <div>
       <ToolPageHeader
@@ -58,6 +64,9 @@ export default function OrganizePdfPage() {
             <li>Leave blank to keep all pages</li>
           </ul>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("organize-pdf")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="organize-pdf" />
       </div>
     </div>
   );

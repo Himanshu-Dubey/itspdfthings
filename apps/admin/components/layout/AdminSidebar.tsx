@@ -15,6 +15,7 @@ import {
   LogOut,
   Zap,
   PackagePlus,
+  Search,
 } from "lucide-react";
 import { useAdminAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
@@ -28,6 +29,9 @@ const navItems = [
   { label: "Abuse",        href: "/abuse",        icon: ShieldAlert,     section: "main" },
   { label: "Plans",        href: "/plans",        icon: PackagePlus,     section: "billing" },
   { label: "Stripe",       href: "/stripe",       icon: Zap,             section: "billing" },
+  { label: "Razorpay",     href: "/razorpay",     icon: CreditCard,      section: "billing" },
+  { label: "Pages",         href: "/pages",         icon: ClipboardList,   section: "system" },
+  { label: "SEO",           href: "/seo",           icon: Search,          section: "system" },
   { label: "Settings",     href: "/settings",     icon: Settings,        section: "system" },
   { label: "Audit Log",    href: "/audit-log",    icon: ClipboardList,   section: "system" },
   { label: "System Health",href: "/system",       icon: Server,          section: "system" },

@@ -3,13 +3,19 @@ import { Scissors } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "Split PDF — Extract Pages Online Free",
-  description: "Split a PDF into individual pages or extract a page range. Free and secure.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("split-pdf", seo);
+}
 
-export default function SplitPdfPage() {
+export default async function SplitPdfPage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["split-pdf"];
+
   return (
     <div>
       <ToolPageHeader
@@ -45,6 +51,9 @@ export default function SplitPdfPage() {
             <li>Click <strong>Split PDF</strong> — you&apos;ll download a ZIP of all pages.</li>
           </ol>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("split-pdf")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="split-pdf" />
       </div>
     </div>
   );

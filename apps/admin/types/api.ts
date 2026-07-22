@@ -242,3 +242,52 @@ export interface AuditLogResponse {
   logs: AuditLogEntry[];
   meta: PaginationMeta;
 }
+
+// ── SEO ──────────────────────────────────────────────────────────────────────
+
+export interface SeoFaqItem {
+  q: string;
+  a: string;
+}
+
+export interface SeoPageData {
+  title: string;
+  description: string;
+  og_title: string;
+  og_description: string;
+  og_image: string;
+  twitter_title: string;
+  twitter_description: string;
+  keywords: string[];
+  faq: SeoFaqItem[];
+}
+
+export interface SeoGlobalData {
+  site_name: string;
+  site_description: string;
+  default_og_image: string;
+  twitter_handle: string;
+  facebook_app_id: string;
+}
+
+export interface SeoResponse {
+  global: SeoGlobalData;
+  pages: Record<string, SeoPageData | null>;
+}
+
+// ── Pages (static content) ──────────────────────────────────────────────────────
+
+export interface PageEntry {
+  id: number;
+  title: string;
+  slug: string;
+  content: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  is_published: boolean;
+  show_in_header: boolean;
+  show_in_footer: boolean;
+  menu_order: number;
+  created_at: string;
+  updated_at: string;
+}

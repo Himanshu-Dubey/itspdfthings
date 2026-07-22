@@ -3,13 +3,19 @@ import { Minimize2 } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "Compress PDF — Reduce File Size Online Free",
-  description: "Reduce your PDF file size without losing quality. Choose your compression level.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("compress-pdf", seo);
+}
 
-export default function CompressPdfPage() {
+export default async function CompressPdfPage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["compress-pdf"];
+
   return (
     <div>
       <ToolPageHeader
@@ -50,6 +56,9 @@ export default function CompressPdfPage() {
             <li><strong>High</strong> — 300 dpi, near-print quality with modest size reduction.</li>
           </ul>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("compress-pdf")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="compress-pdf" />
       </div>
     </div>
   );

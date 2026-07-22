@@ -5,16 +5,27 @@ import Link from "next/link";
 import { useState } from "react";
 import { Heart, Menu, X } from "lucide-react";
 
-const NAV_LINKS = [
+const TOOL_LINKS = [
   { href: "/merge-pdf", label: "Merge PDF" },
   { href: "/split-pdf", label: "Split PDF" },
   { href: "/compress-pdf", label: "Compress PDF" },
   { href: "/", label: "All tools" },
 ];
 
-export function SiteHeader() {
+interface NavPage {
+  id: number;
+  title: string;
+  slug: string;
+}
+
+export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    ...TOOL_LINKS,
+    ...headerPages.map((p) => ({ href: `/${p.slug}`, label: p.title })),
+  ];
 
   return (
     <header className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/10">
@@ -27,7 +38,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-zinc-400">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="hover:text-white transition-colors">
               {link.label}
             </Link>
@@ -82,7 +93,7 @@ export function SiteHeader() {
 
       {mobileOpen && (
         <nav className="md:hidden border-t border-white/10 bg-zinc-950 px-4 py-4 space-y-1">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}

@@ -3,13 +3,19 @@ import { FileImage } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "PDF to Image — Export PDF Pages as JPG/PNG Free",
-  description: "Convert PDF pages to high-quality JPG or PNG images. Download as a ZIP archive.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("pdf-to-image", seo);
+}
 
-export default function PdfToImagePage() {
+export default async function PdfToImagePage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["pdf-to-image"];
+
   return (
     <div>
       <ToolPageHeader
@@ -56,6 +62,9 @@ export default function PdfToImagePage() {
         <ToolInfoCard title="Output">
           <p>You&apos;ll receive a ZIP archive containing one image per PDF page (e.g. <code>page-1.jpg</code>, <code>page-2.jpg</code>, …).</p>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("pdf-to-image")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="pdf-to-image" />
       </div>
     </div>
   );

@@ -3,13 +3,19 @@ import { Droplet } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "Watermark PDF — Add Text Watermark Online Free",
-  description: "Add a custom text watermark to every page of your PDF. Control opacity and angle.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("watermark-pdf", seo);
+}
 
-export default function WatermarkPdfPage() {
+export default async function WatermarkPdfPage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["watermark-pdf"];
+
   return (
     <div>
       <ToolPageHeader
@@ -66,6 +72,9 @@ export default function WatermarkPdfPage() {
         <ToolInfoCard title="About watermarks">
           <p>The watermark is rendered in grey at your chosen opacity and angle, centered on every page.</p>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("watermark-pdf")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="watermark-pdf" />
       </div>
     </div>
   );

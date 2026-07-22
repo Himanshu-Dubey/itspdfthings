@@ -3,13 +3,19 @@ import { Image as ImageIcon } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "Image to PDF — Convert JPG/PNG to PDF Online Free",
-  description: "Convert JPG, PNG, WebP or other images to a PDF file instantly. Free and secure.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("image-to-pdf", seo);
+}
 
-export default function ImageToPdfPage() {
+export default async function ImageToPdfPage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["image-to-pdf"];
+
   return (
     <div>
       <ToolPageHeader
@@ -36,6 +42,9 @@ export default function ImageToPdfPage() {
           <p>JPG, JPEG, PNG, WebP, GIF, TIFF — up to 20 images at once.</p>
           <p>When you select multiple images, each image becomes one page in the output PDF.</p>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("image-to-pdf")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="image-to-pdf" />
       </div>
     </div>
   );

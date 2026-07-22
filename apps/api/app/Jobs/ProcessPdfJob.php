@@ -101,7 +101,7 @@ abstract class ProcessPdfJob implements ShouldQueue
 
         if (! $process->isSuccessful()) {
             throw new \RuntimeException(
-                'Command failed (exit '.$process->getExitCode().'): '.$process->getErrorOutput().$process->getOutput()
+                $this->humanizeError($process->getErrorOutput().$process->getOutput())
             );
         }
     }
@@ -118,6 +118,56 @@ abstract class ProcessPdfJob implements ShouldQueue
             array_map('unlink', glob($dir.'/*') ?: []);
             @rmdir($dir);
         }
+    }
+
+    /**
+     * Convert raw CLI error output into a short, user-friendly message.
+     * Strips file paths, exit codes, and internal tool details.
+     */
+    private function humanizeError(string $raw): string
+    {
+        $raw = trim($raw);
+
+        // Common qpdf errors
+        if (str_contains($raw, 'out of range')) {
+            return 'The page range you entered is invalid for this PDF. Please check the number of pages and try again.';
+        }
+        if (str_contains($raw, 'parsing numeric range')) {
+            return 'The page range format is invalid. Use formats like 1-3, 5, or 7-10.';
+        }
+        if (str_contains($raw, 'not a valid password')) {
+            return 'The password you entered is incorrect.';
+        }
+        if (str_contains($raw, 'file is not a PDF') || str_contains($raw, 'not a pdf')) {
+            return 'The uploaded file is not a valid PDF.';
+        }
+        if (str_contains($raw, 'is encrypted') || str_contains($raw, 'password protected')) {
+            return 'This PDF is password-protected. Please unlock it first.';
+        }
+        if (str_contains($raw, 'permission denied') || str_contains($raw, 'EACCES')) {
+            return 'Permission denied. The file may be in use.';
+        }
+        if (str_contains($raw, 'No such file')) {
+            return 'The uploaded file could not be found. Please try uploading again.';
+        }
+        if (str_contains($raw, 'timed out') || str_contains($raw, 'timeout')) {
+            return 'The operation took too long. Try with a smaller file.';
+        }
+
+        // Fallback: strip file paths and return generic message
+        // Remove anything that looks like a Windows or Unix file path
+        $cleaned = preg_replace('/[A-Z]:\\\\[^\s:]+/i', '', $raw);
+        $cleaned = preg_replace('/\/[^\s:]+/', '', $cleaned);
+        $cleaned = preg_replace('/Command failed \(exit \d+\):\s*/', '', $cleaned);
+        $cleaned = trim($cleaned);
+
+        if ($cleaned !== '') {
+            // Cap at 200 chars for display
+            $cleaned = mb_strlen($cleaned) > 200 ? mb_substr($cleaned, 0, 200).'…' : $cleaned;
+            return 'Something went wrong: '.$cleaned;
+        }
+
+        return 'An unexpected error occurred while processing your PDF. Please try again.';
     }
 
     public function failed(Throwable $e): void

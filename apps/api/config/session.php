@@ -157,7 +157,7 @@ return [
     */
 
     // Must cover both api. and app. subdomains; leading dot = all subdomains.
-    'domain' => env('SESSION_DOMAIN', '.itspdfthings.com'),
+    'domain' => env('SESSION_DOMAIN'),
 
     /*
     |--------------------------------------------------------------------------

@@ -17,10 +17,14 @@ import {
   ArrowUpRight,
   Sparkles,
 } from "lucide-react";
+import { getSeoData, buildPageMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "PDFThings — Free PDF Tools Online",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("homepage", seo);
+}
 
 const TOOLS = [
   {
@@ -100,7 +104,7 @@ const FLOAT_CHIPS = [
 
 async function getEnabledTools(): Promise<Record<string, boolean>> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://api.itspdfthings.com";
+    const apiUrl = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://api.itspdfthings.com";
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(`${apiUrl}/api/tools/status`, {
@@ -117,7 +121,8 @@ async function getEnabledTools(): Promise<Record<string, boolean>> {
 }
 
 export default async function HomePage() {
-  const toolsEnabled = await getEnabledTools();
+  const [toolsEnabled, seo] = await Promise.all([getEnabledTools(), getSeoData()]);
+  const homepageData = seo.pages["homepage"];
 
   // If the settings object is empty (never saved yet), treat all as enabled.
   const hasSettings = Object.keys(toolsEnabled).length > 0;
@@ -288,6 +293,39 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ */}
+      <div className="max-w-3xl mx-auto px-4 pb-16">
+        <FaqSection faqs={homepageData?.faq ?? []} pageSlug="homepage" />
+      </div>
+
+      {/* Structured data */}
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "PDFThings",
+        url: "https://itspdfthings.com",
+        description: "Merge, split, compress, and convert PDFs online. Fast, free, and private.",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: "https://itspdfthings.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string",
+        },
+      }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "PDFThings",
+        applicationCategory: "UtilitiesApplication",
+        operatingSystem: "Web",
+        url: "https://itspdfthings.com",
+        description: "Free online PDF tools — merge, split, compress, convert, watermark, and protect PDFs.",
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      }} />
     </div>
   );
 }

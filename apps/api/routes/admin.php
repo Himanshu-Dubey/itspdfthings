@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\JobsAdminController;
 use App\Http\Controllers\Admin\PlanController;
+use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StripeConfigController;
 use App\Http\Controllers\Admin\SubscriptionAdminController;
@@ -59,6 +60,11 @@ Route::middleware('auth.admin')->group(function () {
     Route::patch('stripe/config', [StripeConfigController::class, 'update']);
     Route::post('stripe/test',    [StripeConfigController::class, 'test']);
 
+    // Razorpay configuration
+    Route::get('razorpay/config',   [\App\Http\Controllers\Admin\RazorpayConfigController::class, 'index']);
+    Route::patch('razorpay/config', [\App\Http\Controllers\Admin\RazorpayConfigController::class, 'update']);
+    Route::post('razorpay/test',    [\App\Http\Controllers\Admin\RazorpayConfigController::class, 'test']);
+
     // Subscriptions (Cashier data)
     Route::get('subscriptions',         [SubscriptionAdminController::class, 'index']);
     Route::get('subscriptions/metrics', [SubscriptionAdminController::class, 'metrics']);
@@ -68,4 +74,16 @@ Route::middleware('auth.admin')->group(function () {
     Route::post('plans',         [PlanController::class, 'store']);
     Route::patch('plans/{id}',   [PlanController::class, 'update']);
     Route::delete('plans/{id}',  [PlanController::class, 'destroy']);
+
+    // Pages (static content)
+    Route::get('pages',          [\App\Http\Controllers\Admin\PageController::class, 'index']);
+    Route::post('pages',         [\App\Http\Controllers\Admin\PageController::class, 'store']);
+    Route::get('pages/{id}',     [\App\Http\Controllers\Admin\PageController::class, 'show']);
+    Route::patch('pages/{id}',   [\App\Http\Controllers\Admin\PageController::class, 'update']);
+    Route::delete('pages/{id}',  [\App\Http\Controllers\Admin\PageController::class, 'destroy']);
+
+    // SEO
+    Route::get('seo',          [SeoController::class, 'index']);
+    Route::patch('seo',        [SeoController::class, 'update']);
+    Route::post('seo/upload-og', [SeoController::class, 'uploadOg']);
 });

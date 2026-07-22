@@ -9,12 +9,14 @@ import type {
   JobsResponse,
   JobStatsResponse,
   ManagedUser,
+  PageEntry,
   Plan,
   PlanPayload,
   PlansResponse,
   QueueStatus,
   SettingsResponse,
   StripeConfigResponse,
+  SeoResponse,
   SubscriptionMetrics,
   SubscriptionsResponse,
   SystemHealth,
@@ -186,4 +188,62 @@ export const adminApi = {
 
   testStripeConnection: () =>
     request<{ ok: boolean; message: string }>("/stripe/test", { method: "POST" }),
+
+  // ── Razorpay configuration ────────────────────────────────────────────────
+  getRazorpayConfig: () =>
+    request<StripeConfigResponse>("/razorpay/config"),
+
+  updateRazorpayConfig: (data: Record<string, string>) =>
+    request<StripeConfigResponse>("/razorpay/config", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  testRazorpayConnection: () =>
+    request<{ ok: boolean; message: string }>("/razorpay/test", { method: "POST" }),
+
+  // ── Pages (static content) ───────────────────────────────────────────────
+  getPages: () =>
+    request<{ pages: PageEntry[] }>("/pages"),
+
+  getPage: (id: number) =>
+    request<{ page: PageEntry }>(`/pages/${id}`),
+
+  createPage: (data: Partial<PageEntry>) =>
+    request<{ page: PageEntry }>("/pages", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updatePage: (id: number, data: Partial<PageEntry>) =>
+    request<{ page: PageEntry }>(`/pages/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deletePage: (id: number) =>
+    request<{ message: string }>(`/pages/${id}`, { method: "DELETE" }),
+
+  // ── SEO ──────────────────────────────────────────────────────────────────
+  getSeo: () => request<SeoResponse>("/seo"),
+
+  updateSeo: (settings: Record<string, string>) =>
+    request<{ message: string }>("/seo", {
+      method: "PATCH",
+      body: JSON.stringify({ settings }),
+    }),
+
+  uploadOgImage: async (file: File) => {
+    await fetchCsrfCookie();
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`${API_URL}/api/admin/seo/upload-og`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "X-XSRF-TOKEN": getCsrfToken() },
+      body: formData,
+    });
+    if (!res.ok) throw new Error("Upload failed");
+    return res.json() as Promise<{ url: string }>;
+  },
 };

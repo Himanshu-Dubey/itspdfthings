@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SiteChrome } from "@/components/layout/SiteChrome";
+import CookieConsent from "@/components/CookieConsent";
 import { Wrench } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -18,12 +19,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://itspdfthings.com"),
   title: {
     default: "PDFThings — Free PDF Tools Online",
     template: "%s | PDFThings",
   },
   description:
     "Merge, split, compress, and convert PDFs online. Fast, free, and private — files deleted after 12 hours.",
+  openGraph: {
+    siteName: "PDFThings",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 interface SiteStatus {
@@ -33,6 +43,17 @@ interface SiteStatus {
     link: string | null;
     expires_at: string | null;
   };
+}
+
+interface NavPage {
+  id: number;
+  title: string;
+  slug: string;
+}
+
+interface NavigationData {
+  header: NavPage[];
+  footer: NavPage[];
 }
 
 async function getSiteStatus(): Promise<SiteStatus> {
@@ -58,6 +79,23 @@ function isAnnouncementActive(ann: SiteStatus["announcement"]): boolean {
   return new Date(ann.expires_at) > new Date();
 }
 
+async function getNavigation(): Promise<NavigationData> {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://api.itspdfthings.com";
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`${apiUrl}/api/pages/navigation`, {
+      next: { revalidate: 300 },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return { header: [], footer: [] };
+    return res.json();
+  } catch {
+    return { header: [], footer: [] };
+  }
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -65,6 +103,7 @@ export default async function RootLayout({
 }>) {
   const status = await getSiteStatus();
   const showAnnouncement = isAnnouncementActive(status.announcement);
+  const navigation = await getNavigation();
 
   return (
     <html
@@ -78,9 +117,11 @@ export default async function RootLayout({
           <AuthProvider>
             <SiteChrome
               announcement={showAnnouncement ? status.announcement : null}
+              navigation={navigation}
             >
               {children}
             </SiteChrome>
+            <CookieConsent />
           </AuthProvider>
         )}
       </body>

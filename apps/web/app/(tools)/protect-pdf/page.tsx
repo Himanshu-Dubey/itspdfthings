@@ -3,13 +3,19 @@ import { Lock } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "Protect & Unlock PDF — Password-Protect PDFs Free",
-  description: "Add a password to your PDF or remove an existing password. Fast and free.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("protect-pdf", seo);
+}
 
-export default function ProtectPdfPage() {
+export default async function ProtectPdfPage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["protect-pdf"];
+
   return (
     <div>
       <ToolPageHeader
@@ -53,6 +59,9 @@ export default function ProtectPdfPage() {
           <p>Protection uses 256-bit AES encryption. To unlock a PDF, enter the current password. If the PDF has no password, leave the password field blank.</p>
           <p>Files are deleted from our servers after 12 hours.</p>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("protect-pdf")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="protect-pdf" />
       </div>
     </div>
   );

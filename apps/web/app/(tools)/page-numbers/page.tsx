@@ -3,13 +3,19 @@ import { Hash } from "lucide-react";
 import { PdfToolWidget } from "@/components/tools/PdfToolWidget";
 import { ToolPageHeader } from "@/components/tools/ToolPageHeader";
 import { ToolInfoCard } from "@/components/tools/ToolInfoCard";
+import { getSeoData, buildPageMetadata, buildToolJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/tools/JsonLd";
+import { FaqSection } from "@/components/tools/FaqSection";
 
-export const metadata: Metadata = {
-  title: "Add Page Numbers to PDF — Free Online",
-  description: "Stamp sequential page numbers onto every page of your PDF. Choose position and starting number.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getSeoData();
+  return buildPageMetadata("page-numbers", seo);
+}
 
-export default function PageNumbersPage() {
+export default async function PageNumbersPage() {
+  const seo = await getSeoData();
+  const pageData = seo.pages["page-numbers"];
+
   return (
     <div>
       <ToolPageHeader
@@ -54,6 +60,9 @@ export default function PageNumbersPage() {
         <ToolInfoCard title="About page numbers">
           <p>Numbers are stamped in black at the position you choose, starting from the number you set.</p>
         </ToolInfoCard>
+
+        <JsonLd data={buildToolJsonLd("page-numbers")} />
+        <FaqSection faqs={pageData?.faq ?? []} pageSlug="page-numbers" />
       </div>
     </div>
   );

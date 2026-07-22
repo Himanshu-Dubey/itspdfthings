@@ -14,12 +14,25 @@ interface Announcement {
   expires_at: string | null;
 }
 
+interface NavPage {
+  id: number;
+  title: string;
+  slug: string;
+}
+
+interface NavigationData {
+  header: NavPage[];
+  footer: NavPage[];
+}
+
 export function SiteChrome({
   children,
   announcement,
+  navigation,
 }: {
   children: React.ReactNode;
   announcement?: Announcement | null;
+  navigation?: NavigationData;
 }) {
   const pathname = usePathname();
   const chromeless = CHROMELESS_ROUTES.includes(pathname);
@@ -59,7 +72,7 @@ export function SiteChrome({
           </div>
         </div>
       )}
-      <SiteHeader />
+      <SiteHeader headerPages={navigation?.header ?? []} />
       <main className="flex-1">{children}</main>
       <footer className="border-t border-border-soft py-8 text-center text-sm text-ink-2">
         <div className="flex items-center justify-center gap-2 mb-3">
@@ -68,9 +81,20 @@ export function SiteChrome({
           </span>
           <span className="font-semibold text-ink">PDFThings</span>
         </div>
-        <div className="flex items-center justify-center gap-4 mb-2">
-          <Link href="/privacy" className="hover:text-ink transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="hover:text-ink transition-colors">Terms of Service</Link>
+        <div className="flex items-center justify-center gap-4 mb-2 flex-wrap">
+          {(navigation?.footer ?? []).length > 0
+            ? navigation!.footer.map((p) => (
+                <Link key={p.id} href={`/${p.slug}`} className="hover:text-ink transition-colors">
+                  {p.title}
+                </Link>
+              ))
+            : (
+              <>
+                <Link href="/privacy" className="hover:text-ink transition-colors">Privacy Policy</Link>
+                <Link href="/terms" className="hover:text-ink transition-colors">Terms of Service</Link>
+              </>
+            )
+          }
         </div>
         <p>© {new Date().getFullYear()} PDFThings. Files auto-deleted after 12 hours.</p>
       </footer>

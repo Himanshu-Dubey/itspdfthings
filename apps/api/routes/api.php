@@ -6,6 +6,8 @@ use App\Http\Controllers\PdfJobController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\RazorpayWebhookController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\PagePublicController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ToolStatusController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +44,22 @@ Route::get('/jobs/{id}', [PdfJobController::class, 'show']);
 | announcement banners, without a deploy.
 */
 Route::get('/tools/status', [ToolStatusController::class, 'index']);
+
+/*
+|--------------------------------------------------------------------------
+| Public SEO data
+|--------------------------------------------------------------------------
+| Returns all SEO metadata for the web app to consume.
+*/
+Route::get('/seo', [SeoController::class, 'index']);
+
+/*
+|--------------------------------------------------------------------------
+| Public pages (static content)
+|--------------------------------------------------------------------------
+*/
+Route::get('/pages/navigation', [PagePublicController::class, 'navigation']);
+Route::get('/pages/{slug}', [PagePublicController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
