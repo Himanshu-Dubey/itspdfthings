@@ -102,10 +102,66 @@ import type { CreateJobResponse, JobHistoryResponse, JobStatusResponse } from "@
 
 export const jobs = {
   /**
-   * Create a PDF job. Supports:
-   * - Single file:  files = one File
-   * - Multi-file:   files = File[] (for merge, image-to-pdf)
-   * - Options:      arbitrary key-value pairs sent as a JSON string
+   * Create a PDF job with upload progress tracking.
+   * Uses XMLHttpRequest instead of fetch so we can report upload percentage.
+   */
+  createWithProgress(
+    files: File | File[],
+    toolType: string,
+    options: Record<string, string> = {},
+    onProgress?: (percent: number) => void,
+  ): Promise<CreateJobResponse> {
+    return new Promise<CreateJobResponse>((resolve, reject) => {
+      const form = new FormData();
+      form.append("tool_type", toolType);
+
+      const fileArray = Array.isArray(files) ? files : [files];
+      if (fileArray.length > 1) {
+        fileArray.forEach((f) => form.append("files[]", f));
+      } else {
+        form.append("file", fileArray[0]);
+      }
+      if (Object.keys(options).length > 0) {
+        form.append("options", JSON.stringify(options));
+      }
+
+      // Ensure CSRF cookie is set before the XHR request.
+      fetchCsrfCookie().then(() => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${DIRECT_API_URL}/api/jobs`);
+        xhr.withCredentials = true;
+        xhr.setRequestHeader("Accept", "application/json");
+
+        const token = getCsrfToken();
+        if (token) xhr.setRequestHeader("X-XSRF-TOKEN", token);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && onProgress) {
+            onProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        };
+
+        xhr.onload = () => {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(data as CreateJobResponse);
+            } else {
+              reject(new ApiError(xhr.status, data?.message ?? xhr.statusText, data));
+            }
+          } catch {
+            reject(new ApiError(xhr.status, xhr.statusText));
+          }
+        };
+
+        xhr.onerror = () => reject(new ApiError(0, "Network error"));
+        xhr.send(form);
+      }).catch(reject);
+    });
+  },
+
+  /**
+   * Create a PDF job (simple version, no progress).
    */
   async create(
     files: File | File[],

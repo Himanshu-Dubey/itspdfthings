@@ -33,7 +33,7 @@ export interface ToolConfig {
 
 type Phase =
   | { name: "idle" }
-  | { name: "uploading" }
+  | { name: "uploading"; progress: number }
   | { name: "polling"; jobId: string }
   | { name: "done"; job: Job }
   | { name: "error"; message: string };
@@ -132,7 +132,7 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
         }
       }
 
-      setPhase({ name: "uploading" });
+      setPhase({ name: "uploading", progress: 0 });
 
       const options: Record<string, string> = {};
       for (const [k, v] of Object.entries(fieldVals)) {
@@ -141,7 +141,12 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
 
       try {
         const input = config.multiple ? files : files[0];
-        const { job } = await jobs.create(input, config.toolType, options);
+        const { job } = await jobs.createWithProgress(
+          input,
+          config.toolType,
+          options,
+          (pct) => setPhase((prev) => prev.name === "uploading" ? { ...prev, progress: pct } : prev),
+        );
         setPhase({ name: "polling", jobId: job.id });
         startPolling(job.id);
       } catch (err) {
@@ -308,7 +313,23 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
         </p>
       )}
 
-      {/* Progress */}
+      {/* Upload progress */}
+      {phase.name === "uploading" && (
+        <div className="rounded-lg bg-sky-50 border border-sky-200 px-4 py-3 text-sm text-sky-700 space-y-2">
+          <div className="flex items-center gap-2">
+            <Loader2 size={14} className="shrink-0 animate-spin" />
+            <span>Uploading… {phase.progress}%</span>
+          </div>
+          <div className="w-full bg-sky-200 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-brand h-full rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${phase.progress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Processing (server-side) */}
       {phase.name === "polling" && (
         <div className="flex items-center gap-3 rounded-lg bg-sky-50 border border-sky-200 px-4 py-3 text-sm text-sky-700">
           <Loader2 size={16} className="shrink-0 animate-spin" />
@@ -322,7 +343,7 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
         disabled={files.length === 0 || busy}
         className="w-full bg-brand text-white py-3 rounded-xl font-semibold text-base hover:bg-brand-dark active:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-soft"
       >
-        {phase.name === "uploading" ? "Uploading…" : phase.name === "polling" ? "Processing…" : actionLabel}
+        {phase.name === "uploading" ? `Uploading… ${phase.progress}%` : phase.name === "polling" ? "Processing…" : actionLabel}
       </button>
     </form>
   );
