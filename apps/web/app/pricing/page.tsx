@@ -14,6 +14,14 @@ const FREE_FEATURES = [
   "Files auto-deleted after 12 hours",
 ];
 
+function parseFeatures(features: string[] | string | null): string[] {
+  if (!features) return [];
+  if (typeof features === "string") {
+    try { return JSON.parse(features); } catch { return []; }
+  }
+  return features;
+}
+
 export default function PricingPage() {
   const { user, loading: authLoading } = useAuth();
   const [allPlans, setAllPlans]       = useState<Plan[]>([]);
@@ -201,16 +209,19 @@ function PaidPlanCard({
         {showINR && <span className="ml-1 text-xs text-ink-2/60">via Razorpay</span>}
       </p>
 
-      {plan.features && plan.features.length > 0 && (
-        <ul className="space-y-3 text-sm text-ink-2 mb-8">
-          {plan.features.map((f) => (
-            <li key={f} className="flex gap-2.5 items-start">
-              <Check size={16} className="text-emerald-600 shrink-0 mt-0.5" />
-              {f}
-            </li>
-          ))}
-        </ul>
-      )}
+      {(() => {
+        const features = parseFeatures(plan.features);
+        return features.length > 0 ? (
+          <ul className="space-y-3 text-sm text-ink-2 mb-8">
+            {features.map((f) => (
+              <li key={f} className="flex gap-2.5 items-start">
+                <Check size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                {f}
+              </li>
+            ))}
+          </ul>
+        ) : null;
+      })()}
 
       {isPremium ? (
         <div className="block text-center w-full border border-border-soft text-ink-2 py-2.5 rounded-lg font-semibold text-sm">
