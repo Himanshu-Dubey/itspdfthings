@@ -45,6 +45,7 @@ export default function PricingPage() {
 
   const visible = allPlans.filter((p) => p.interval === interval);
   const hasPlans = visible.length > 0;
+  const hasBothIntervals = allPlans.some((p) => p.interval === "month") && allPlans.some((p) => p.interval === "year");
 
   const handleBuy = async (plan: Plan) => {
     if (authLoading) return;
@@ -68,8 +69,8 @@ export default function PricingPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-ink mb-3 tracking-tight">Simple pricing</h1>
           <p className="text-ink-2 text-lg mb-6">Start free. Upgrade when you need more.</p>
 
-          {/* Interval toggle — only shown when we have plans */}
-          {allPlans.length > 0 && (
+          {/* Interval toggle — only shown when both monthly and yearly plans exist */}
+          {hasBothIntervals && (
             <div className="inline-flex items-center gap-1 bg-slate-100 rounded-full p-1">
               {(["month", "year"] as PlanInterval[]).map((iv) => (
                 <button
