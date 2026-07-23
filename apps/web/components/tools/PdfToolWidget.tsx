@@ -188,6 +188,8 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
       window.open(url, "_blank");
     }
   }, []);
+
+  if (phase.name === "done") {
     return (
       <div className="rounded-2xl border border-border-soft bg-white p-10 text-center shadow-soft space-y-5">
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 mx-auto">
