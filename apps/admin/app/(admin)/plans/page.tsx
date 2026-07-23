@@ -220,27 +220,27 @@ export default function PlansPage() {
               <div className="grid grid-cols-3 gap-3">
                 <Field label="Price (USD)" required>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-2 text-sm pointer-events-none">$</span>
+                    <span className="absolute inset-y-0 left-0 flex items-center justify-center w-8 text-ink-2 text-sm font-medium pointer-events-none">$</span>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       value={form.price}
                       onChange={(e) => setForm((f) => ({ ...f, price: parseFloat(e.target.value) || 0 }))}
-                      className="input pl-8"
+                      className="input !pl-10"
                     />
                   </div>
                 </Field>
                 <Field label="Price (INR)" hint="For Indian users">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-2 text-sm pointer-events-none">₹</span>
+                    <span className="absolute inset-y-0 left-0 flex items-center justify-center w-8 text-ink-2 text-sm font-medium pointer-events-none">₹</span>
                     <input
                       type="number"
                       step="1"
                       min="0"
                       value={form.price_inr ?? ""}
                       onChange={(e) => setForm((f) => ({ ...f, price_inr: parseFloat(e.target.value) || 0 }))}
-                      className="input pl-8"
+                      className="input !pl-10"
                       placeholder="e.g. 799"
                     />
                   </div>
