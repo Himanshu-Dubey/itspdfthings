@@ -53,7 +53,6 @@ export function SocialAuthButtons() {
             onClick={() => setNotice(`${p.label} sign-in is coming soon.`)}
             className={`flex items-center justify-center gap-2 border rounded-lg py-2.5 text-sm font-semibold transition-colors cursor-pointer ${p.className}`}
           >
-            {p.icon}
             <span className="hidden sm:inline">{p.label}</span>
           </button>
         ))}
