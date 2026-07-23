@@ -9,7 +9,6 @@ const TOOL_LINKS = [
   { href: "/merge-pdf", label: "Merge PDF" },
   { href: "/split-pdf", label: "Split PDF" },
   { href: "/compress-pdf", label: "Compress PDF" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },
   { href: "/", label: "All tools" },
 ];
