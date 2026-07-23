@@ -172,7 +172,22 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
   const actionLabel = config.actionLabel ?? config.label;
 
   // ── Done state ───────────────────────────────────────────────────────────────
-  if (phase.name === "done") {
+  const handleDownload = useCallback(async (url: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  }, []);
     return (
       <div className="rounded-2xl border border-border-soft bg-white p-10 text-center shadow-soft space-y-5">
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 mx-auto">
@@ -180,14 +195,12 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
         </div>
         <p className="font-semibold text-ink text-lg">Done! Your file is ready.</p>
         {phase.job.download_url && (
-          <a
-            href={phase.job.download_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-xl font-semibold hover:bg-brand-dark transition-colors shadow-soft"
+          <button
+            onClick={() => handleDownload(phase.job.download_url!)}
+            className="inline-flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-xl font-semibold hover:bg-brand-dark transition-colors shadow-soft cursor-pointer"
           >
             Download result
-          </a>
+          </button>
         )}
         <div>
           <button onClick={reset} className="text-sm text-ink-2 hover:text-ink underline cursor-pointer">

@@ -115,6 +115,23 @@ export function EchoWidget({ toolType }: Props) {
     setState({ phase: "idle" });
   }, [stopPolling]);
 
+  const handleDownload = useCallback(async (url: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = "";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  }, []);
+
   const isProcessing =
     state.phase === "uploading" || state.phase === "polling";
 
@@ -124,13 +141,12 @@ export function EchoWidget({ toolType }: Props) {
         <div className="text-center space-y-4">
           <p className="text-green-600 font-medium">✓ Processing complete!</p>
           {state.job.download_url && (
-            <a
-              href={state.job.download_url}
-              className="inline-block bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-700"
-              download
+            <button
+              onClick={() => handleDownload(state.job.download_url!)}
+              className="inline-block bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-red-700 cursor-pointer"
             >
               Download result
-            </a>
+            </button>
           )}
           <div>
             <button
