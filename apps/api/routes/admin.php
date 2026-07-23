@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AbuseController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\CacheController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\JobsAdminController;
 use App\Http\Controllers\Admin\LeadsController;
@@ -89,6 +90,10 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('leads/{id}',     [LeadsController::class, 'show']);
     Route::patch('leads/{id}',   [LeadsController::class, 'update']);
     Route::delete('leads/{id}',  [LeadsController::class, 'destroy']);
+
+    // Cache management
+    Route::post('cache/clear',   [CacheController::class, 'clear']);
+    Route::get('cache/status',   [CacheController::class, 'status']);
 
     // SEO
     Route::get('seo',          [SeoController::class, 'index']);

@@ -272,4 +272,20 @@ export const adminApi = {
     if (!res.ok) throw new Error("Upload failed");
     return res.json() as Promise<{ url: string }>;
   },
+
+  // ── Cache management ────────────────────────────────────────────────────
+  clearCache: () =>
+    request<{ message: string; cleared: Record<string, string> }>("/cache/clear", { method: "POST" }),
+
+  getCacheStatus: () =>
+    request<{
+      cache_driver: string;
+      queue_driver: string;
+      disk_free_mb: number;
+      disk_total_mb: number;
+      php_version: string;
+      laravel_version: string;
+      memory_limit: string;
+      upload_max_filesize: string;
+    }>("/cache/status"),
 };
