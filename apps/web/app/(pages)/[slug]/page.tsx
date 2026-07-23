@@ -61,7 +61,7 @@ export default async function StaticPage({
         </h1>
         {page.content && (
           <div
-            className="prose prose-slate max-w-none prose-headings:text-ink prose-p:text-ink-2 prose-a:text-brand prose-li:text-ink-2"
+            className="cms-content"
             dangerouslySetInnerHTML={{ __html: page.content }}
           />
         )}

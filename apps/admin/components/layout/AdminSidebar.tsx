@@ -16,12 +16,14 @@ import {
   Zap,
   PackagePlus,
   Search,
+  MessageSquare,
 } from "lucide-react";
 import { useAdminAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 
 const navItems = [
   { label: "Dashboard",    href: "/dashboard",    icon: LayoutDashboard, section: "main" },
+  { label: "Leads",        href: "/leads",        icon: MessageSquare,   section: "main" },
   { label: "Users",        href: "/users",        icon: Users,           section: "main" },
   { label: "Subscriptions",href: "/subscriptions",icon: CreditCard,      section: "main" },
   { label: "Quotas & Tools", href: "/pricing",    icon: Tag,             section: "main" },

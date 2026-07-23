@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Card, CardBody } from "@/components/ui/Card";
 import { adminApi } from "@/lib/api";
 import type { PageEntry } from "@/types/api";
+import { RichEditor } from "@/components/RichEditor";
 
 const emptyPage: Partial<PageEntry> = {
   title: "",
@@ -221,13 +222,11 @@ export default function PagesPage() {
 
               {/* Content */}
               <div>
-                <label className="block text-xs font-semibold text-ink-2 mb-1">Content (HTML)</label>
-                <textarea
+                <label className="block text-xs font-semibold text-ink-2 mb-1">Content</label>
+                <RichEditor
                   value={form.content ?? ""}
-                  onChange={(e) => set("content", e.target.value)}
-                  rows={14}
-                  className="w-full rounded-xl border border-border-soft bg-white px-3 py-2 text-sm text-ink font-mono focus:outline-none focus:ring-2 focus:ring-brand/40 resize-y"
-                  placeholder="<h2>About Us</h2><p>Content here...</p>"
+                  onChange={(html) => set("content", html)}
+                  placeholder="Start writing page content…"
                 />
               </div>
 

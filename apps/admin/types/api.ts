@@ -291,3 +291,19 @@ export interface PageEntry {
   created_at: string;
   updated_at: string;
 }
+
+// ── Leads ─────────────────────────────────────────────────────────────────────
+
+export interface LeadEntry {
+  id: number;
+  name: string;
+  email: string;
+  subject: string | null;
+  message: string;
+  source: string;
+  status: string;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
+  updated_at: string;
+}

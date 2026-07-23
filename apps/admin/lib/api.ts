@@ -224,6 +224,31 @@ export const adminApi = {
   deletePage: (id: number) =>
     request<{ message: string }>(`/pages/${id}`, { method: "DELETE" }),
 
+  // ── Leads ───────────────────────────────────────────────────────────────
+  getLeads: (params: Record<string, string | number> = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).map(([k, v]) => [k, String(v)]),
+    ).toString();
+    return request<{ leads: LeadEntry[]; total: number; currentPage: number; lastPage: number }>(
+      `/leads${qs ? "?" + qs : ""}`,
+    );
+  },
+
+  getLeadStats: () =>
+    request<{ total: number; new: number; read: number; replied: number }>("/leads/stats"),
+
+  getLead: (id: number) =>
+    request<{ lead: LeadEntry }>(`/leads/${id}`),
+
+  updateLead: (id: number, data: { status: string }) =>
+    request<{ lead: LeadEntry }>(`/leads/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  deleteLead: (id: number) =>
+    request<{ message: string }>(`/leads/${id}`, { method: "DELETE" }),
+
   // ── SEO ──────────────────────────────────────────────────────────────────
   getSeo: () => request<SeoResponse>("/seo"),
 

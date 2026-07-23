@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\JobsAdminController;
+use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -81,6 +82,13 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('pages/{id}',     [\App\Http\Controllers\Admin\PageController::class, 'show']);
     Route::patch('pages/{id}',   [\App\Http\Controllers\Admin\PageController::class, 'update']);
     Route::delete('pages/{id}',  [\App\Http\Controllers\Admin\PageController::class, 'destroy']);
+
+    // Leads (contact form submissions)
+    Route::get('leads',          [LeadsController::class, 'index']);
+    Route::get('leads/stats',    [LeadsController::class, 'stats']);
+    Route::get('leads/{id}',     [LeadsController::class, 'show']);
+    Route::patch('leads/{id}',   [LeadsController::class, 'update']);
+    Route::delete('leads/{id}',  [LeadsController::class, 'destroy']);
 
     // SEO
     Route::get('seo',          [SeoController::class, 'index']);

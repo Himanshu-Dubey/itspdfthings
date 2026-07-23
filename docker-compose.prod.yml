@@ -24,6 +24,7 @@ services:
     volumes:
       - ./apps/api:/var/www/html
       - /var/www/html/vendor
+      - /var/www/html/bootstrap/cache
       - ./apps/api/.env.production:/var/www/html/.env
       - storage-data:/var/www/html/storage/app
     depends_on:

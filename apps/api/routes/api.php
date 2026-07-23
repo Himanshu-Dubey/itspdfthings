@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PdfJobController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\RazorpayWebhookController;
@@ -60,6 +61,13 @@ Route::get('/seo', [SeoController::class, 'index']);
 */
 Route::get('/pages/navigation', [PagePublicController::class, 'navigation']);
 Route::get('/pages/{slug}', [PagePublicController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| Contact form (public — saves lead to database)
+|--------------------------------------------------------------------------
+*/
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1');
 
 /*
 |--------------------------------------------------------------------------

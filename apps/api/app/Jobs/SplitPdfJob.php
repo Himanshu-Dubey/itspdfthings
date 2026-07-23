@@ -49,12 +49,15 @@ class SplitPdfJob extends ProcessPdfJob
             // No range specified → split every page into its own file.
             $this->exec([$this->tool('qpdf'), $inputFile, '--split-pages', $scratchDir.'/page-%d.pdf']);
 
-            $zipPath = $scratchDir.'/split.zip';
-            $zip     = new ZipArchive();
+            $baseName = pathinfo($pdfJob->input_path, PATHINFO_FILENAME);
+            $zipPath  = $scratchDir.'/split.zip';
+            $zip      = new ZipArchive();
             $zip->open($zipPath, ZipArchive::CREATE);
 
+            $i = 1;
             foreach (glob($scratchDir.'/page-*.pdf') ?: [] as $page) {
-                $zip->addFile($page, basename($page));
+                $zip->addFile($page, $baseName.'_page_'.$i.'.pdf');
+                $i++;
             }
             $zip->close();
 

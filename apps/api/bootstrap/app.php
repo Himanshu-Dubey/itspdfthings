@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // provide a token, and CORS already protects against misuse.
         $middleware->validateCsrfTokens(except: [
             'api/jobs',
+            'api/contact',
         ]);
 
         // Alias for admin route protection.
