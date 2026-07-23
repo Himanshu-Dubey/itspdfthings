@@ -3,7 +3,10 @@
  * All requests use credentials: 'include' for Sanctum SPA cookie auth.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.itspdfthings.com";
+// On Vercel, NEXT_PUBLIC_API_URL should NOT be set — requests go through
+// Next.js server-side rewrites (see next.config.ts) which proxy to the API.
+// Only set this env var for direct cross-origin access (not recommended).
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export class ApiError extends Error {
   constructor(
