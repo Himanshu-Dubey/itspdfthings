@@ -95,6 +95,7 @@ export function SiteChrome({
               </>
             )
           }
+          <Link href="/contact" className="hover:text-ink transition-colors">Contact</Link>
         </div>
         <p>© {new Date().getFullYear()} PDFThings. Files auto-deleted after 12 hours.</p>
       </footer>

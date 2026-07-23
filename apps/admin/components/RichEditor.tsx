@@ -97,7 +97,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert prose-zinc max-w-none min-h-[300px] px-4 py-3 focus:outline-none",
+          "tiptap max-w-none min-h-[300px] px-4 py-3 focus:outline-none",
       },
     },
   });
