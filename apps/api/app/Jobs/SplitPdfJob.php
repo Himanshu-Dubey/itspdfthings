@@ -12,29 +12,50 @@ class SplitPdfJob extends ProcessPdfJob
         $inputFile = $this->download($pdfJob->input_path, $scratchDir);
         $options   = $pdfJob->options ?? [];
 
-        // Optional page range: "1-3,5" keeps only those pages before splitting.
-        // Without it, every page becomes its own file.
         $range = $options['pages'] ?? null;
 
         if ($range) {
-            // Extract subset first, then split that.
-            $subset = $scratchDir.'/subset.pdf';
-            $this->exec([$this->tool('qpdf'), '--empty', '--pages', $inputFile, $range, '--', $subset]);
-            $inputFile = $subset;
+            // "1-2,3-4" → each comma group becomes its own PDF file.
+            $groups = array_map('trim', explode(',', $range));
+            $files  = [];
+
+            foreach ($groups as $i => $group) {
+                $out = $scratchDir.'/pages_'.str_replace('-', '_', $group).'.pdf';
+                $this->exec([$this->tool('qpdf'), '--empty', '--pages', $inputFile, $group, '--', $out]);
+                $files[] = $out;
+            }
+
+            if (count($files) === 1) {
+                // Single range → return as PDF directly.
+                $pdfJob->update(['output_path' => $this->upload($files[0], $pdfJob->id, 'split.pdf')]);
+                return;
+            }
+
+            // Multiple ranges → zip them.
+            $zipPath = $scratchDir.'/split.zip';
+            $zip     = new ZipArchive();
+            $zip->open($zipPath, ZipArchive::CREATE);
+
+            foreach ($files as $f) {
+                $zip->addFile($f, basename($f));
+            }
+            $zip->close();
+
+            $pdfJob->update(['output_path' => $this->upload($zipPath, $pdfJob->id, 'split.zip')]);
+        } else {
+            // No range specified → split every page into its own file.
+            $this->exec([$this->tool('qpdf'), $inputFile, '--split-pages', $scratchDir.'/page-%d.pdf']);
+
+            $zipPath = $scratchDir.'/split.zip';
+            $zip     = new ZipArchive();
+            $zip->open($zipPath, ZipArchive::CREATE);
+
+            foreach (glob($scratchDir.'/page-*.pdf') ?: [] as $page) {
+                $zip->addFile($page, basename($page));
+            }
+            $zip->close();
+
+            $pdfJob->update(['output_path' => $this->upload($zipPath, $pdfJob->id, 'split.zip')]);
         }
-
-        // qpdf splits to scratchDir/page-001.pdf, page-002.pdf, ...
-        $this->exec([$this->tool('qpdf'), $inputFile, '--split-pages', $scratchDir.'/page-%d.pdf']);
-
-        $zipPath = $scratchDir.'/split.zip';
-        $zip     = new ZipArchive();
-        $zip->open($zipPath, ZipArchive::CREATE);
-
-        foreach (glob($scratchDir.'/page-*.pdf') ?: [] as $page) {
-            $zip->addFile($page, basename($page));
-        }
-        $zip->close();
-
-        $pdfJob->update(['output_path' => $this->upload($zipPath, $pdfJob->id, 'split.zip')]);
     }
 }
