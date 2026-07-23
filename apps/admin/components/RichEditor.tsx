@@ -56,8 +56,8 @@ function ToolbarBtn({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`p-1.5 rounded hover:bg-zinc-700 transition-colors cursor-pointer ${
-        active ? "bg-zinc-700 text-red-400" : "text-zinc-400"
+      className={`p-1.5 rounded hover:bg-slate-100 transition-colors cursor-pointer ${
+        active ? "bg-slate-100 text-red-600" : "text-slate-500"
       } ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
     >
       {children}
@@ -66,7 +66,7 @@ function ToolbarBtn({
 }
 
 function Divider() {
-  return <div className="w-px h-5 bg-zinc-700 mx-0.5" />;
+  return <div className="w-px h-5 bg-slate-200 mx-0.5" />;
 }
 
 export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
@@ -128,9 +128,9 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
   if (!editor) return null;
 
   return (
-    <div className="border border-zinc-700 rounded-lg overflow-hidden bg-zinc-900">
+    <div className="border border-slate-200 rounded-lg overflow-hidden bg-white">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-zinc-700 bg-zinc-800/50">
+      <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 border-b border-slate-200 bg-slate-50">
         <ToolbarBtn
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
