@@ -8,6 +8,7 @@ import type {
   IpBlocklistEntry,
   JobsResponse,
   JobStatsResponse,
+  LeadEntry,
   ManagedUser,
   PageEntry,
   Plan,
