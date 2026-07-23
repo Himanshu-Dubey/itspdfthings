@@ -35,6 +35,9 @@ RUN mkdir -p /var/www/html/bootstrap/cache \
     && php artisan route:cache \
     && php artisan view:cache
 
+# PHP config overrides
+COPY docker/php-overrides.ini /usr/local/etc/php/conf.d/z-overrides.ini
+
 # Nginx config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
