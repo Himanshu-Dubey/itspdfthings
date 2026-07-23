@@ -12,7 +12,10 @@ class PagePublicController extends Controller
     {
         $page = Page::published()->where('slug', $slug)->firstOrFail();
 
-        return response()->json(['page' => $page]);
+        return response()->json(['page' => $page])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('X-Accel-Cache-Control', 'no-cache');
     }
 
     /** Public: get all published pages for header/footer navigation. */
@@ -24,6 +27,8 @@ class PagePublicController extends Controller
         return response()->json([
             'header' => $header,
             'footer' => $footer,
-        ]);
+        ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 }
