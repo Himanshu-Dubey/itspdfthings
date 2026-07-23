@@ -78,6 +78,6 @@ Add password protection to a PDF or remove an existing password.
 ## Social / Brand
 
 - Website: https://itspdfthings.com
-- About: https://itspdfthings.com/about-us
+- About: https://itspdfthings.com/about
 - Privacy Policy: https://itspdfthings.com/privacy-policy
 - Terms of Service: https://itspdfthings.com/terms-of-service
