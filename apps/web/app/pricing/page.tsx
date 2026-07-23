@@ -207,7 +207,6 @@ function PaidPlanCard({
       </p>
       <p className="text-sm text-ink-2 mb-6">
         Billed {plan.interval === "month" ? "monthly" : "yearly"}
-        {showINR && <span className="ml-1 text-xs text-ink-2/60">via Razorpay</span>}
       </p>
 
       {(() => {
@@ -234,7 +233,7 @@ function PaidPlanCard({
           disabled={busy}
           className="block w-full bg-brand text-white py-2.5 rounded-lg font-semibold hover:bg-brand-dark transition-colors disabled:opacity-50 cursor-pointer shadow-soft text-sm"
         >
-          {busy ? "Redirecting…" : billingProvider === "razorpay" ? "Pay with Razorpay" : "Get started"}
+          {busy ? "Redirecting…" : "Go Premium"}
         </button>
       )}
     </div>
@@ -287,7 +286,7 @@ function DefaultPremiumCard({ user, billingProvider, isIndia }: { user: { plan: 
             disabled={busy}
             className="block w-full bg-brand text-white py-2.5 rounded-lg font-semibold hover:bg-brand-dark transition-colors disabled:opacity-50 cursor-pointer shadow-soft"
           >
-            {busy ? "Redirecting…" : billingProvider === "razorpay" ? "Upgrade with Razorpay" : "Upgrade to Premium"}
+            {busy ? "Redirecting…" : "Go Premium"}
           </button>
           {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
         </div>
