@@ -326,6 +326,18 @@ export default async function HomePage() {
           priceCurrency: "USD",
         },
       }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: "PDFThings",
+        url: "https://itspdfthings.com",
+        logo: "https://itspdfthings.com/file.svg",
+        description: "PDFThings provides free online PDF tools including merge, split, compress, convert, watermark, and protect PDFs. No signup required, 256-bit encryption, files auto-deleted after 12 hours.",
+        sameAs: [
+          "https://itspdfthings.com/about",
+          "https://itspdfthings.com/llms.txt",
+        ],
+      }} />
     </div>
   );
 }

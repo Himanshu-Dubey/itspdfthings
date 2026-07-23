@@ -1,0 +1,33 @@
+# PDFThings — Free Online PDF Tools
+
+> PDFThings (https://itspdfthings.com) is a free, privacy-focused web app for working with PDF files. No signup required. No watermarks. Files auto-deleted after 12 hours.
+
+## Tools
+
+- [Merge PDF](https://itspdfthings.com/merge-pdf) — Combine multiple PDF files into one
+- [Split PDF](https://itspdfthings.com/split-pdf) — Extract specific pages or split into separate files
+- [Compress PDF](https://itspdfthings.com/compress-pdf) — Reduce PDF file size without losing quality
+- [Organize PDF](https://itspdfthings.com/organize-pdf) — Rotate, reorder, or delete pages
+- [Image to PDF](https://itspdfthings.com/image-to-pdf) — Convert JPG/PNG images to PDF
+- [PDF to Image](https://itspdfthings.com/pdf-to-image) — Export PDF pages as JPG/PNG images
+- [Watermark PDF](https://itspdfthings.com/watermark-pdf) — Add text or image watermarks
+- [Page Numbers](https://itspdfthings.com/page-numbers) — Add page numbers to PDF
+- [Protect PDF](https://itspdfthings.com/protect-pdf) — Password-protect or unlock a PDF
+
+## Key Features
+
+- Free with no signup required
+- 256-bit encryption for all files
+- Files auto-deleted after 12 hours
+- Browser-based — no install needed
+- Premium plans for higher limits
+
+## Pricing
+
+- Free tier: Basic tools, no account required
+- Premium: Higher limits and priority processing
+
+## Contact
+
+- Website: https://itspdfthings.com
+- About: https://itspdfthings.com/about-us

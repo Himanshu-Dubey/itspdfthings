@@ -9,16 +9,8 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/dashboard", "/login", "/register", "/profile", "/billing"],
       },
       {
-        userAgent: ["GPTBot", "ChatGPT-User", "CCBot"],
-        disallow: "/",
-      },
-      {
-        userAgent: "anthropic-ai",
-        disallow: "/",
-      },
-      {
-        userAgent: "Google-Extended",
-        disallow: "/",
+        userAgent: ["GPTBot", "ChatGPT-User", "anthropic-ai", "ClaudeBot"],
+        allow: "/",
       },
       {
         userAgent: "Bytespider",

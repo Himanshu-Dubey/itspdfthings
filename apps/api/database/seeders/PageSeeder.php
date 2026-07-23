@@ -100,37 +100,60 @@ class PageSeeder extends Seeder
                 'slug'             => 'about',
                 'content'          => '<h2>About PDFThings</h2>
 
-<p>PDFThings is a free, privacy-first suite of PDF tools designed to make working with PDFs simple and accessible for everyone.</p>
+<p>PDFThings is a free, privacy-first suite of online PDF tools designed to make working with PDF files simple and accessible for everyone. Whether you need to merge multiple PDFs into one, split a large document into smaller files, reduce file size for email, or convert images to PDF, PDFThings handles it all directly in your browser — no software installation required.</p>
 
 <h3>Our Mission</h3>
-<p>We believe PDF tools should be free, fast, and private. No sign-ups, no watermarks, no catches.</p>
+<p>We believe PDF tools should be free, fast, and private. No sign-ups, no watermarks, no catches. PDFThings was built to be a reliable alternative to expensive desktop software like Adobe Acrobat, giving everyone access to professional-grade PDF tools at no cost.</p>
 
 <h3>Why Choose PDFThings?</h3>
 <ul>
-<li><strong>Free:</strong> All core tools are completely free with no hidden charges.</li>
-<li><strong>Fast:</strong> Most operations complete in under a second.</li>
-<li><strong>Private:</strong> Your files are encrypted, processed securely, and deleted after 12 hours.</li>
-<li><strong>Simple:</strong> No account required. Just upload, process, and download.</li>
+<li><strong>Free:</strong> All core tools are completely free with no hidden charges. No account required for basic use.</li>
+<li><strong>Fast:</strong> Most operations complete in under a second using server-side processing with Ghostscript and Poppler.</li>
+<li><strong>Private:</strong> Your files are encrypted with 256-bit TLS encryption in transit, processed securely, and permanently deleted after 12 hours. We never access or share your files.</li>
+<li><strong>Simple:</strong> No account required. Just upload, process, and download. Works on any device with a modern browser.</li>
+<li><strong>Secure:</strong> Files are encrypted at rest and in transit. We follow industry-standard security practices.</li>
 </ul>
 
-<h3>Our Tools</h3>
-<p>We offer 9 powerful PDF tools:</p>
-<ul>
-<li>Merge PDF - Combine multiple PDFs into one</li>
-<li>Split PDF - Extract pages from a PDF</li>
-<li>Compress PDF - Reduce file size</li>
-<li>Organize PDF - Reorder, rotate, and delete pages</li>
-<li>Image to PDF - Convert images to PDF</li>
-<li>PDF to Image - Export PDF pages as images</li>
-<li>Watermark PDF - Add watermarks to PDFs</li>
-<li>Page Numbers - Add page numbers to PDFs</li>
-<li>Protect PDF - Add or remove password protection</li>
-</ul>
+<h3>Our 9 PDF Tools</h3>
+<p>PDFThings offers a complete set of PDF tools for every common task:</p>
+
+<h4>Merge PDF</h4>
+<p>Combine multiple PDF files into a single document. Upload up to 20 files at once, drag to reorder, and merge them in seconds. Perfect for combining reports, invoices, or any multi-file documents.</p>
+
+<h4>Split PDF</h4>
+<p>Extract specific pages from a PDF or split an entire document into separate files. Supports page ranges like 1-3, 5, 8-10, or split every page individually. Output files use the original filename.</p>
+
+<h4>Compress PDF</h4>
+<p>Reduce PDF file size without losing quality. Ideal for email attachments, web uploads, or meeting file size requirements. Uses Ghostscript-based optimization for the best compression-to-quality ratio.</p>
+
+<h4>Organize PDF</h4>
+<p>Rotate pages, reorder them by dragging, or delete unwanted pages from a PDF document. Quick and intuitive page management without any software.</p>
+
+<h4>Image to PDF</h4>
+<p>Convert JPG, PNG, and other image formats into a single PDF document. Supports multiple images with drag-and-drop reordering. Great for creating photo albums or combining scanned documents.</p>
+
+<h4>PDF to Image</h4>
+<p>Export each page of a PDF as a separate JPG or PNG image. Choose your output format and download individual pages or all pages at once.</p>
+
+<h4>Watermark PDF</h4>
+<p>Add text or image watermarks to every page of a PDF. Customize position, opacity, rotation, and size. Protect your documents or add branding effortlessly.</p>
+
+<h4>Page Numbers</h4>
+<p>Stamp sequential page numbers on each page of a PDF. Choose the position (bottom-center, bottom-right, top-center, etc.) and starting number.</p>
+
+<h4>Protect PDF</h4>
+<p>Add password protection to a PDF or remove an existing password. Keep your sensitive documents secure with industry-standard encryption.</p>
+
+<h3>Who Uses PDFThings?</h3>
+<p>PDFThings is used by students, professionals, freelancers, and businesses worldwide. Whether you are a student combining research papers, a professional compressing a report for email, or a business owner protecting sensitive contracts, PDFThings provides the tools you need without the cost or complexity of traditional PDF software.</p>
+
+<h3>Technology</h3>
+<p>PDFThings is built with modern web technologies including Next.js for the frontend, Laravel for the API, and Ghostscript with Poppler for server-side PDF processing. All processing happens on secure servers with encrypted file storage.</p>
 
 <h3>Contact Us</h3>
-<p>Have questions or feedback? We would love to hear from you.</p>',
+<p>Have questions, feedback, or need support? We would love to hear from you. Visit our website at <a href="https://itspdfthings.com">itspdfthings.com</a> to try our tools or get in touch.</p>',
                 'meta_title'       => 'About PDFThings - Free Online PDF Tools',
-                'meta_description' => 'Learn about PDFThings, a free privacy-first suite of online PDF tools.',
+                'meta_description' => 'Learn about PDFThings, a free privacy-first suite of 9 online PDF tools. Merge, split, compress, convert, watermark, and protect PDFs without installing software.',
                 'is_published'     => true,
                 'show_in_header'   => true,
                 'show_in_footer'   => true,
