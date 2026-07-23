@@ -15,6 +15,7 @@ const emptyForm = (): PlanPayload & { featuresRaw: string } => ({
   name:            "",
   description:     "",
   price:           9.99,
+  price_inr:       799,
   interval:        "month",
   stripe_price_id: "",
   features:        [],
@@ -56,6 +57,7 @@ export default function PlansPage() {
       name:            plan.name,
       description:     plan.description ?? "",
       price:           parseFloat(plan.price),
+      price_inr:       plan.price_inr ? parseFloat(plan.price_inr) : 0,
       interval:        plan.interval,
       stripe_price_id: plan.stripe_price_id ?? "",
       features:        plan.features ?? [],
@@ -73,6 +75,7 @@ export default function PlansPage() {
       name:            form.name,
       description:     form.description || null,
       price:           form.price,
+      price_inr:       form.price_inr || null,
       interval:        form.interval,
       stripe_price_id: form.stripe_price_id || null,
       features:        form.featuresRaw.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -214,7 +217,7 @@ export default function PlansPage() {
               </Field>
 
               {/* Price + Interval */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <Field label="Price (USD)" required>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-2 text-sm">$</span>
@@ -228,7 +231,21 @@ export default function PlansPage() {
                     />
                   </div>
                 </Field>
-                <Field label="Billing interval" required>
+                <Field label="Price (INR)" hint="For Indian users">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-2 text-sm">₹</span>
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={form.price_inr ?? ""}
+                      onChange={(e) => setForm((f) => ({ ...f, price_inr: parseFloat(e.target.value) || 0 }))}
+                      className="input pl-7"
+                      placeholder="e.g. 799"
+                    />
+                  </div>
+                </Field>
+                <Field label="Interval" required>
                   <select
                     value={form.interval}
                     onChange={(e) => setForm((f) => ({ ...f, interval: e.target.value as PlanInterval }))}
@@ -373,6 +390,9 @@ function PlanCard({
       {/* Price */}
       <div className="flex items-baseline gap-1">
         <span className="text-2xl font-bold text-ink">${parseFloat(plan.price).toFixed(2)}</span>
+        {plan.price_inr && (
+          <span className="text-sm text-ink-2">/ ₹{parseFloat(plan.price_inr).toLocaleString("en-IN")}</span>
+        )}
         <span className="text-sm text-ink-2">/ {INTERVAL_LABELS[plan.interval].toLowerCase().replace("ly", "")}</span>
       </div>
 

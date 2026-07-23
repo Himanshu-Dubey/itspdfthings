@@ -170,9 +170,20 @@ export default function PagesPage() {
         <div className="lg:col-span-2">
           <Card>
             <CardBody className="p-6 space-y-5">
-              <h3 className="text-base font-bold text-ink">
-                {editing ? `Editing: ${editing.title}` : "New Page"}
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-ink">
+                  {editing ? `Editing: ${editing.title}` : "New Page"}
+                </h3>
+                {editing && (
+                  <button
+                    onClick={save}
+                    disabled={isPending || !form.title}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-br from-red-500 to-brand-dark text-white text-xs font-bold shadow-brand hover:shadow-lg transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {isPending ? "Saving..." : "Save Changes"}
+                  </button>
+                )}
+              </div>
 
               {/* Title + Slug */}
               <div className="grid grid-cols-2 gap-4">

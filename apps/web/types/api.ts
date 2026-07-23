@@ -77,6 +77,7 @@ export interface Plan {
   slug: string;
   description: string | null;
   price: string;
+  price_inr: string | null;
   interval: PlanInterval;
   stripe_price_id: string | null;
   features: string[] | null;

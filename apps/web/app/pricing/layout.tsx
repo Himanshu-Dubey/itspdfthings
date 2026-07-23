@@ -24,13 +24,22 @@ export default async function PricingLayout({ children }: { children: React.Reac
         name: "PDFThings Premium",
         description: "Unlimited PDF tools, higher file size limits, priority processing.",
         brand: { "@type": "Brand", name: "PDFThings" },
-        offers: {
-          "@type": "Offer",
-          priceCurrency: "USD",
-          price: "9.99",
-          availability: "https://schema.org/InStock",
-          url: "https://itspdfthings.com/pricing",
-        },
+        offers: [
+          {
+            "@type": "Offer",
+            priceCurrency: "USD",
+            price: "9.99",
+            availability: "https://schema.org/InStock",
+            url: "https://itspdfthings.com/pricing",
+          },
+          {
+            "@type": "Offer",
+            priceCurrency: "INR",
+            price: "799",
+            availability: "https://schema.org/InStock",
+            url: "https://itspdfthings.com/pricing",
+          },
+        ],
       }} />
     </>
   );

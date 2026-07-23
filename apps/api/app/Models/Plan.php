@@ -12,6 +12,7 @@ class Plan extends Model
         'slug',
         'description',
         'price',
+        'price_inr',
         'interval',
         'stripe_price_id',
         'features',
@@ -20,9 +21,10 @@ class Plan extends Model
     ];
 
     protected $casts = [
-        'price'     => 'decimal:2',
-        'features'  => 'array',
-        'is_active' => 'boolean',
+        'price'      => 'decimal:2',
+        'price_inr'  => 'decimal:2',
+        'features'   => 'array',
+        'is_active'  => 'boolean',
     ];
 
     public function scopeActive(Builder $query): Builder

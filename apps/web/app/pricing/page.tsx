@@ -22,6 +22,7 @@ export default function PricingPage() {
   const [busy, setBusy]               = useState<number | null>(null);
   const [error, setError]             = useState<string | null>(null);
   const [billingProvider, setBillingProvider] = useState<"stripe" | "razorpay">("stripe");
+  const [isIndia, setIsIndia] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -30,6 +31,7 @@ export default function PricingPage() {
     ]).then(([plansRes, geoRes]) => {
       setAllPlans(plansRes.plans);
       setBillingProvider(geoRes.billing_provider);
+      setIsIndia(geoRes.is_india);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -102,7 +104,7 @@ export default function PricingPage() {
             {/* Free plan — always shown first */}
             <div className="rounded-2xl border border-border-soft bg-white p-8 shadow-soft">
               <h2 className="text-lg font-semibold text-ink">Free</h2>
-              <p className="text-4xl font-bold text-ink mt-2 mb-1">$0</p>
+              <p className="text-4xl font-bold text-ink mt-2 mb-1">{isIndia ? "₹0" : "$0"}</p>
               <p className="text-sm text-ink-2 mb-6">Forever free</p>
               <ul className="space-y-3 text-sm text-ink-2 mb-8">
                 {FREE_FEATURES.map((f) => (
@@ -137,11 +139,12 @@ export default function PricingPage() {
                   busy={busy === plan.id}
                   onBuy={() => handleBuy(plan)}
                   billingProvider={billingProvider}
+                  isIndia={isIndia}
                 />
               ))
             ) : (
               /* No plans in DB yet — fall back to hardcoded Premium card */
-              <DefaultPremiumCard user={user} billingProvider={billingProvider} />
+              <DefaultPremiumCard user={user} billingProvider={billingProvider} isIndia={isIndia} />
             )}
           </div>
         )}
@@ -157,6 +160,7 @@ function PaidPlanCard({
   busy,
   onBuy,
   billingProvider,
+  isIndia,
 }: {
   plan: Plan;
   featured: boolean;
@@ -164,8 +168,10 @@ function PaidPlanCard({
   busy: boolean;
   onBuy: () => void;
   billingProvider?: "stripe" | "razorpay";
+  isIndia?: boolean;
 }) {
   const isPremium = user?.plan === "premium";
+  const showINR = isIndia && plan.price_inr;
 
   return (
     <div className={`rounded-2xl bg-white p-8 relative shadow-soft ${
@@ -181,13 +187,18 @@ function PaidPlanCard({
         <p className="text-sm text-ink-2 mt-0.5 mb-1">{plan.description}</p>
       )}
       <p className="text-4xl font-bold text-ink mt-2 mb-1">
-        ${parseFloat(plan.price).toFixed(2)}
+        {showINR ? (
+          <>₹{parseFloat(plan.price_inr!).toLocaleString("en-IN")}</>
+        ) : (
+          <>${parseFloat(plan.price).toFixed(2)}</>
+        )}
         <span className="text-base font-normal text-ink-2">
           /{plan.interval === "month" ? "mo" : "yr"}
         </span>
       </p>
       <p className="text-sm text-ink-2 mb-6">
         Billed {plan.interval === "month" ? "monthly" : "yearly"}
+        {showINR && <span className="ml-1 text-xs text-ink-2/60">via Razorpay</span>}
       </p>
 
       {plan.features && plan.features.length > 0 && (
@@ -218,7 +229,7 @@ function PaidPlanCard({
   );
 }
 
-function DefaultPremiumCard({ user, billingProvider }: { user: { plan: string } | null; billingProvider?: "stripe" | "razorpay" }) {
+function DefaultPremiumCard({ user, billingProvider, isIndia }: { user: { plan: string } | null; billingProvider?: "stripe" | "razorpay"; isIndia?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isPremium = user?.plan === "premium";
@@ -243,7 +254,7 @@ function DefaultPremiumCard({ user, billingProvider }: { user: { plan: string } 
       </span>
       <h2 className="text-lg font-semibold text-ink">Premium</h2>
       <p className="text-4xl font-bold text-ink mt-2 mb-6">
-        $9.99<span className="text-base font-normal text-ink-2">/mo</span>
+        {isIndia ? <>₹799<span className="text-base font-normal text-ink-2">/mo</span></> : <>$9.99<span className="text-base font-normal text-ink-2">/mo</span></>}
       </p>
       <ul className="space-y-3 text-sm text-ink-2 mb-8">
         {["Unlimited tasks, every tool", "Files up to 500 MB", "Priority processing", "Files auto-deleted after 12 hours"].map((f) => (

@@ -199,6 +199,7 @@ export interface Plan {
   slug: string;
   description: string | null;
   price: string;
+  price_inr: string | null;
   interval: PlanInterval;
   stripe_price_id: string | null;
   features: string[] | null;
@@ -216,6 +217,7 @@ export interface PlanPayload {
   name: string;
   description?: string | null;
   price: number;
+  price_inr?: number | null;
   interval: PlanInterval;
   stripe_price_id?: string | null;
   features?: string[];
