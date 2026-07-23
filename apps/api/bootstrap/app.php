@@ -24,6 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // CORS must run before any auth/response middleware.
         $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
 
+        // Exclude public file upload route from CSRF — anonymous users can't
+        // provide a token, and CORS already protects against misuse.
+        $middleware->validateCsrfTokens(except: [
+            'api/jobs',
+        ]);
+
         // Alias for admin route protection.
         $middleware->alias([
             'auth.admin' => \App\Http\Middleware\EnsureAdminAuthenticated::class,

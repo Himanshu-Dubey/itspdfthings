@@ -3,10 +3,9 @@
  * All requests use credentials: 'include' for Sanctum SPA cookie auth.
  */
 
-// On Vercel, NEXT_PUBLIC_API_URL should NOT be set — requests go through
-// Next.js server-side rewrites (see next.config.ts) which proxy to the API.
-// Only set this env var for direct cross-origin access (not recommended).
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+// Direct API URL for file uploads (bypasses Vercel's 4.5MB body size limit).
+// NEXT_PUBLIC_API_URL should be set in Vercel to https://api.itspdfthings.com
+const DIRECT_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export class ApiError extends Error {
   constructor(
@@ -25,17 +24,19 @@ function getCsrfToken(): string {
 }
 
 export async function fetchCsrfCookie(): Promise<void> {
-  await fetch(`${API_URL}/sanctum/csrf-cookie`, { credentials: "include" });
+  // Always fetch CSRF from the direct API (cookie must come from the API domain).
+  await fetch(`${DIRECT_API_URL}/sanctum/csrf-cookie`, { credentials: "include" });
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const isWrite = ["POST", "PUT", "PATCH", "DELETE"].includes(method.toUpperCase());
+  const isFormData = body instanceof FormData;
 
   if (isWrite) await fetchCsrfCookie();
 
   const headers: Record<string, string> = { Accept: "application/json" };
 
-  if (body && !(body instanceof FormData)) {
+  if (body && !isFormData) {
     headers["Content-Type"] = "application/json";
   }
 
@@ -44,11 +45,14 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     if (token) headers["X-XSRF-TOKEN"] = token;
   }
 
-  const res = await fetch(`${API_URL}/api${path}`, {
+  // File uploads (FormData) go directly to the API to bypass Vercel's 4.5MB
+  // serverless body size limit.  All other requests use the rewrite proxy.
+  const baseUrl = isFormData ? DIRECT_API_URL : "";
+  const res = await fetch(`${baseUrl}/api${path}`, {
     method,
     credentials: "include",
     headers,
-    body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
   });
 
   if (!res.ok) {
