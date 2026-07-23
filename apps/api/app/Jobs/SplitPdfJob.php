@@ -19,8 +19,11 @@ class SplitPdfJob extends ProcessPdfJob
             $groups = array_map('trim', explode(',', $range));
             $files  = [];
 
+            $baseName = pathinfo($pdfJob->input_path, PATHINFO_FILENAME);
+
             foreach ($groups as $i => $group) {
-                $out = $scratchDir.'/pages_'.str_replace('-', '_', $group).'.pdf';
+                $safeGroup = str_replace('-', '_', $group);
+                $out = $scratchDir.'/'.$baseName.'_pages_'.$safeGroup.'.pdf';
                 $this->exec([$this->tool('qpdf'), '--empty', '--pages', $inputFile, $group, '--', $out]);
                 $files[] = $out;
             }
