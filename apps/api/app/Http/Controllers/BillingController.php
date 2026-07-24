@@ -21,12 +21,8 @@ class BillingController extends Controller
         $planId = $request->input('plan_id');
         $country = $request->input('country', 'US');
 
-        // Geo-based routing: India → Razorpay, rest → Stripe
-        $provider = $country === 'IN' ? 'razorpay' : 'stripe';
-
-        return $provider === 'razorpay'
-            ? $this->razorpayCheckout($user, $planId ? (int) $planId : null)
-            : $this->stripeCheckout($user, $planId ? (int) $planId : null);
+        // Stripe is disabled — all payments go through Razorpay
+        return $this->razorpayCheckout($user, $planId ? (int) $planId : null);
     }
 
     /**

@@ -150,6 +150,6 @@ Route::get('/geo', function () {
     return response()->json([
         'country' => $country,
         'is_india' => $country === 'IN',
-        'billing_provider' => $country === 'IN' ? 'razorpay' : 'stripe',
+        'billing_provider' => 'razorpay',
     ]);
 });
