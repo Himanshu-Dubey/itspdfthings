@@ -268,7 +268,7 @@ function DefaultPremiumCard({ user, billingProvider, isIndia }: { user: { plan: 
         {isIndia ? <>₹799<span className="text-base font-normal text-ink-2">/mo</span></> : <>$9.99<span className="text-base font-normal text-ink-2">/mo</span></>}
       </p>
       <ul className="space-y-3 text-sm text-ink-2 mb-8">
-        {["Unlimited tasks, every tool", "Files up to 500 MB", "Priority processing", "Files auto-deleted after 12 hours"].map((f) => (
+        {["Unlimited tasks, every tool", "Files up to 100 MB", "Priority processing", "Files auto-deleted after 12 hours"].map((f) => (
           <li key={f} className="flex gap-2.5 items-start">
             <Check size={16} className="text-emerald-600 shrink-0 mt-0.5" />
             {f}

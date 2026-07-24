@@ -80,7 +80,7 @@ class PdfJobController extends Controller
         }
 
         $sizeLimit = $request->user()?->isPremium()
-            ? (int) Setting::get('file_size_limit_premium_bytes', 500 * 1024 * 1024)
+            ? (int) Setting::get('file_size_limit_premium_bytes', 100 * 1024 * 1024)
             : (int) Setting::get('file_size_limit_free_bytes', 20 * 1024 * 1024);
 
         $allowedMimes = config("pdf.allowed_mimes.{$toolType}", []);

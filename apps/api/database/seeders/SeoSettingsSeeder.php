@@ -80,7 +80,7 @@ class SeoSettingsSeeder extends Seeder
                 'faq'                  => [
                     ['q' => 'Can I split a PDF by page range?', 'a' => 'Yes. You can specify exact page ranges to extract from your PDF.'],
                     ['q' => 'Will the quality change after splitting?', 'a' => 'No. The original quality of your PDF pages is preserved exactly.'],
-                    ['q' => 'Is there a file size limit?', 'a' => 'Free users can upload PDFs up to 20MB. Premium users can upload up to 500MB.'],
+                    ['q' => 'Is there a file size limit?', 'a' => 'Free users can upload PDFs up to 20MB. Premium users can upload up to 100MB.'],
                 ],
             ],
             'compress-pdf' => [
