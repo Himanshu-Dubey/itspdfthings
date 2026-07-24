@@ -11,7 +11,6 @@ const TOOL_LINKS = [
   { href: "/compress-pdf", label: "Compress PDF" },
   { href: "/pricing", label: "Pricing" },
   { href: "/contact", label: "Contact" },
-  { href: "/about", label: "About" },
 ];
 
 interface NavPage {
@@ -24,9 +23,12 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const hardcodedHrefs = new Set(TOOL_LINKS.map((l) => l.href));
   const navLinks = [
     ...TOOL_LINKS,
-    ...headerPages.map((p) => ({ href: `/${p.slug}`, label: p.title })),
+    ...headerPages
+      .filter((p) => !hardcodedHrefs.has(`/${p.slug}`))
+      .map((p) => ({ href: `/${p.slug}`, label: p.title })),
   ];
 
   return (
