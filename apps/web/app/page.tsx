@@ -231,7 +231,7 @@ export default async function HomePage() {
               key={tool.href}
               href={tool.href}
               className={[
-                "group relative block rounded-2xl border border-border-soft bg-white p-6 overflow-hidden",
+                "group relative block rounded-2xl border border-border-soft bg-surface p-6 overflow-hidden",
                 "shadow-[0_1px_2px_rgba(24,24,27,0.04)] transition-all duration-300",
                 "hover:-translate-y-1 hover:shadow-xl",
                 tool.hoverBorder,
@@ -260,7 +260,7 @@ export default async function HomePage() {
       </section>
 
       {/* Trust strip */}
-      <section className="border-t border-border-soft bg-gradient-to-b from-slate-50 to-white">
+      <section className="border-t border-border-soft bg-page">
         <div className="max-w-6xl mx-auto px-4 py-20">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">Built to be trusted</h2>
@@ -272,7 +272,7 @@ export default async function HomePage() {
               <div
                 key={item.title}
                 className={[
-                  "group relative rounded-2xl border border-border-soft bg-white p-7 text-center overflow-hidden",
+                  "group relative rounded-2xl border border-border-soft bg-surface p-7 text-center overflow-hidden",
                   "shadow-[0_1px_2px_rgba(24,24,27,0.04)] transition-all duration-300",
                   "hover:-translate-y-1 hover:shadow-xl",
                   item.hoverBorder,

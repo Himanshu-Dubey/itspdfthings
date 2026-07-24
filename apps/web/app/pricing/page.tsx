@@ -71,7 +71,7 @@ export default function PricingPage() {
 
           {/* Interval toggle — only shown when both monthly and yearly plans exist */}
           {hasBothIntervals && (
-            <div className="inline-flex items-center gap-1 bg-slate-100 rounded-full p-1">
+            <div className="inline-flex items-center gap-1 bg-page rounded-full p-1">
               {(["month", "year"] as PlanInterval[]).map((iv) => (
                 <button
                   key={iv}
@@ -79,7 +79,7 @@ export default function PricingPage() {
                   className={[
                     "px-5 py-1.5 rounded-full text-sm font-semibold transition-all cursor-pointer",
                     interval === iv
-                      ? "bg-white text-ink shadow-soft"
+                      ? "bg-surface text-ink shadow-soft"
                       : "text-ink-2 hover:text-ink",
                   ].join(" ")}
                 >
@@ -111,7 +111,7 @@ export default function PricingPage() {
             hasPlans && visible.length >= 3 ? "lg:grid-cols-3" : "",
           ].join(" ")}>
             {/* Free plan — always shown first */}
-            <div className="rounded-2xl border border-border-soft bg-white p-8 shadow-soft">
+            <div className="rounded-2xl border border-border-soft bg-surface p-8 shadow-soft">
               <h2 className="text-lg font-semibold text-ink">Free</h2>
               <p className="text-4xl font-bold text-ink mt-2 mb-1">{isIndia ? "₹0" : "$0"}</p>
               <p className="text-sm text-ink-2 mb-6">Forever free</p>
@@ -130,7 +130,7 @@ export default function PricingPage() {
               ) : (
                 <Link
                   href="/register"
-                  className="block text-center w-full bg-slate-100 text-ink py-2.5 rounded-lg font-semibold hover:bg-slate-200 transition-colors text-sm"
+                  className="block text-center w-full bg-page text-ink py-2.5 rounded-lg font-semibold hover:border-border-muted transition-colors text-sm"
                 >
                   Get started free
                 </Link>
@@ -183,7 +183,7 @@ function PaidPlanCard({
   const showINR = isIndia && plan.price_inr;
 
   return (
-    <div className={`rounded-2xl bg-white p-8 relative shadow-soft ${
+    <div className={`rounded-2xl bg-surface p-8 relative shadow-soft ${
       featured ? "border-2 border-brand" : "border border-border-soft"
     }`}>
       {featured && (
@@ -259,7 +259,7 @@ function DefaultPremiumCard({ user, billingProvider, isIndia }: { user: { plan: 
   };
 
   return (
-    <div className="rounded-2xl border-2 border-brand bg-white p-8 relative shadow-soft">
+    <div className="rounded-2xl border-2 border-brand bg-surface p-8 relative shadow-soft">
       <span className="absolute -top-3 right-6 bg-brand text-white text-xs font-semibold px-3 py-1 rounded-full shadow-soft">
         Most popular
       </span>

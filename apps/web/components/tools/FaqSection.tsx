@@ -18,9 +18,9 @@ export function FaqSection({
         {faqs.map((faq, i) => (
           <details
             key={i}
-            className="group rounded-2xl border border-border-soft bg-white overflow-hidden"
+            className="group rounded-2xl border border-border-soft bg-surface overflow-hidden"
           >
-            <summary className="flex items-center justify-between px-5 py-4 font-medium text-ink cursor-pointer hover:bg-slate-50 transition-colors">
+            <summary className="flex items-center justify-between px-5 py-4 font-medium text-ink cursor-pointer hover:bg-page transition-colors">
               <span className="pr-4">{faq.q}</span>
               <svg
                 className="shrink-0 w-4 h-4 text-ink-2 transition-transform group-open:rotate-180"

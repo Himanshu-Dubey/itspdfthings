@@ -11,7 +11,7 @@ export function AuthSuccess({ name }: { name: string }) {
   const firstName = name.trim().split(" ")[0] || name;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-page px-4 py-12">
       <div className="w-full max-w-sm text-center">
         <div className="pop-in flex justify-center mb-8">
           <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand text-white shadow-soft">

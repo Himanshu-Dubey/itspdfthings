@@ -4,12 +4,14 @@ import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
 import { useState } from "react";
 import { Heart, Menu, X } from "lucide-react";
+import { DarkModeToggle } from "./DarkModeToggle";
 
 const TOOL_LINKS = [
   { href: "/merge-pdf", label: "Merge PDF" },
   { href: "/split-pdf", label: "Split PDF" },
   { href: "/compress-pdf", label: "Compress PDF" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -49,7 +51,8 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <DarkModeToggle />
           <div className="hidden sm:flex items-center gap-3">
             {loading ? (
               <div className="h-9 w-24 bg-white/5 rounded-lg animate-pulse" />

@@ -78,7 +78,7 @@ export function UpgradeButton({ className }: { className?: string }) {
         disabled={busy}
         className={baseClass}
       >
-        {busy ? "Redirecting…" : billingProvider === "razorpay" ? "Upgrade with Razorpay" : "Upgrade to Premium"}
+        {busy ? "Redirecting…" : "Upgrade to Premium"}
       </button>
       {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
     </div>

@@ -20,16 +20,17 @@ class PlanController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name'            => ['required', 'string', 'max:100'],
-            'description'     => ['nullable', 'string', 'max:500'],
-            'price'           => ['required', 'numeric', 'min:0'],
-            'price_inr'       => ['nullable', 'numeric', 'min:0'],
-            'interval'        => ['required', 'in:month,year'],
-            'stripe_price_id' => ['nullable', 'string', 'max:255'],
-            'features'        => ['nullable', 'array'],
-            'features.*'      => ['string', 'max:255'],
-            'is_active'       => ['boolean'],
-            'sort_order'      => ['integer', 'min:0'],
+            'name'              => ['required', 'string', 'max:100'],
+            'description'       => ['nullable', 'string', 'max:500'],
+            'price'             => ['required', 'numeric', 'min:0'],
+            'price_inr'         => ['nullable', 'numeric', 'min:0'],
+            'interval'          => ['required', 'in:month,year'],
+            'stripe_price_id'   => ['nullable', 'string', 'max:255'],
+            'razorpay_price_id' => ['nullable', 'string', 'max:255'],
+            'features'          => ['nullable', 'array'],
+            'features.*'        => ['string', 'max:255'],
+            'is_active'         => ['boolean'],
+            'sort_order'        => ['integer', 'min:0'],
         ]);
 
         $base = Str::slug(($data['name'] ?? 'plan') . '-' . ($data['interval'] ?? 'month'));
@@ -50,16 +51,17 @@ class PlanController extends Controller
         $plan = Plan::findOrFail($id);
 
         $data = $request->validate([
-            'name'            => ['sometimes', 'string', 'max:100'],
-            'description'     => ['nullable', 'string', 'max:500'],
-            'price'           => ['sometimes', 'numeric', 'min:0'],
-            'price_inr'       => ['nullable', 'numeric', 'min:0'],
-            'interval'        => ['sometimes', 'in:month,year'],
-            'stripe_price_id' => ['nullable', 'string', 'max:255'],
-            'features'        => ['nullable', 'array'],
-            'features.*'      => ['string', 'max:255'],
-            'is_active'       => ['sometimes', 'boolean'],
-            'sort_order'      => ['sometimes', 'integer', 'min:0'],
+            'name'              => ['sometimes', 'string', 'max:100'],
+            'description'       => ['nullable', 'string', 'max:500'],
+            'price'             => ['sometimes', 'numeric', 'min:0'],
+            'price_inr'         => ['nullable', 'numeric', 'min:0'],
+            'interval'          => ['sometimes', 'in:month,year'],
+            'stripe_price_id'   => ['nullable', 'string', 'max:255'],
+            'razorpay_price_id' => ['nullable', 'string', 'max:255'],
+            'features'          => ['nullable', 'array'],
+            'features.*'        => ['string', 'max:255'],
+            'is_active'         => ['sometimes', 'boolean'],
+            'sort_order'        => ['sometimes', 'integer', 'min:0'],
         ]);
 
         $plan->update($data);

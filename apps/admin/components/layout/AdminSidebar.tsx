@@ -18,6 +18,10 @@ import {
   Search,
   MessageSquare,
   Trash2,
+  FileText,
+  FolderOpen,
+  Tags,
+  MessageCircle,
 } from "lucide-react";
 import { useAdminAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
@@ -30,6 +34,10 @@ const navItems = [
   { label: "Quotas & Tools", href: "/pricing",    icon: Tag,             section: "main" },
   { label: "Jobs",         href: "/jobs",         icon: Briefcase,       section: "main" },
   { label: "Abuse",        href: "/abuse",        icon: ShieldAlert,     section: "main" },
+  { label: "Posts",        href: "/blog/posts",   icon: FileText,        section: "blog" },
+  { label: "Categories",   href: "/blog/categories", icon: FolderOpen,  section: "blog" },
+  { label: "Tags",         href: "/blog/tags",    icon: Tags,            section: "blog" },
+  { label: "Comments",     href: "/blog/comments", icon: MessageCircle,  section: "blog" },
   { label: "Plans",        href: "/plans",        icon: PackagePlus,     section: "billing" },
   { label: "Stripe",       href: "/stripe",       icon: Zap,             section: "billing" },
   { label: "Razorpay",     href: "/razorpay",     icon: CreditCard,      section: "billing" },
@@ -52,6 +60,7 @@ export function AdminSidebar() {
   };
 
   const mainItems    = navItems.filter((i) => i.section === "main");
+  const blogItems    = navItems.filter((i) => i.section === "blog");
   const billingItems = navItems.filter((i) => i.section === "billing");
   const systemItems  = navItems.filter((i) => i.section === "system");
 
@@ -70,6 +79,7 @@ export function AdminSidebar() {
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 overflow-y-auto sidebar-scroll">
           <NavGroup label="Main"    items={mainItems}    pathname={pathname} />
+          <NavGroup label="Blog"    items={blogItems}    pathname={pathname} />
           <NavGroup label="Billing" items={billingItems} pathname={pathname} />
           <NavGroup label="System"  items={systemItems}  pathname={pathname} />
         </nav>

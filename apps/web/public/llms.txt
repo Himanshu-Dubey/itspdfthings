@@ -27,6 +27,10 @@
 - Free tier: Basic tools, no account required
 - Premium: Higher limits and priority processing
 
+## Blog
+
+- [Blog](https://itspdfthings.com/blog) — PDF tips, tutorials, and product updates
+
 ## Contact
 
 - Website: https://itspdfthings.com

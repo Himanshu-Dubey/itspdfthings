@@ -136,7 +136,7 @@ export function EchoWidget({ toolType }: Props) {
     state.phase === "uploading" || state.phase === "polling";
 
   return (
-    <div className="rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-8">
+    <div className="rounded-2xl border-2 border-dashed border-border-soft bg-page p-8">
       {state.phase === "done" ? (
         <div className="text-center space-y-4">
           <p className="text-green-600 font-medium">✓ Processing complete!</p>

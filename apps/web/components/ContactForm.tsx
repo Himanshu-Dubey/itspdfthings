@@ -86,7 +86,7 @@ export function ContactForm() {
             required
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
-            className="w-full rounded-xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
+            className="w-full rounded-xl border border-border-soft bg-surface px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
             placeholder="Your name"
           />
         </div>
@@ -97,7 +97,7 @@ export function ContactForm() {
             required
             value={form.email}
             onChange={(e) => set("email", e.target.value)}
-            className="w-full rounded-xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
+            className="w-full rounded-xl border border-border-soft bg-surface px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
             placeholder="you@example.com"
           />
         </div>
@@ -109,7 +109,7 @@ export function ContactForm() {
           type="text"
           value={form.subject}
           onChange={(e) => set("subject", e.target.value)}
-          className="w-full rounded-xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
+          className="w-full rounded-xl border border-border-soft bg-surface px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors"
           placeholder="How can we help?"
         />
       </div>
@@ -121,7 +121,7 @@ export function ContactForm() {
           rows={5}
           value={form.message}
           onChange={(e) => set("message", e.target.value)}
-          className="w-full rounded-xl border border-border-soft bg-white px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors resize-y"
+          className="w-full rounded-xl border border-border-soft bg-surface px-4 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition-colors resize-y"
           placeholder="Tell us what you need…"
         />
       </div>

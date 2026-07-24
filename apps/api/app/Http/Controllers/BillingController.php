@@ -25,7 +25,7 @@ class BillingController extends Controller
         $provider = $country === 'IN' ? 'razorpay' : 'stripe';
 
         return $provider === 'razorpay'
-            ? $this->razorpayCheckout($user)
+            ? $this->razorpayCheckout($user, $planId ? (int) $planId : null)
             : $this->stripeCheckout($user, $planId ? (int) $planId : null);
     }
 
@@ -93,7 +93,8 @@ class BillingController extends Controller
             $plan    = \App\Models\Plan::find($planId);
             $priceId = $plan?->stripe_price_id;
         } else {
-            $priceId = config('services.stripe.premium_price_id');
+            $plan    = \App\Models\Plan::where('interval', 'month')->where('slug', '!=', 'free')->first();
+            $priceId = $plan?->stripe_price_id ?? config('services.stripe.premium_price_id');
         }
 
         if (! $priceId) {
@@ -110,22 +111,31 @@ class BillingController extends Controller
 
     // ── Razorpay ─────────────────────────────────────────────────────────────
 
-    private function razorpayCheckout(User $user): JsonResponse
+    private function razorpayCheckout(User $user, ?int $planId = null): JsonResponse
     {
         $key    = config('services.razorpay.key');
         $secret = config('services.razorpay.secret');
-        $planId = config('services.razorpay.plan_id');
 
-        if (! $key || ! $secret || ! $planId) {
-            return response()->json(['message' => 'Billing is not configured yet.'], 503);
+        if (! $key || ! $secret) {
+            return response()->json(['message' => 'Razorpay is not configured yet. Add API keys in admin Settings → Razorpay.'], 503);
+        }
+
+        $plan = $planId
+            ? \App\Models\Plan::find($planId)
+            : \App\Models\Plan::where('interval', 'month')->where('slug', '!=', 'free')->first();
+
+        $planIdRz = $plan?->razorpay_price_id;
+
+        if (! $planIdRz) {
+            return response()->json(['message' => 'Razorpay Plan ID not configured for this plan. Edit the plan in admin and add the Razorpay Price ID.'], 503);
         }
 
         $api = new RazorpayApi($key, $secret);
 
         $subscription = $api->subscription->create([
-            'plan_id'         => $planId,
+            'plan_id'         => $planIdRz,
             'customer_notify' => 1,
-            'total_count'     => 12, // 12 billing cycles; Razorpay requires a bound, renews via new subscription after
+            'total_count'     => 12,
             'notes'           => ['user_id' => (string) $user->id],
         ]);
 

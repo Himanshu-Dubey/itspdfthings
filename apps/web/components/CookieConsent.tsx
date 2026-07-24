@@ -24,7 +24,7 @@ export default function CookieConsent() {
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6 pointer-events-none">
-      <div className="max-w-2xl mx-auto pointer-events-auto bg-white border border-border-soft rounded-2xl shadow-xl p-5 sm:p-6">
+      <div className="max-w-2xl mx-auto pointer-events-auto bg-surface border border-border-soft rounded-2xl shadow-xl p-5 sm:p-6">
         <div className="flex items-start gap-4">
           <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
             <Cookie size={20} className="text-amber-600" />

@@ -121,8 +121,37 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
 
   const addImage = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt("Image URL:");
-    if (url) editor.chain().focus().setImage({ src: url }).run();
+
+    const choice = window.confirm("Click OK to upload a file, or Cancel to enter a URL.");
+
+    if (choice) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/png,image/jpeg,image/webp,image/gif";
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        try {
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.itspdfthings.com";
+          const formData = new FormData();
+          formData.append("file", file);
+          const res = await fetch(`${API_URL}/api/admin/posts/upload-image`, {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          });
+          if (!res.ok) throw new Error("Upload failed");
+          const { url } = await res.json();
+          editor.chain().focus().setImage({ src: url }).run();
+        } catch {
+          window.alert("Image upload failed. Try pasting a URL instead.");
+        }
+      };
+      input.click();
+    } else {
+      const url = window.prompt("Image URL:");
+      if (url) editor.chain().focus().setImage({ src: url }).run();
+    }
   }, [editor]);
 
   if (!editor) return null;

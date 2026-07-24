@@ -5,7 +5,7 @@ import { AuthIllustration } from "./AuthIllustration";
 export function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-page">
         {/* Top bar with back link */}
         <div className="px-6 py-4">
           <Link

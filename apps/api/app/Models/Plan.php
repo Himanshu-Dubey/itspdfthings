@@ -15,6 +15,7 @@ class Plan extends Model
         'price_inr',
         'interval',
         'stripe_price_id',
+        'razorpay_price_id',
         'features',
         'is_active',
         'sort_order',

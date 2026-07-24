@@ -191,7 +191,7 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
 
   if (phase.name === "done") {
     return (
-      <div className="rounded-2xl border border-border-soft bg-white p-10 text-center shadow-soft space-y-5">
+      <div className="rounded-2xl border border-border-soft bg-surface p-10 text-center shadow-soft space-y-5">
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 mx-auto">
           <CheckCircle2 size={28} className="text-emerald-600" strokeWidth={2} />
         </div>
@@ -244,7 +244,7 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
             ? "border-brand bg-brand-light scale-[1.01]"
             : files.length > 0
             ? "border-brand/40 bg-brand-light/50"
-            : "border-border-soft bg-slate-50/50 hover:border-brand/40 hover:bg-brand-light/30",
+            : "border-border-soft bg-page hover:border-brand/40 hover:bg-brand-light/30",
         ].join(" ")}
       >
         <div className="flex flex-col items-center gap-3">
@@ -264,7 +264,7 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
           ) : (
             <div className="text-sm space-y-1.5 text-left max-w-full w-full">
               {files.map((f) => (
-                <div key={f.name} className="flex items-center gap-2 bg-white rounded-lg border border-border-soft px-3 py-2">
+                <div key={f.name} className="flex items-center gap-2 bg-surface rounded-lg border border-border-soft px-3 py-2">
                   <FileText size={15} className="text-brand shrink-0" />
                   <p className="truncate font-medium text-ink flex-1">{f.name}</p>
                   <button
@@ -285,7 +285,7 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
 
       {/* Extra fields */}
       {(config.fields ?? []).length > 0 && (
-        <div className="space-y-3 rounded-xl border border-border-soft bg-white p-5">
+        <div className="space-y-3 rounded-xl border border-border-soft bg-surface p-5">
           {config.fields!.map((field) => (
             <div key={field.name}>
               <label className="block text-xs font-medium text-ink-2 mb-1 uppercase tracking-wide">
@@ -322,7 +322,7 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
 
       {/* Error */}
       {phase.name === "error" && (
-        <p className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-brand-dark">
+        <p className="flex items-center gap-2 rounded-lg bg-brand-light border border-brand/30 px-4 py-3 text-sm text-brand-dark">
           <AlertCircle size={15} className="shrink-0" />
           {phase.message}
         </p>

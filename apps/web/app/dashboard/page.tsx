@@ -115,7 +115,7 @@ function DashboardContent() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-border-soft bg-white shadow-soft overflow-hidden">
+      <div className="rounded-2xl border border-border-soft bg-surface shadow-soft overflow-hidden">
         <div className="px-5 py-4 border-b border-border-soft flex items-center justify-between">
           <h2 className="font-semibold text-ink">Job history</h2>
           <span className="text-xs text-ink-2">{total} total</span>

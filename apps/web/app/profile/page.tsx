@@ -1,10 +1,11 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { auth, billing, ApiError } from "@/lib/api";
+import { auth, billing, ApiError, plans as plansApi, geo } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import type { Plan } from "@/types/api";
 import {
   User,
   Lock,
@@ -52,7 +53,7 @@ export default function ProfilePage() {
       <div className="flex gap-7 items-start">
         {/* ── Sidebar ─────────────────────────────────────────────────── */}
         <aside className="w-64 shrink-0 sticky top-24">
-          <div className="rounded-2xl border border-border-soft bg-white shadow-soft overflow-hidden">
+          <div className="rounded-2xl border border-border-soft bg-surface shadow-soft overflow-hidden">
             {/* User card */}
             <div className="px-5 pt-6 pb-5 border-b border-border-soft">
               <div className="flex flex-col items-center text-center gap-3">
@@ -277,9 +278,49 @@ function SecuritySection() {
 
 /* ── Billing section ───────────────────────────────────────────────────────── */
 
+function parseFeatures(features: string[] | string | null): string[] {
+  if (!features) return [];
+  if (typeof features === "string") {
+    try { return JSON.parse(features); } catch { return []; }
+  }
+  return features;
+}
+
 function BillingSection({ plan }: { plan: string }) {
   const [isPending, start] = useTransition();
   const [error, setError]  = useState("");
+  const [allPlans, setAllPlans] = useState<Plan[]>([]);
+  const [isIndia, setIsIndia] = useState(false);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      plansApi.list().catch(() => ({ plans: [] })),
+      geo.detect().catch(() => ({ country: "US", is_india: false, billing_provider: "stripe" as const })),
+    ]).then(([plansRes, geoRes]) => {
+      setAllPlans(plansRes.plans);
+      setIsIndia(geoRes.is_india);
+    }).finally(() => setLoadingPlans(false));
+  }, []);
+
+  const premiumPlan = allPlans.find(
+    (p) => p.interval === "month" && p.slug !== "free"
+  );
+  const premiumFeatures = premiumPlan ? parseFeatures(premiumPlan.features) : [];
+  const freeFeatures = [
+    "Up to 10 tasks per tool, per day",
+    "Files up to 20 MB",
+    "All 9 core PDF tools",
+    "Files auto-deleted after 12 hours",
+  ];
+
+  function formatPrice(): string {
+    if (!premiumPlan) return "…";
+    if (isIndia && premiumPlan.price_inr) {
+      return `₹${Number(premiumPlan.price_inr).toLocaleString("en-IN")}`;
+    }
+    return `$${Number(premiumPlan.price).toFixed(2)}`;
+  }
 
   const handleAction = () => {
     setError("");
@@ -303,7 +344,7 @@ function BillingSection({ plan }: { plan: string }) {
   return (
     <SectionCard title="Billing" icon={CreditCard}>
       {/* Current plan */}
-      <div className="rounded-xl border border-border-soft bg-slate-50/60 p-5 mb-5">
+      <div className="rounded-xl border border-border-soft bg-page p-5 mb-5">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold text-ink">Current plan</p>
           <span
@@ -317,20 +358,9 @@ function BillingSection({ plan }: { plan: string }) {
           </span>
         </div>
         <ul className="space-y-1.5 text-sm text-ink-2">
-          {isPremium ? (
-            <>
-              <Feature>Unlimited file size</Feature>
-              <Feature>Priority processing</Feature>
-              <Feature>Batch operations</Feature>
-              <Feature>Full job history</Feature>
-            </>
-          ) : (
-            <>
-              <Feature>Up to 10 MB per file</Feature>
-              <Feature>Standard processing speed</Feature>
-              <Feature>30-day job history</Feature>
-            </>
-          )}
+          {(isPremium ? premiumFeatures : freeFeatures).map((f) => (
+            <Feature key={f}>{f}</Feature>
+          ))}
         </ul>
       </div>
 
@@ -351,7 +381,7 @@ function BillingSection({ plan }: { plan: string }) {
               : "bg-gradient-to-r from-amber-400 to-orange-400 text-white hover:from-amber-500 hover:to-orange-500 shadow-[0_2px_10px_rgba(245,158,11,0.35)]",
           ].join(" ")}
         >
-          {isPending ? "Loading…" : isPremium ? "Manage subscription" : "Upgrade to Premium — $9.99/mo"}
+          {isPending ? "Loading…" : isPremium ? "Manage subscription" : `Upgrade to Premium — ${formatPrice()}/mo`}
         </button>
         <Link
           href="/billing"
@@ -368,7 +398,7 @@ function BillingSection({ plan }: { plan: string }) {
 
 function SectionCard({ title, icon: Icon, children }: { title: string; icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border-soft bg-white shadow-soft overflow-hidden">
+    <div className="rounded-2xl border border-border-soft bg-surface shadow-soft overflow-hidden">
       <div className="px-6 py-4 border-b border-border-soft flex items-center gap-2.5">
         <Icon size={16} className="text-ink-2" />
         <h2 className="font-semibold text-ink">{title}</h2>

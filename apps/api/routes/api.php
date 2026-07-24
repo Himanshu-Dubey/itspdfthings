@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PdfJobController;
 use App\Http\Controllers\PlansController;
@@ -78,6 +79,30 @@ Route::get('/plans', [PlansController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
+| Blog (public — no auth required)
+|--------------------------------------------------------------------------
+*/
+Route::get('/blog', [BlogController::class, 'index']);
+Route::get('/blog/{slug}', [BlogController::class, 'show']);
+Route::post('/blog/{id}/comments', [BlogController::class, 'submitComment'])->middleware('throttle:3,1');
+
+/*
+|--------------------------------------------------------------------------
+| Uploaded files — serves images from storage/app/public/
+|--------------------------------------------------------------------------
+*/
+Route::get('/files/{path}', function (string $path) {
+    $full = realpath(storage_path('app/public') . DIRECTORY_SEPARATOR . $path);
+    if (!$full || !file_exists($full)) abort(404);
+    $mime = mime_content_type($full);
+    return response()->file($full, [
+        'Content-Type'  => $mime,
+        'Cache-Control' => 'public, max-age=31536000, immutable',
+    ]);
+})->where('path', '.*');
+
+/*
+|--------------------------------------------------------------------------
 | Billing (Stripe Checkout + Cashier, or Razorpay Subscriptions)
 |--------------------------------------------------------------------------
 | Checkout/portal require a logged-in user and branch internally on
@@ -100,8 +125,20 @@ Route::post('/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebho
 |--------------------------------------------------------------------------
 */
 Route::get('/geo', function () {
-    $ip = request()->ip();
-    // In production, use a GeoIP service. For now, use a free API.
+    // Local dev: default to India so INR pricing works during development
+    if (app()->environment('local')) {
+        return response()->json([
+            'country' => 'IN',
+            'is_india' => true,
+            'billing_provider' => 'razorpay',
+        ]);
+    }
+
+    // Use CF-Connecting-IP when behind Cloudflare, fallback to X-Forwarded-For, then remote addr
+    $ip = request()->header('CF-Connecting-IP')
+        ?? request()->header('X-Forwarded-For')
+        ?? request()->ip();
+
     $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 2);

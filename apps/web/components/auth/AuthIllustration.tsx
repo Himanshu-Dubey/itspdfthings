@@ -8,7 +8,7 @@ export function AuthIllustration() {
       <div className="relative max-w-sm w-full">
         {/* Floating cards */}
         <div className="relative h-64 mb-10">
-          <div className="drift absolute left-4 top-2 h-40 w-28 rounded-xl bg-white border border-border-soft shadow-soft p-3" style={{ animationDelay: "0s" }}>
+          <div className="drift absolute left-4 top-2 h-40 w-28 rounded-xl bg-surface border border-border-soft shadow-soft p-3" style={{ animationDelay: "0s" }}>
             <div className="h-2 w-8 rounded-full bg-red-100 mb-2" />
             <div className="space-y-1.5">
               <div className="h-1.5 rounded-full bg-slate-100" />
@@ -17,7 +17,7 @@ export function AuthIllustration() {
             </div>
           </div>
 
-          <div className="drift absolute left-24 top-16 h-44 w-32 rounded-xl bg-white border border-border-soft shadow-xl p-3.5 z-10" style={{ animationDelay: "0.8s" }}>
+          <div className="drift absolute left-24 top-16 h-44 w-32 rounded-xl bg-surface border border-border-soft shadow-xl p-3.5 z-10" style={{ animationDelay: "0.8s" }}>
             <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-brand-light mb-2.5">
               <FileText size={18} className="text-brand" />
             </div>
@@ -28,7 +28,7 @@ export function AuthIllustration() {
             </div>
           </div>
 
-          <div className="drift absolute right-8 top-0 h-24 w-24 rounded-xl bg-white border border-border-soft shadow-soft flex items-center justify-center" style={{ animationDelay: "1.4s" }}>
+          <div className="drift absolute right-8 top-0 h-24 w-24 rounded-xl bg-surface border border-border-soft shadow-soft flex items-center justify-center" style={{ animationDelay: "1.4s" }}>
             <ImageIcon size={22} className="text-blue-500" />
           </div>
 

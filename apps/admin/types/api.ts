@@ -202,6 +202,7 @@ export interface Plan {
   price_inr: string | null;
   interval: PlanInterval;
   stripe_price_id: string | null;
+  razorpay_price_id: string | null;
   features: string[] | null;
   is_active: boolean;
   sort_order: number;
@@ -220,6 +221,7 @@ export interface PlanPayload {
   price_inr?: number | null;
   interval: PlanInterval;
   stripe_price_id?: string | null;
+  razorpay_price_id?: string | null;
   features?: string[];
   is_active?: boolean;
   sort_order?: number;
@@ -308,4 +310,101 @@ export interface LeadEntry {
   user_agent: string | null;
   created_at: string;
   updated_at: string;
+}
+
+// ── Blog ─────────────────────────────────────────────────────────────────────
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  sort_order: number;
+  posts_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+  posts_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Post {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  featured_image: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image: string | null;
+  category_id: number | null;
+  category: Category | null;
+  tags: Tag[];
+  tag_ids: number[];
+  reading_time: number | null;
+  allow_comments: boolean;
+  is_published: boolean;
+  published_at: string | null;
+  author_id: number | null;
+  author: { id: number; name: string } | null;
+  author_name: string | null;
+  views_count: number;
+  comments: Comment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Comment {
+  id: number;
+  post_id: number;
+  name: string;
+  email: string;
+  content: string;
+  is_approved: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PostsResponse {
+  posts: { data: Post[]; current_page: number; last_page: number; total: number; per_page: number };
+}
+
+export interface PostPayload {
+  title: string;
+  slug?: string;
+  excerpt?: string | null;
+  content?: string | null;
+  featured_image?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image?: string | null;
+  category_id?: number | null;
+  tags?: number[];
+  allow_comments?: boolean;
+  is_published?: boolean;
+  published_at?: string | null;
+  author_name?: string | null;
+}
+
+export interface CategoriesResponse {
+  categories: Category[];
+}
+
+export interface TagsResponse {
+  tags: Tag[];
+}
+
+export interface CommentsResponse {
+  comments: { data: Comment[]; current_page: number; last_page: number; total: number; per_page: number };
 }

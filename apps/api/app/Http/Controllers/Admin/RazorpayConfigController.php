@@ -13,7 +13,6 @@ class RazorpayConfigController extends Controller
         'RAZORPAY_KEY',
         'RAZORPAY_SECRET',
         'RAZORPAY_WEBHOOK_SECRET',
-        'RAZORPAY_PLAN_ID',
     ];
 
     public function index(): JsonResponse
@@ -42,7 +41,6 @@ class RazorpayConfigController extends Controller
             'RAZORPAY_KEY'            => ['nullable', 'string', 'max:500'],
             'RAZORPAY_SECRET'         => ['nullable', 'string', 'max:500'],
             'RAZORPAY_WEBHOOK_SECRET' => ['nullable', 'string', 'max:500'],
-            'RAZORPAY_PLAN_ID'        => ['nullable', 'string', 'max:500'],
         ]);
 
         $content = file_get_contents(base_path('.env'));
@@ -103,10 +101,6 @@ class RazorpayConfigController extends Controller
 
     private function maskValue(string $key, string $value): string
     {
-        if ($key === 'RAZORPAY_PLAN_ID') {
-            return $value;
-        }
-
         if (strlen($value) <= 12) {
             return str_repeat('*', strlen($value));
         }

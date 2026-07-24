@@ -45,7 +45,6 @@ return [
         'key'            => env('RAZORPAY_KEY'),
         'secret'         => env('RAZORPAY_SECRET'),
         'webhook_secret' => env('RAZORPAY_WEBHOOK_SECRET'),
-        'plan_id'        => env('RAZORPAY_PLAN_ID'),
     ],
 
     // Which provider powers the "Upgrade to Premium" flow. Switch by changing

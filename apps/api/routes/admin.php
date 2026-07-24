@@ -4,14 +4,18 @@ use App\Http\Controllers\Admin\AbuseController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CacheController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CommentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\JobsAdminController;
 use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\PlanController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SeoController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StripeConfigController;
 use App\Http\Controllers\Admin\SubscriptionAdminController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -99,4 +103,30 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('seo',          [SeoController::class, 'index']);
     Route::patch('seo',        [SeoController::class, 'update']);
     Route::post('seo/upload-og', [SeoController::class, 'uploadOg']);
+
+    // Blog — Categories
+    Route::get('categories',          [CategoryController::class, 'index']);
+    Route::post('categories',         [CategoryController::class, 'store']);
+    Route::patch('categories/{id}',   [CategoryController::class, 'update']);
+    Route::delete('categories/{id}',  [CategoryController::class, 'destroy']);
+
+    // Blog — Tags
+    Route::get('tags',          [TagController::class, 'index']);
+    Route::post('tags',         [TagController::class, 'store']);
+    Route::patch('tags/{id}',   [TagController::class, 'update']);
+    Route::delete('tags/{id}',  [TagController::class, 'destroy']);
+
+    // Blog — Posts
+    Route::get('posts',                     [PostController::class, 'index']);
+    Route::post('posts',                    [PostController::class, 'store']);
+    Route::get('posts/{id}',                [PostController::class, 'show']);
+    Route::patch('posts/{id}',              [PostController::class, 'update']);
+    Route::delete('posts/{id}',             [PostController::class, 'destroy']);
+    Route::post('posts/upload-image',       [PostController::class, 'uploadImage']);
+
+    // Blog — Comments
+    Route::get('comments',                         [CommentController::class, 'index']);
+    Route::patch('comments/{id}/approve',          [CommentController::class, 'approve']);
+    Route::patch('comments/{id}/reject',           [CommentController::class, 'reject']);
+    Route::delete('comments/{id}',                 [CommentController::class, 'destroy']);
 });

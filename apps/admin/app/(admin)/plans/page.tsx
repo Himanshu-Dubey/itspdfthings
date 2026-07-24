@@ -12,16 +12,17 @@ const INTERVAL_LABELS: Record<PlanInterval, string> = {
 };
 
 const emptyForm = (): PlanPayload & { featuresRaw: string } => ({
-  name:            "",
-  description:     "",
-  price:           9.99,
-  price_inr:       799,
-  interval:        "month",
-  stripe_price_id: "",
-  features:        [],
-  is_active:       true,
-  sort_order:      0,
-  featuresRaw:     "",
+  name:              "",
+  description:       "",
+  price:             9.99,
+  price_inr:         799,
+  interval:          "month",
+  stripe_price_id:   "",
+  razorpay_price_id: "",
+  features:          [],
+  is_active:         true,
+  sort_order:        0,
+  featuresRaw:       "",
 });
 
 export default function PlansPage() {
@@ -54,16 +55,17 @@ export default function PlansPage() {
   const openEdit = (plan: Plan) => {
     setEditing(plan);
     setForm({
-      name:            plan.name,
-      description:     plan.description ?? "",
-      price:           parseFloat(plan.price),
-      price_inr:       plan.price_inr ? parseFloat(plan.price_inr) : 0,
-      interval:        plan.interval,
-      stripe_price_id: plan.stripe_price_id ?? "",
-      features:        plan.features ?? [],
-      is_active:       plan.is_active,
-      sort_order:      plan.sort_order,
-      featuresRaw:     (plan.features ?? []).join("\n"),
+      name:              plan.name,
+      description:       plan.description ?? "",
+      price:             parseFloat(plan.price),
+      price_inr:         plan.price_inr ? parseFloat(plan.price_inr) : 0,
+      interval:          plan.interval,
+      stripe_price_id:   plan.stripe_price_id ?? "",
+      razorpay_price_id: plan.razorpay_price_id ?? "",
+      features:          plan.features ?? [],
+      is_active:         plan.is_active,
+      sort_order:        plan.sort_order,
+      featuresRaw:       (plan.features ?? []).join("\n"),
     });
     setShowModal(true);
   };
@@ -72,15 +74,16 @@ export default function PlansPage() {
 
   const handleSubmit = () => {
     const payload: PlanPayload = {
-      name:            form.name,
-      description:     form.description || null,
-      price:           form.price,
-      price_inr:       form.price_inr || null,
-      interval:        form.interval,
-      stripe_price_id: form.stripe_price_id || null,
-      features:        form.featuresRaw.split("\n").map((s) => s.trim()).filter(Boolean),
-      is_active:       form.is_active,
-      sort_order:      form.sort_order,
+      name:              form.name,
+      description:       form.description || null,
+      price:             form.price,
+      price_inr:         form.price_inr || null,
+      interval:          form.interval,
+      stripe_price_id:   form.stripe_price_id || null,
+      razorpay_price_id: form.razorpay_price_id || null,
+      features:          form.featuresRaw.split("\n").map((s) => s.trim()).filter(Boolean),
+      is_active:         form.is_active,
+      sort_order:        form.sort_order,
     };
 
     start(async () => {
@@ -257,15 +260,25 @@ export default function PlansPage() {
                 </Field>
               </div>
 
-              {/* Stripe Price ID */}
-              <Field label="Stripe Price ID" hint="e.g. price_xxx — from Stripe Dashboard → Products">
-                <input
-                  value={form.stripe_price_id ?? ""}
-                  onChange={(e) => setForm((f) => ({ ...f, stripe_price_id: e.target.value }))}
-                  placeholder="price_xxxxxxxxxxxxxxxxxx"
-                  className="input font-mono text-sm"
-                />
-              </Field>
+              {/* Price IDs */}
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Stripe Price ID" hint="For non-Indian users">
+                  <input
+                    value={form.stripe_price_id ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, stripe_price_id: e.target.value }))}
+                    placeholder="price_xxxxxxxxxxxxxxxxxx"
+                    className="input font-mono text-sm"
+                  />
+                </Field>
+                <Field label="Razorpay Price ID" hint="For Indian users">
+                  <input
+                    value={form.razorpay_price_id ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, razorpay_price_id: e.target.value }))}
+                    placeholder="plan_xxxxxxxxxxxxxxxxxx"
+                    className="input font-mono text-sm"
+                  />
+                </Field>
+              </div>
 
               {/* Features */}
               <Field label="Features" hint="One feature per line">
@@ -396,16 +409,27 @@ function PlanCard({
         <span className="text-sm text-ink-2">/ {INTERVAL_LABELS[plan.interval].toLowerCase().replace("ly", "")}</span>
       </div>
 
-      {/* Stripe ID */}
-      {plan.stripe_price_id ? (
-        <p className="text-xs font-mono text-ink-2 bg-slate-50 rounded-lg px-2 py-1 truncate">
-          {plan.stripe_price_id}
-        </p>
-      ) : (
-        <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-2 py-1">
-          No Stripe price ID — checkout will fail
-        </p>
-      )}
+      {/* Price IDs */}
+      <div className="space-y-1">
+        {plan.stripe_price_id ? (
+          <p className="text-xs font-mono text-ink-2 bg-slate-50 rounded-lg px-2 py-1 truncate">
+            Stripe: {plan.stripe_price_id}
+          </p>
+        ) : (
+          <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-2 py-1">
+            No Stripe price ID
+          </p>
+        )}
+        {plan.razorpay_price_id ? (
+          <p className="text-xs font-mono text-ink-2 bg-slate-50 rounded-lg px-2 py-1 truncate">
+            Razorpay: {plan.razorpay_price_id}
+          </p>
+        ) : (
+          <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-2 py-1">
+            No Razorpay price ID
+          </p>
+        )}
+      </div>
 
       {/* Features */}
       {plan.features && plan.features.length > 0 && (

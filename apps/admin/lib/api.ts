@@ -3,6 +3,9 @@ import type {
   AdminUser,
   AuditLogResponse,
   BlocklistResponse,
+  CategoriesResponse,
+  Comment,
+  CommentsResponse,
   DashboardMetrics,
   FailedQueueJob,
   IpBlocklistEntry,
@@ -14,6 +17,9 @@ import type {
   Plan,
   PlanPayload,
   PlansResponse,
+  Post,
+  PostPayload,
+  PostsResponse,
   QueueStatus,
   SettingsResponse,
   StripeConfigResponse,
@@ -21,6 +27,8 @@ import type {
   SubscriptionMetrics,
   SubscriptionsResponse,
   SystemHealth,
+  Tag,
+  TagsResponse,
   UserDetailResponse,
   UsersResponse,
 } from "@/types/api";
@@ -288,4 +296,81 @@ export const adminApi = {
       memory_limit: string;
       upload_max_filesize: string;
     }>("/cache/status"),
+
+  // ── Blog — Categories ──────────────────────────────────────────────────
+  getCategories: () =>
+    request<CategoriesResponse>("/categories"),
+
+  createCategory: (data: { name: string; slug?: string; description?: string; sort_order?: number }) =>
+    request<{ category: any }>("/categories", { method: "POST", body: JSON.stringify(data) }),
+
+  updateCategory: (id: number, data: Partial<{ name: string; slug: string; description: string; sort_order: number }>) =>
+    request<{ category: any }>(`/categories/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+
+  deleteCategory: (id: number) =>
+    request<{ message: string }>(`/categories/${id}`, { method: "DELETE" }),
+
+  // ── Blog — Tags ────────────────────────────────────────────────────────
+  getTags: () =>
+    request<TagsResponse>("/tags"),
+
+  createTag: (data: { name: string; slug?: string }) =>
+    request<{ tag: Tag }>("/tags", { method: "POST", body: JSON.stringify(data) }),
+
+  updateTag: (id: number, data: Partial<{ name: string; slug: string }>) =>
+    request<{ tag: Tag }>(`/tags/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+
+  deleteTag: (id: number) =>
+    request<{ message: string }>(`/tags/${id}`, { method: "DELETE" }),
+
+  // ── Blog — Posts ───────────────────────────────────────────────────────
+  getPosts: (params: Record<string, string | number> = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).map(([k, v]) => [k, String(v)]),
+    ).toString();
+    return request<PostsResponse>(`/posts${qs ? "?" + qs : ""}`);
+  },
+
+  getPost: (id: number) =>
+    request<{ post: Post }>(`/posts/${id}`),
+
+  createPost: (data: PostPayload) =>
+    request<{ post: Post }>("/posts", { method: "POST", body: JSON.stringify(data) }),
+
+  updatePost: (id: number, data: Partial<PostPayload>) =>
+    request<{ post: Post }>(`/posts/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+
+  deletePost: (id: number) =>
+    request<{ message: string }>(`/posts/${id}`, { method: "DELETE" }),
+
+  uploadPostImage: async (file: File) => {
+    await fetchCsrfCookie();
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`${API_URL}/api/admin/posts/upload-image`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "X-XSRF-TOKEN": getCsrfToken() },
+      body: formData,
+    });
+    if (!res.ok) throw new Error("Upload failed");
+    return res.json() as Promise<{ url: string }>;
+  },
+
+  // ── Blog — Comments ────────────────────────────────────────────────────
+  getComments: (params: Record<string, string | number> = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).map(([k, v]) => [k, String(v)]),
+    ).toString();
+    return request<CommentsResponse>(`/comments${qs ? "?" + qs : ""}`);
+  },
+
+  approveComment: (id: number) =>
+    request<{ message: string }>(`/comments/${id}/approve`, { method: "PATCH" }),
+
+  rejectComment: (id: number) =>
+    request<{ message: string }>(`/comments/${id}/reject`, { method: "PATCH" }),
+
+  deleteComment: (id: number) =>
+    request<{ message: string }>(`/comments/${id}`, { method: "DELETE" }),
 };

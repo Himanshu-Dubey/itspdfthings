@@ -34,6 +34,13 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  manifest: "/manifest.json",
+  themeColor: "#dc2626",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "PDFThings",
+  },
 };
 
 interface SiteStatus {
@@ -110,6 +117,13 @@ export default async function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{const t=localStorage.getItem('theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-page text-ink">
         {status.maintenance_mode ? (
           <MaintenancePage />
@@ -122,6 +136,11 @@ export default async function RootLayout({
               {children}
             </SiteChrome>
             <CookieConsent />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{})})}`,
+              }}
+            />
           </AuthProvider>
         )}
       </body>
