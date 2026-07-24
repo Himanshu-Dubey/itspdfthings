@@ -11,7 +11,7 @@ class ToolStatusController extends Controller
     {
         return response()->json([
             'maintenance_mode' => Setting::get('maintenance_mode', '0') === '1',
-            'tools_enabled'    => json_decode(Setting::get('tools_enabled', '{}'), true) ?? [],
+            'tools_enabled'    => is_string($raw = Setting::get('tools_enabled', '{}')) ? (json_decode($raw, true) ?? []) : $raw,
             'announcement'     => [
                 'message'    => Setting::get('announcement_banner') ?: null,
                 'link'       => Setting::get('announcement_link') ?: null,
