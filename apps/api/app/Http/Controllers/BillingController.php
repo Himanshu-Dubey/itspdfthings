@@ -21,8 +21,20 @@ class BillingController extends Controller
         $planId = $request->input('plan_id');
         $country = $request->input('country', 'US');
 
-        // Stripe is disabled — all payments go through Razorpay
-        return $this->razorpayCheckout($user, $planId ? (int) $planId : null);
+        // Check if Stripe is enabled in settings
+        $stripeEnabled = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'stripe_enabled')->value('value');
+        $stripeEnabled = $stripeEnabled === '1' || $stripeEnabled === 'true';
+
+        // If Stripe disabled, always Razorpay. Otherwise geo-route.
+        if (! $stripeEnabled) {
+            return $this->razorpayCheckout($user, $planId ? (int) $planId : null);
+        }
+
+        $provider = $country === 'IN' ? 'razorpay' : 'stripe';
+
+        return $provider === 'razorpay'
+            ? $this->razorpayCheckout($user, $planId ? (int) $planId : null)
+            : $this->stripeCheckout($user, $planId ? (int) $planId : null);
     }
 
     /**

@@ -3,43 +3,66 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Setting extends Model
 {
-    protected $primaryKey = 'key';
-    public    $incrementing = false;
-    protected $keyType      = 'string';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = ['key', 'value', 'type', 'group', 'description'];
+    protected $casts = [];
 
-    protected function casts(): array
+    public function getValueAttribute(mixed $raw): mixed
     {
-        return ['updated_at' => 'datetime'];
+        return match ($this->attributes->get('type', 'string')) {
+            'boolean' => (bool) $raw,
+            'integer' => (int) $raw,
+            'json'    => json_decode($raw, true),
+            default   => $raw,
+        };
     }
 
-    /** Retrieve a setting value by key with an optional fallback. */
     public static function get(string $key, mixed $default = null): mixed
     {
-        return static::find($key)?->value ?? $default;
+        $row = DB::table('settings')->where('key', $key)->first();
+        if (! $row) return $default;
+
+        return match ($row->type) {
+            'boolean' => (bool) $row->value,
+            'integer' => (int) $row->value,
+            'json'    => json_decode($row->value, true),
+            default   => $row->value,
+        };
     }
 
-    /** Upsert a single key-value pair. */
-    public static function set(string $key, mixed $value): void
+    public static function set(string $key, mixed $value): static
     {
-        static::updateOrCreate(['key' => $key], ['value' => $value]);
+        return static::updateOrCreate(['key' => $key], ['value' => $value]);
     }
 
-    /** Bulk-upsert an associative array of key → value. */
-    public static function setMany(array $pairs): void
-    {
-        foreach ($pairs as $key => $value) {
-            static::set($key, $value);
-        }
-    }
-
-    /** Return all settings as a flat key → value map. */
     public static function allAsMap(): array
     {
-        return static::all()->pluck('value', 'key')->toArray();
+        $settings = DB::table('settings')->get();
+        $map = [];
+        foreach ($settings as $s) {
+            $map[$s->key] = match ($s->type) {
+                'boolean' => (bool) $s->value,
+                'integer' => (int) $s->value,
+                'json'    => json_decode($s->value, true),
+                default   => $s->value,
+            };
+        }
+        return $map;
+    }
+
+    public static function setMany(array $data): void
+    {
+        foreach ($data as $key => $value) {
+            DB::table('settings')->updateOrInsert(
+                ['key' => $key],
+                ['value' => $value, 'updated_at' => now()]
+            );
+        }
     }
 }

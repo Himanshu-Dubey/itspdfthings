@@ -30,6 +30,7 @@ export default function PricingPage() {
   const [busy, setBusy]               = useState<number | null>(null);
   const [error, setError]             = useState<string | null>(null);
   const [isIndia, setIsIndia] = useState(false);
+  const [billingProvider, setBillingProvider] = useState<"stripe" | "razorpay">("razorpay");
 
   useEffect(() => {
     Promise.all([
@@ -38,6 +39,7 @@ export default function PricingPage() {
     ]).then(([plansRes, geoRes]) => {
       setAllPlans(plansRes.plans);
       setIsIndia(geoRes.is_india);
+      setBillingProvider(geoRes.billing_provider);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -51,7 +53,8 @@ export default function PricingPage() {
     setBusy(plan.id);
     setError(null);
     try {
-      const { checkout_url } = await billing.checkout(plan.id, "IN");
+      const country = billingProvider === "razorpay" ? "IN" : "US";
+      const { checkout_url } = await billing.checkout(plan.id, country);
       window.location.href = checkout_url;
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Couldn't start checkout.");
@@ -144,12 +147,13 @@ export default function PricingPage() {
                   user={user}
                   busy={busy === plan.id}
                   onBuy={() => handleBuy(plan)}
+                  billingProvider={billingProvider}
                   isIndia={isIndia}
                 />
               ))
             ) : (
               /* No plans in DB yet — fall back to hardcoded Premium card */
-              <DefaultPremiumCard user={user} isIndia={isIndia} />
+              <DefaultPremiumCard user={user} billingProvider={billingProvider} isIndia={isIndia} />
             )}
           </div>
         )}
@@ -164,6 +168,7 @@ function PaidPlanCard({
   user,
   busy,
   onBuy,
+  billingProvider,
   isIndia,
 }: {
   plan: Plan;
@@ -171,6 +176,7 @@ function PaidPlanCard({
   user: { plan: string } | null;
   busy: boolean;
   onBuy: () => void;
+  billingProvider?: "stripe" | "razorpay";
   isIndia?: boolean;
 }) {
   const isPremium = user?.plan === "premium";
@@ -234,7 +240,7 @@ function PaidPlanCard({
   );
 }
 
-function DefaultPremiumCard({ user, isIndia }: { user: { plan: string } | null; isIndia?: boolean }) {
+function DefaultPremiumCard({ user, billingProvider, isIndia }: { user: { plan: string } | null; billingProvider?: "stripe" | "razorpay"; isIndia?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isPremium = user?.plan === "premium";
@@ -243,7 +249,8 @@ function DefaultPremiumCard({ user, isIndia }: { user: { plan: string } | null; 
     setBusy(true);
     setError(null);
     try {
-      const { checkout_url } = await billing.checkout(undefined, "IN");
+      const country = billingProvider === "razorpay" ? "IN" : "US";
+      const { checkout_url } = await billing.checkout(undefined, country);
       window.location.href = checkout_url;
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Couldn't start checkout.");

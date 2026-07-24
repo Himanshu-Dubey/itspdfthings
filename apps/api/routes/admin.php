@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SeoController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StripeConfigController;
 use App\Http\Controllers\Admin\SubscriptionAdminController;
@@ -43,6 +44,10 @@ Route::middleware('auth.admin')->group(function () {
     // Settings
     Route::get('settings',   [SettingsController::class, 'index']);
     Route::patch('settings', [SettingsController::class, 'update']);
+
+    // Billing toggle (Stripe on/off)
+    Route::get('billing/toggle',   [SettingController::class, 'billingIndex']);
+    Route::patch('billing/toggle', [SettingController::class, 'billingUpdate']);
 
     // Jobs admin (PDF jobs + failed queue)
     Route::get('jobs',                          [JobsAdminController::class, 'index']);

@@ -29,6 +29,7 @@ return new class extends Migration
             ['key' => 'file_size_limit_premium_bytes', 'value' => '524288000', 'type' => 'integer', 'group' => 'limits', 'description' => 'Max upload file size for premium users (bytes)', 'created_at' => now(), 'updated_at' => now()],
             ['key' => 'tools_enabled', 'value' => '{"merge":true,"split":true,"compress":true,"organize":true,"image-to-pdf":true,"pdf-to-image":true,"watermark":true,"page-numbers":true,"protect":true,"unlock":true}', 'type' => 'json', 'group' => 'tools', 'description' => 'Per-tool enabled/disabled toggle', 'created_at' => now(), 'updated_at' => now()],
             ['key' => 'premium_price_usd', 'value' => '9.99', 'type' => 'string', 'group' => 'billing', 'description' => 'Monthly premium subscription price in USD', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'stripe_enabled', 'value' => '0', 'type' => 'boolean', 'group' => 'billing', 'description' => 'Enable Stripe payments (when off, Razorpay-only with INR pricing)', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

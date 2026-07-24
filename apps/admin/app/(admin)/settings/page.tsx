@@ -26,11 +26,16 @@ export default function SettingsPage() {
   const [saved, setSaved]     = useState(false);
   const [loading, setLoading] = useState(true);
   const [isPending, start]    = useTransition();
+  const [stripeEnabled, setStripeEnabled] = useState(false);
+  const [stripeLoading, setStripeLoading] = useState(true);
 
   useEffect(() => {
     adminApi.getSettings().then(({ settings }) => {
       setValues(Object.fromEntries(Object.entries(settings).map(([k, v]) => [k, v ?? ""])));
     }).finally(() => setLoading(false));
+    adminApi.getBillingToggle().then((res) => {
+      setStripeEnabled(res.stripe_enabled);
+    }).finally(() => setStripeLoading(false));
   }, []);
 
   const handleChange = (key: string, val: string) => {
@@ -85,6 +90,38 @@ export default function SettingsPage() {
         Quotas, file limits, and tool toggles live under{" "}
         <a href="/pricing" className="text-brand hover:underline font-medium">Quotas &amp; Tools</a>.
       </p>
+
+      {/* Stripe Payment Toggle */}
+      <div className="bg-surface border border-border-soft rounded-2xl shadow-soft overflow-hidden">
+        <div className="px-5 py-4 flex items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <label className="block text-sm font-semibold text-ink mb-0.5">Enable Stripe payments</label>
+            <p className="text-xs text-ink-2 mb-2">
+              When OFF: Razorpay-only with INR pricing for all users.
+              <br />When ON: Geo-based routing — India gets Razorpay (INR), rest gets Stripe (USD).
+            </p>
+          </div>
+          <div className="shrink-0">
+            <button
+              disabled={stripeLoading}
+              onClick={async () => {
+                const next = !stripeEnabled;
+                setStripeEnabled(next);
+                await adminApi.updateBillingToggle(next);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2500);
+              }}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                stripeEnabled ? "bg-brand" : "bg-slate-200"
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                stripeEnabled ? "translate-x-6" : "translate-x-1"
+              }`} />
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div className="bg-surface border border-border-soft rounded-2xl shadow-soft overflow-hidden">
         <div className="divide-y divide-border-soft">

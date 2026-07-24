@@ -1,18 +1,25 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
-import { billing, ApiError } from "@/lib/api";
+import { billing, geo, ApiError } from "@/lib/api";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function UpgradeButton({ className }: { className?: string }) {
   const { user, loading: authLoading } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [billingProvider, setBillingProvider] = useState<"stripe" | "razorpay">("razorpay");
 
   const baseClass =
     className ??
     "inline-block bg-red-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors";
+
+  useEffect(() => {
+    geo.detect().then((res) => {
+      setBillingProvider(res.billing_provider);
+    }).catch(() => {});
+  }, []);
 
   if (authLoading) {
     return <button disabled className={baseClass}>Loading…</button>;
@@ -58,7 +65,8 @@ export function UpgradeButton({ className }: { className?: string }) {
           setBusy(true);
           setError(null);
           try {
-            const { checkout_url } = await billing.checkout(undefined, "IN");
+            const country = billingProvider === "razorpay" ? "IN" : "US";
+            const { checkout_url } = await billing.checkout(undefined, country);
             window.location.href = checkout_url;
           } catch (err) {
             setError(err instanceof ApiError ? err.message : "Couldn't start checkout.");

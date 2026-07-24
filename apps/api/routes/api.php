@@ -125,12 +125,16 @@ Route::post('/razorpay/webhook', [RazorpayWebhookController::class, 'handleWebho
 |--------------------------------------------------------------------------
 */
 Route::get('/geo', function () {
+    $stripeEnabled = \Illuminate\Support\Facades\DB::table('settings')->where('key', 'stripe_enabled')->value('value');
+    $stripeEnabled = $stripeEnabled === '1' || $stripeEnabled === 'true';
+
     // Local dev: default to India so INR pricing works during development
     if (app()->environment('local')) {
         return response()->json([
             'country' => 'IN',
             'is_india' => true,
             'billing_provider' => 'razorpay',
+            'stripe_enabled' => $stripeEnabled,
         ]);
     }
 
@@ -146,10 +150,18 @@ Route::get('/geo', function () {
     curl_close($ch);
 
     $country = $data['countryCode'] ?? 'US';
+    $isIndia = $country === 'IN';
+
+    // If Stripe is disabled, always use Razorpay (India pricing for everyone)
+    // If Stripe is enabled, geo-route: India → Razorpay, rest → Stripe
+    $provider = $stripeEnabled
+        ? ($isIndia ? 'razorpay' : 'stripe')
+        : 'razorpay';
 
     return response()->json([
         'country' => $country,
-        'is_india' => $country === 'IN',
-        'billing_provider' => 'razorpay',
+        'is_india' => $isIndia,
+        'billing_provider' => $provider,
+        'stripe_enabled' => $stripeEnabled,
     ]);
 });

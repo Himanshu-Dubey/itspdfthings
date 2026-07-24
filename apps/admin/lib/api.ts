@@ -123,6 +123,15 @@ export const adminApi = {
       body: JSON.stringify({ settings }),
     }),
 
+  // ── Billing toggle ────────────────────────────────────────────────────────
+  getBillingToggle: () => request<{ stripe_enabled: boolean }>("/billing/toggle"),
+
+  updateBillingToggle: (stripe_enabled: boolean) =>
+    request<{ stripe_enabled: boolean }>("/billing/toggle", {
+      method: "PATCH",
+      body: JSON.stringify({ stripe_enabled }),
+    }),
+
   // ── Jobs admin ────────────────────────────────────────────────────────────
   getJobs: (params: Record<string, string | number> = {}) => {
     const qs = new URLSearchParams(
