@@ -69,10 +69,10 @@ class RazorpayConfigController extends Controller
 
         try {
             $razorpay = new \Razorpay\Api\Api($key, $secret);
-            $razorpay->plans->all(['count' => 1]);
+            $razorpay->plan->all(['count' => 1]);
 
             return response()->json(['ok' => true, 'message' => 'Connected to Razorpay successfully.']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'message' => $e->getMessage()]);
         }
     }
