@@ -37,19 +37,12 @@ const KEY_META: Record<string, { label: string; desc: string; placeholder: strin
     placeholder: "…",
     link: "https://dashboard.razorpay.com/app/webhooks",
   },
-  RAZORPAY_PLAN_ID: {
-    label: "Plan ID",
-    desc: "Starts with plan_. Create a subscription plan in Razorpay and copy the plan ID.",
-    placeholder: "plan_…",
-    link: "https://dashboard.razorpay.com/app/subscriptions/plans",
-  },
 };
 
 const KEY_ORDER = [
   "RAZORPAY_KEY",
   "RAZORPAY_SECRET",
   "RAZORPAY_WEBHOOK_SECRET",
-  "RAZORPAY_PLAN_ID",
 ];
 
 type ConfigResponse = {
@@ -226,7 +219,6 @@ export default function RazorpayPage() {
 
                   {KEY_ORDER.map((k) => {
                     const meta = KEY_META[k];
-                    const isSecret = k !== "RAZORPAY_PLAN_ID";
                     const show = visible[k] ?? false;
 
                     return (
@@ -250,22 +242,20 @@ export default function RazorpayPage() {
                         <div className="relative">
                           <input
                             id={k}
-                            type={isSecret && !show ? "password" : "text"}
+                            type={!show ? "password" : "text"}
                             value={form[k] ?? ""}
                             onChange={(e) => setForm((f) => ({ ...f, [k]: e.target.value }))}
                             placeholder={data.config[k]?.set ? "(keep current)" : meta?.placeholder}
                             className="w-full border border-border-soft rounded-xl px-3.5 py-2.5 text-sm font-mono text-ink focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-colors pr-10"
                           />
-                          {isSecret && (
-                            <button
-                              type="button"
-                              onClick={() => setVisible((v) => ({ ...v, [k]: !show }))}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-2 hover:text-ink transition-colors cursor-pointer"
-                              aria-label={show ? "Hide" : "Show"}
-                            >
-                              {show ? <EyeOff size={14} /> : <Eye size={14} />}
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => setVisible((v) => ({ ...v, [k]: !show }))}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-2 hover:text-ink transition-colors cursor-pointer"
+                            aria-label={show ? "Hide" : "Show"}
+                          >
+                            {show ? <EyeOff size={14} /> : <Eye size={14} />}
+                          </button>
                         </div>
                       </div>
                     );
