@@ -41,12 +41,12 @@ export function AuthIllustration() {
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-ink mb-3 text-balance">PDF tools for productive people</h2>
-        <p className="text-ink-2 text-balance mb-5">
+        <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-900 mb-3 text-balance">PDF tools for productive people</h2>
+        <p className="text-zinc-500 dark:text-zinc-500 text-balance mb-5">
           PDFThings helps you merge, compress, convert, and protect PDF files quickly and easily —
           right in your browser, no install required.
         </p>
-        <Link href="/" className="inline-flex items-center gap-1 text-sm font-medium text-ink hover:text-brand transition-colors">
+        <Link href="/" className="inline-flex items-center gap-1 text-sm font-medium text-zinc-900 dark:text-zinc-900 hover:text-brand transition-colors">
           See all tools
           <ChevronDown size={15} />
         </Link>

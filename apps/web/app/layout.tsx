@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
@@ -36,12 +36,15 @@ export const metadata: Metadata = {
     card: "summary_large_image",
   },
   manifest: "/manifest.json",
-  themeColor: "#dc2626",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "PDFThings",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#dc2626",
 };
 
 interface SiteStatus {
