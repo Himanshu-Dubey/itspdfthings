@@ -39,17 +39,18 @@ class SubscriptionAdminController extends Controller
         }
 
         // Razorpay subscriptions (from users table)
-        $razorpayRows = User::whereNotNull('razorpay_subscription_id')
+        $razorpayRows = DB::table('users')
+            ->whereNotNull('razorpay_subscription_id')
             ->select([
-                'id as user_id',
-                'name as user_name',
-                'email as user_email',
-                'plan as user_plan',
-                'razorpay_subscription_id as provider_id',
-                'razorpay_subscription_status as status',
-                'created_at',
+                'users.id as user_id',
+                'users.name as user_name',
+                'users.email as user_email',
+                'users.plan as user_plan',
+                'users.razorpay_subscription_id as provider_id',
+                'users.razorpay_subscription_status as status',
+                'users.created_at',
             ])
-            ->orderByDesc('created_at')
+            ->orderByDesc('users.created_at')
             ->get()
             ->map(fn($row) => (array) $row + [
                 'id'        => null,
