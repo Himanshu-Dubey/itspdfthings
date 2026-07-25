@@ -40,7 +40,7 @@ class AuthController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'hp'       => ['sometimes', 'string', 'max:0'],
+            'hp'       => ['sometimes', 'nullable', 'string', 'max:0'],
             'ts'       => ['required', 'numeric'],
         ]);
 

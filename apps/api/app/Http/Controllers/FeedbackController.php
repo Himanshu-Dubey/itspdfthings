@@ -32,7 +32,7 @@ class FeedbackController extends Controller
             'type'    => ['nullable', 'string', 'in:general,bug,feature,suggestion,other'],
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
-            'hp'      => ['sometimes', 'string', 'max:0'],
+            'hp'      => ['sometimes', 'nullable', 'string', 'max:0'],
             'ts'      => ['required', 'numeric'],
         ]);
 
