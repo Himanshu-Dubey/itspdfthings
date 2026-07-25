@@ -31,7 +31,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     adminApi.getSettings().then(({ settings }) => {
-      setValues(Object.fromEntries(Object.entries(settings).map(([k, v]) => [k, v === true ? "1" : v === false ? "0" : String(v ?? "")])));
+      setValues(Object.fromEntries(Object.entries(settings as Record<string, unknown>).map(([k, v]) => [k, v === true ? "1" : v === false ? "0" : String(v ?? "")])));
     }).finally(() => setLoading(false));
     adminApi.getBillingToggle().then((res) => {
       setStripeEnabled(res.stripe_enabled);

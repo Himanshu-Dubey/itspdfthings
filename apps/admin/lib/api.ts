@@ -8,6 +8,7 @@ import type {
   CommentsResponse,
   DashboardMetrics,
   FailedQueueJob,
+  FeedbackEntry,
   IpBlocklistEntry,
   JobsResponse,
   JobStatsResponse,
@@ -391,7 +392,7 @@ export const adminApi = {
     const qs = new URLSearchParams(
       Object.entries(params).map(([k, v]) => [k, String(v)]),
     ).toString();
-    return request<FeedbackEntry[]>(`/feedback${qs ? "?" + qs : ""}`);
+    return request<import("@/types/api").PaginatedFeedback>(`/feedback${qs ? "?" + qs : ""}`);
   },
 
   getFeedbackStats: () =>

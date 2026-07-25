@@ -42,6 +42,26 @@ export interface UserDetailResponse {
   user: ManagedUser;
   recent_jobs: PdfJobRow[];
   job_counts: Record<string, number>;
+  subscription?: {
+    id: string;
+    status: string;
+    plan: string;
+    provider: string;
+    plan_id?: string;
+    charged_count?: number;
+    total_count?: number;
+    current_end?: number;
+    current_period_end: string | null;
+    cancel_at_period_end: boolean;
+  } | null;
+  invoices?: Array<{
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    created_at: string;
+    invoice_url: string | null;
+  }>;
 }
 
 // ── PDF Jobs ──────────────────────────────────────────────────────────────────
@@ -422,4 +442,12 @@ export interface FeedbackEntry {
   ip_address: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface PaginatedFeedback {
+  data: FeedbackEntry[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
 }
