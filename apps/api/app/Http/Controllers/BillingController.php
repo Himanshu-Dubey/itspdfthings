@@ -78,7 +78,8 @@ class BillingController extends Controller
     {
         $user = $request->user();
 
-        if (config('services.billing_provider') === 'razorpay') {
+        // Razorpay: no self-service portal available
+        if ($user->razorpay_subscription_id) {
             return response()->json([
                 'message' => 'Self-service subscription management isn\'t available for Razorpay yet. Contact support to change or cancel your plan.',
             ], 501);

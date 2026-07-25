@@ -414,6 +414,10 @@ function BillingSection({ plan }: { plan: string }) {
     start(async () => {
       try {
         if (plan === "premium") {
+          if (subDetail?.provider === "razorpay") {
+            setError("Subscription management is not available for Razorpay yet. Contact support to change or cancel your plan.");
+            return;
+          }
           const { portal_url } = await billing.portal();
           window.location.href = portal_url;
         } else {
@@ -509,7 +513,7 @@ function BillingSection({ plan }: { plan: string }) {
       )}
 
       {error && (
-        <p className="flex items-center gap-1.5 text-xs text-brand-dark mb-4">
+        <p className="flex items-center gap-1.5 text-xs text-brand-dark bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 mb-4">
           <AlertCircle size={13} /> {error}
         </p>
       )}
@@ -525,7 +529,7 @@ function BillingSection({ plan }: { plan: string }) {
               : "bg-gradient-to-r from-amber-400 to-orange-400 text-white hover:from-amber-500 hover:to-orange-500 shadow-[0_2px_10px_rgba(245,158,11,0.35)]",
           ].join(" ")}
         >
-          {isPending ? "Loading…" : isPremium ? "Manage subscription" : `Upgrade to Premium — ${formatPrice()}/mo`}
+          {isPending ? "Loading…" : isPremium ? (subDetail?.provider === "razorpay" ? "Contact support" : "Manage subscription") : `Upgrade to Premium — ${formatPrice()}/mo`}
         </button>
         <Link
           href="/billing"
