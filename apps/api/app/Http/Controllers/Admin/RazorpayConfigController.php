@@ -3,28 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Config;
 
 class RazorpayConfigController extends Controller
 {
-    private const ENV_KEYS = [
-        'RAZORPAY_KEY',
-        'RAZORPAY_SECRET',
-        'RAZORPAY_WEBHOOK_SECRET',
+    private const SETTING_KEYS = [
+        'RAZORPAY_KEY'            => 'razorpay_key',
+        'RAZORPAY_SECRET'         => 'razorpay_secret',
+        'RAZORPAY_WEBHOOK_SECRET' => 'razorpay_webhook_secret',
     ];
 
     public function index(): JsonResponse
     {
-        $content = file_get_contents(base_path('.env'));
-        $config  = [];
+        $config = [];
 
-        foreach (self::ENV_KEYS as $key) {
-            $value        = $this->readEnvValue($key, $content);
-            $config[$key] = [
+        foreach (self::SETTING_KEYS as $envKey => $settingKey) {
+            $value = Setting::get($settingKey, '');
+            $config[$envKey] = [
                 'set'     => $value !== '',
-                'preview' => $value !== '' ? $this->maskValue($key, $value) : null,
+                'preview' => $value !== '' ? $this->maskValue($value) : null,
             ];
         }
 
@@ -43,25 +43,23 @@ class RazorpayConfigController extends Controller
             'RAZORPAY_WEBHOOK_SECRET' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $content = file_get_contents(base_path('.env'));
+        foreach (self::SETTING_KEYS as $envKey => $settingKey) {
+            if (array_key_exists($envKey, $data)) {
+                $value = $data[$envKey] ?? '';
+                Setting::set($settingKey, $value);
 
-        foreach (self::ENV_KEYS as $key) {
-            if (array_key_exists($key, $data)) {
-                $content = $this->writeEnvValue($key, $data[$key] ?? '', $content);
+                // Also update in-memory config so it takes effect immediately.
+                Config::set("services.razorpay." . str_replace('razorpay_', '', $settingKey), $value);
             }
         }
-
-        file_put_contents(base_path('.env'), $content);
-        Artisan::call('config:clear');
 
         return $this->index();
     }
 
     public function test(): JsonResponse
     {
-        $content = file_get_contents(base_path('.env'));
-        $key     = $this->readEnvValue('RAZORPAY_KEY', $content);
-        $secret  = $this->readEnvValue('RAZORPAY_SECRET', $content);
+        $key    = config('services.razorpay.key', '');
+        $secret = config('services.razorpay.secret', '');
 
         if ($key === '' || $secret === '') {
             return response()->json(['ok' => false, 'message' => 'RAZORPAY_KEY and RAZORPAY_SECRET must be configured.']);
@@ -79,27 +77,7 @@ class RazorpayConfigController extends Controller
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private function readEnvValue(string $key, string $content): string
-    {
-        if (preg_match('/^' . preg_quote($key, '/') . '=(.*)$/m', $content, $m)) {
-            return trim($m[1], '"\'');
-        }
-
-        return '';
-    }
-
-    private function writeEnvValue(string $key, string $value, string $content): string
-    {
-        $line = $value !== '' ? "{$key}={$value}" : "{$key}=";
-
-        if (preg_match('/^' . preg_quote($key, '/') . '=/m', $content)) {
-            return preg_replace('/^' . preg_quote($key, '/') . '=.*/m', $line, $content);
-        }
-
-        return $content . "\n{$line}";
-    }
-
-    private function maskValue(string $key, string $value): string
+    private function maskValue(string $value): string
     {
         if (strlen($value) <= 12) {
             return str_repeat('*', strlen($value));

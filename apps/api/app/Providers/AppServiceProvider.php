@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Contracts\ScansFile;
 use App\Models\AbuseLog;
+use App\Models\Setting;
 use App\Services\NoOpScanner;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Events\DiagnosingHealth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Load Razorpay keys from settings table into config, overriding .env values.
+        $this->loadRazorpayConfig();
+
         // Per-IP upload rate limit — flood/DoS protection, separate from per-tool quotas.
         RateLimiter::for('uploads', function (Request $request) {
             return Limit::perMinute(
@@ -41,5 +46,20 @@ class AppServiceProvider extends ServiceProvider
             DB::connection()->getPdo();
             Redis::connection()->ping();
         });
+    }
+
+    private function loadRazorpayConfig(): void
+    {
+        try {
+            $key    = Setting::get('razorpay_key', '');
+            $secret = Setting::get('razorpay_secret', '');
+            $webhook = Setting::get('razorpay_webhook_secret', '');
+
+            if ($key) Config::set('services.razorpay.key', $key);
+            if ($secret) Config::set('services.razorpay.secret', $secret);
+            if ($webhook) Config::set('services.razorpay.webhook_secret', $webhook);
+        } catch (\Throwable) {
+            // Table may not exist during migrations — silently ignore.
+        }
     }
 }
