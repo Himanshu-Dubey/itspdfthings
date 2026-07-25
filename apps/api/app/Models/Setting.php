@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class Setting extends Model
 {
+    protected $primaryKey = 'key';
     public $incrementing = false;
     protected $keyType = 'string';
 
@@ -38,7 +39,12 @@ class Setting extends Model
 
     public static function set(string $key, mixed $value): static
     {
-        return static::updateOrCreate(['key' => $key], ['value' => $value]);
+        DB::table('settings')->updateOrInsert(
+            ['key' => $key],
+            ['value' => $value, 'updated_at' => now()]
+        );
+
+        return new static(['key' => $key, 'value' => $value]);
     }
 
     public static function allAsMap(): array
