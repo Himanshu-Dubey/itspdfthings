@@ -18,6 +18,7 @@ export interface ManagedUser {
   name: string;
   email: string;
   plan: UserPlan;
+  avatar: string | null;
   is_banned: boolean;
   banned_reason: string | null;
   country: string | null;

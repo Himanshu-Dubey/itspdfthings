@@ -94,6 +94,12 @@ export const auth = {
   }): Promise<AuthUserResponse> {
     return request<AuthUserResponse>("PATCH", "/auth/profile", data);
   },
+
+  async uploadAvatar(file: File): Promise<{ user: import("@/types/api").User; avatar_url: string }> {
+    const form = new FormData();
+    form.append("avatar", file);
+    return request<{ user: import("@/types/api").User; avatar_url: string }>("POST", "/auth/avatar", form);
+  },
 };
 
 // ── Jobs ─────────────────────────────────────────────────────────────────────

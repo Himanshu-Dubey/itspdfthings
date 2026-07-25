@@ -13,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'plan', 'is_banned', 'banned_reason', 'country', 'last_active_at'])]
+#[Fillable(['name', 'email', 'password', 'plan', 'is_banned', 'banned_reason', 'country', 'last_active_at', 'avatar'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {

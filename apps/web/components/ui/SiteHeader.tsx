@@ -2,8 +2,8 @@
 
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
-import { useState } from "react";
-import { Heart, Menu, X } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Heart, Menu, X, LogOut, User, CreditCard, ChevronDown } from "lucide-react";
 import { DarkModeToggle } from "./DarkModeToggle";
 
 const TOOL_LINKS = [
@@ -21,9 +21,35 @@ interface NavPage {
   slug: string;
 }
 
+function UserAvatar({ avatar, name, size = "sm" }: { avatar?: string | null; name: string; size?: "sm" | "md" }) {
+  const sizeClasses = size === "sm" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm";
+  if (avatar) {
+    const src = avatar.startsWith("/") ? avatar : `/api/files/${avatar}`;
+    return <img src={src} alt={name} className={`${sizeClasses} rounded-full object-cover`} />;
+  }
+  const initials = name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
+  return (
+    <span className={`${sizeClasses} inline-flex items-center justify-center rounded-full bg-gradient-to-br from-brand to-orange-400 text-white font-bold`}>
+      {initials || "U"}
+    </span>
+  );
+}
+
 export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const hardcodedHrefs = new Set(TOOL_LINKS.map((l) => l.href));
   const navLinks = [
@@ -57,18 +83,66 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
             {loading ? (
               <div className="h-9 w-24 bg-white/5 rounded-lg animate-pulse" />
             ) : user ? (
-              <>
-                <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
-                  Dashboard
-                </Link>
-                <Link
-                  href="/profile"
-                  aria-label="Account settings"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white text-xs font-bold hover:bg-white/20 transition-colors"
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen((v) => !v)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                 >
-                  {user.name?.[0]?.toUpperCase() ?? "U"}
-                </Link>
-              </>
+                  <UserAvatar avatar={user.avatar} name={user.name} />
+                  <ChevronDown size={14} className={`text-zinc-400 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                    <div className="px-4 py-3 border-b border-white/10 flex items-center gap-3">
+                      <UserAvatar avatar={user.avatar} name={user.name} size="md" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+                        <p className="text-xs text-zinc-400 truncate">{user.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="py-1.5">
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
+                      >
+                        <CreditCard size={14} className="shrink-0" />
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/profile"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
+                      >
+                        <User size={14} className="shrink-0" />
+                        Profile & Settings
+                      </Link>
+                      {user.plan === "free" && (
+                        <Link
+                          href="/pricing"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-amber-400 hover:bg-white/5 hover:text-amber-300 transition-colors"
+                        >
+                          <CreditCard size={14} className="shrink-0" />
+                          Upgrade to Premium
+                        </Link>
+                      )}
+                    </div>
+
+                    <div className="border-t border-white/10 py-1.5">
+                      <button
+                        onClick={() => { setDropdownOpen(false); logout(); }}
+                        className="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <LogOut size={14} className="shrink-0" />
+                        Log out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <Link
@@ -113,6 +187,13 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
           <div className="pt-2 mt-2 border-t border-white/10 space-y-1">
             {user ? (
               <>
+                <div className="flex items-center gap-3 px-3 py-2.5">
+                  <UserAvatar avatar={user.avatar} name={user.name} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+                    <p className="text-xs text-zinc-400 truncate">{user.email}</p>
+                  </div>
+                </div>
                 <Link
                   href="/dashboard"
                   onClick={() => setMobileOpen(false)}
@@ -125,8 +206,17 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
                   onClick={() => setMobileOpen(false)}
                   className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
                 >
-                  Account Settings
+                  Profile & Settings
                 </Link>
+                {user.plan === "free" && (
+                  <Link
+                    href="/pricing"
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-3 py-2.5 rounded-lg text-sm font-medium text-amber-400 hover:bg-white/5 hover:text-amber-300 transition-colors"
+                  >
+                    Upgrade to Premium
+                  </Link>
+                )}
                 <button
                   onClick={() => { logout(); setMobileOpen(false); }}
                   className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"

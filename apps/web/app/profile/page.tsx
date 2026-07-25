@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { auth, billing, ApiError, plans as plansApi, geo } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import type { Plan } from "@/types/api";
 import {
@@ -58,9 +58,13 @@ export default function ProfilePage() {
             {/* User card */}
             <div className="px-5 pt-6 pb-5 border-b border-border-soft">
               <div className="flex flex-col items-center text-center gap-3">
-                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-brand to-orange-400 flex items-center justify-center text-white text-xl font-bold shadow-[0_4px_16px_rgba(220,38,38,0.35)]">
-                  {initials || "U"}
-                </div>
+                {user.avatar ? (
+                  <img src={`/api/files/${user.avatar}`} alt={user.name} className="h-16 w-16 rounded-full object-cover shadow-[0_4px_16px_rgba(220,38,38,0.35)]" />
+                ) : (
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-brand to-orange-400 flex items-center justify-center text-white text-xl font-bold shadow-[0_4px_16px_rgba(220,38,38,0.35)]">
+                    {initials || "U"}
+                  </div>
+                )}
                 <div className="min-w-0 w-full">
                   <p className="font-semibold text-ink truncate">{user.name}</p>
                   <p className="text-xs text-ink-2 truncate mt-0.5">{user.email}</p>
@@ -154,12 +158,16 @@ function ProfileSection({
   user,
   refreshUser,
 }: {
-  user: { name: string; email: string; plan: string; email_verified_at: string | null; created_at: string };
+  user: { name: string; email: string; plan: string; avatar: string | null; email_verified_at: string | null; created_at: string };
   refreshUser: () => Promise<void>;
 }) {
   const [name, setName] = useState(user.name);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isPending, start] = useTransition();
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar ? `/api/files/${user.avatar}` : null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadFeedback, setUploadFeedback] = useState<Feedback | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     setFeedback(null);
@@ -177,8 +185,75 @@ function ProfileSection({
     });
   };
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadFeedback(null);
+
+    if (file.size > 1024 * 1024) {
+      setUploadFeedback({ type: "error", message: "Image must be 1 MB or smaller." });
+      return;
+    }
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setUploadFeedback({ type: "error", message: "Only JPG, PNG, and WebP images are allowed." });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => setAvatarPreview(reader.result as string);
+    reader.readAsDataURL(file);
+
+    setUploading(true);
+    auth.uploadAvatar(file)
+      .then(async (res) => {
+        await refreshUser();
+        setAvatarPreview(res.avatar_url);
+        setUploadFeedback({ type: "success", message: "Profile photo updated." });
+      })
+      .catch((err) => {
+        setUploadFeedback({ type: "error", message: err instanceof ApiError ? err.message : "Failed to upload image." });
+      })
+      .finally(() => setUploading(false));
+  };
+
   return (
     <SectionCard title="Profile" icon={User}>
+      {/* Avatar upload */}
+      <div className="flex items-center gap-5 mb-6">
+        <div className="relative group">
+          {avatarPreview ? (
+            <img src={avatarPreview} alt="Profile" className="h-20 w-20 rounded-full object-cover border-2 border-border-soft" />
+          ) : (
+            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-brand to-orange-400 flex items-center justify-center text-white text-2xl font-bold shadow-[0_4px_16px_rgba(220,38,38,0.35)]">
+              {user.name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") || "U"}
+            </div>
+          )}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+          >
+            {uploading ? (
+              <span className="text-white text-xs font-medium">Uploading…</span>
+            ) : (
+              <span className="text-white text-xs font-medium">Change photo</span>
+            )}
+          </button>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleAvatarChange}
+          className="hidden"
+        />
+        <div className="text-xs text-ink-2">
+          <p className="font-medium text-ink">Profile photo</p>
+          <p>Max 1 MB. JPG, PNG, or WebP.</p>
+          {uploadFeedback && <FeedbackMsg feedback={uploadFeedback} />}
+        </div>
+      </div>
+
       {/* Info grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
         <InfoField label="Email address" value={user.email} />

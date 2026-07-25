@@ -86,4 +86,32 @@ class AuthController extends Controller
 
         return response()->json(['user' => $user]);
     }
+
+    public function updateAvatar(Request $request): JsonResponse
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'max:1024', 'mimes:jpg,jpeg,png,webp'],
+        ]);
+
+        $user = $request->user();
+
+        if ($user->avatar) {
+            $oldPath = storage_path('app/public/' . $user->avatar);
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+
+        $file = $request->file('avatar');
+        $path = $file->store('avatars', 'public');
+        $filename = basename($path);
+
+        $user->avatar = 'avatars/' . $filename;
+        $user->save();
+
+        return response()->json([
+            'user' => $user,
+            'avatar_url' => '/api/files/avatars/' . $filename,
+        ]);
+    }
 }

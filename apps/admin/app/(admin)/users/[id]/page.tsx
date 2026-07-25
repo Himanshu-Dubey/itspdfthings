@@ -139,7 +139,19 @@ export default function UserDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardBody className="space-y-3 text-sm">
-              <Row label="Email" value={user.email} />
+              <div className="flex items-center gap-3 mb-2">
+                {user.avatar ? (
+                  <img src={`/api/files/${user.avatar}`} alt="" className="h-12 w-12 rounded-full object-cover" />
+                ) : (
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-400 text-white text-sm font-bold">
+                    {user.name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("")}
+                  </span>
+                )}
+                <div>
+                  <p className="font-semibold text-ink">{user.name}</p>
+                  <p className="text-xs text-ink-2">{user.email}</p>
+                </div>
+              </div>
               <Row label="Joined" value={new Date(user.created_at).toLocaleDateString()} />
               <Row
                 label="Last active"
