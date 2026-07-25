@@ -30,9 +30,10 @@ export default function PricingPage() {
 
   useEffect(() => {
     adminApi.getSettings().then(({ settings }) => {
-      setRaw(Object.fromEntries(Object.entries(settings).map(([k, v]) => [k, v ?? ""])));
+      setRaw(Object.fromEntries(Object.entries(settings).map(([k, v]) => [k, String(v ?? "")])));
       try {
-        setTools(JSON.parse(settings.tools_enabled ?? "{}"));
+        const raw = settings.tools_enabled;
+        setTools(typeof raw === "string" ? JSON.parse(raw) : (raw ?? {}));
       } catch {
         setTools({});
       }
