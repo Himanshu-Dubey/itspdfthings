@@ -40,6 +40,13 @@ class AppServiceProvider extends ServiceProvider
             });
         });
 
+        // Registration rate limit — max 3 per IP per hour to prevent mass signups.
+        RateLimiter::for('register', function (Request $request) {
+            return Limit::perHour(3)->by($request->ip())->response(function (Request $request) {
+                return response()->json(['message' => 'Too many registration attempts. Please try again later.'], 429);
+            });
+        });
+
         // The /up health route dispatches this event; a listener throwing
         // marks the app unhealthy (503) instead of always reporting 200.
         Event::listen(function (DiagnosingHealth $event) {

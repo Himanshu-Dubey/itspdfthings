@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Heart, AlertCircle } from "lucide-react";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthSuccess } from "@/components/auth/AuthSuccess";
@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [registeredName, setRegisteredName] = useState<string | null>(null);
+  const pageLoadTime = useMemo(() => Math.floor(Date.now() / 1000), []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,7 +26,7 @@ export default function RegisterPage() {
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     try {
-      await register(name, email, password);
+      await register(name, email, password, pageLoadTime);
       setRegisteredName(name);
     } catch (err) {
       setError(
@@ -51,6 +52,12 @@ export default function RegisterPage() {
       <p className="text-sm text-ink-2 text-center mb-8">Free forever, no credit card needed</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Honeypot — hidden from humans, bots will fill it */}
+        <div className="absolute -left-[9999px]" aria-hidden="true">
+          <label htmlFor="hp">Leave this empty</label>
+          <input id="hp" name="hp" type="text" tabIndex={-1} autoComplete="off" />
+        </div>
+
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-ink mb-1.5">
             Name

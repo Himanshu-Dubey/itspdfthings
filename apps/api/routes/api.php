@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | These hit Sanctum's SPA CSRF cookie first, then the auth endpoints.
 */
-Route::post('/auth/register', [AuthController::class, 'register'])->middleware('guest');
+Route::post('/auth/register', [AuthController::class, 'register'])->middleware(['guest', 'throttle:register']);
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('guest');
 Route::post('/auth/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/auth/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
@@ -70,14 +70,14 @@ Route::get('/pages/{slug}', [PagePublicController::class, 'show']);
 | Contact form (public — saves lead to database)
 |--------------------------------------------------------------------------
 */
-Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:3,1');
 
 /*
 |--------------------------------------------------------------------------
 | Feedback form (public — saves to database)
 |--------------------------------------------------------------------------
 */
-Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,1');
+Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:3,1');
 
 /*
 |--------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 
 const DIRECT_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -19,6 +19,7 @@ export function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const pageLoadTime = useMemo(() => Math.floor(Date.now() / 1000), []);
 
   const set = (key: string, val: string) => setForm((prev) => ({ ...prev, [key]: val }));
 
@@ -38,7 +39,7 @@ export function ContactForm() {
           Accept: "application/json",
           "X-XSRF-TOKEN": getCsrfToken(),
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, hp: "", ts: pageLoadTime }),
       });
 
       const data = await res.json();
@@ -77,7 +78,13 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5 relative">
+      {/* Honeypot */}
+      <div className="absolute -left-[9999px]" aria-hidden="true">
+        <label htmlFor="contact-hp">Leave empty</label>
+        <input id="contact-hp" name="hp" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label className="block text-sm font-semibold text-ink mb-1.5">Name *</label>

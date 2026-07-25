@@ -68,9 +68,10 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 import type { AuthUserResponse, LoginResponse, RegisterResponse } from "@/types/api";
 
 export const auth = {
-  async register(name: string, email: string, password: string): Promise<RegisterResponse> {
+  async register(name: string, email: string, password: string, ts?: number): Promise<RegisterResponse> {
     return request<RegisterResponse>("POST", "/auth/register", {
       name, email, password, password_confirmation: password,
+      hp: "", ts: ts ?? Math.floor(Date.now() / 1000),
     });
   },
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { MessageSquare, X, Send, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -30,6 +30,7 @@ export function FeedbackWidget() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const pageLoadTime = useMemo(() => Math.floor(Date.now() / 1000), []);
 
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
@@ -56,7 +57,7 @@ export function FeedbackWidget() {
           Accept: "application/json",
           "X-XSRF-TOKEN": getCsrfToken(),
         },
-        body: JSON.stringify({ name, email, type, subject, message }),
+        body: JSON.stringify({ name, email, type, subject, message, hp: "", ts: pageLoadTime }),
       });
 
       if (!res.ok) {

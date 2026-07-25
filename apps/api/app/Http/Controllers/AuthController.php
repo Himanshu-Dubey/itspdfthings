@@ -12,15 +12,62 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    private const DISPOSABLE_DOMAINS = [
+        'guerrillamail.com','guerrillamail.net','guerrillamail.org',
+        'tempmail.com','temp-mail.org','temp-mail.io','tempail.com',
+        'throwaway.email','throwawaymail.com','throwam.com',
+        'mailinator.com','mailnesia.com','maildrop.cc','mailcatch.com',
+        'yopmail.com','yopmail.fr','yopmail.net',
+        'dispostable.com','sharklasers.com','guerrillamailblock.com',
+        'grr.la','disposable.email','mohmal.com',
+        'fakeinbox.com','tempinbox.com','tempr.email',
+        '10minutemail.com','10minutemail.co.za','mailnator.com',
+        'trashmail.com','trashmail.net','trashmail.me','trashmail.org',
+        'discard.email','discardmail.com','discardmail.de',
+        'getairmail.com','getnada.com','emailondeck.com',
+        'tmpmail.net','tmpmail.org','tmpmail.me',
+        'harakirimail.com','jetable.org','jetable.fr.nf',
+        'mytemp.email','tempemail.net','tempemail.com',
+        'spamgourmet.com','spamgourmet.net','spamgourmet.org',
+        'binkmail.com','bobmail.info','chammy.info','devnullmail.com',
+        'letthemeatspam.com','meltmail.com','nospam.ze.tc',
+        'nomail.xl.cx','sslmails.com','safetymail.info',
+    ];
+
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'hp'       => ['sometimes', 'string', 'max:0'],
+            'ts'       => ['required', 'numeric'],
         ]);
 
-        $user = User::create($data);
+        // Honeypot check — bots fill hidden fields
+        if (!empty($data['hp'])) {
+            abort(422, 'Registration failed.');
+        }
+
+        // Time check — reject if submitted faster than 3 seconds
+        $elapsed = time() - intval($data['ts']);
+        if ($elapsed < 3) {
+            abort(422, 'Registration failed. Please try again.');
+        }
+
+        // Disposable email check
+        $domain = strtolower(trim(substr(strrchr($data['email'], '@'), 1)));
+        if (in_array($domain, self::DISPOSABLE_DOMAINS, true)) {
+            throw ValidationException::withMessages([
+                'email' => ['Please use a permanent email address.'],
+            ]);
+        }
+
+        $user = User::create([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
 
         Auth::login($user);
         $request->session()->regenerate();
