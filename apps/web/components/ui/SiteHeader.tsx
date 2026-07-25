@@ -21,11 +21,10 @@ interface NavPage {
   slug: string;
 }
 
-function UserAvatar({ avatar, name, size = "sm" }: { avatar?: string | null; name: string; size?: "sm" | "md" }) {
+function UserAvatar({ avatar, userId, name, size = "sm" }: { avatar?: string | null; userId?: number; name: string; size?: "sm" | "md" }) {
   const sizeClasses = size === "sm" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm";
-  if (avatar) {
-    const src = avatar.startsWith("/") ? avatar : `/api/files/${avatar}`;
-    return <img src={src} alt={name} className={`${sizeClasses} rounded-full object-cover`} />;
+  if (avatar && userId) {
+    return <img src={`/api/avatar/${userId}`} alt={name} className={`${sizeClasses} rounded-full object-cover`} />;
   }
   const initials = name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
   return (
@@ -88,14 +87,14 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
                   onClick={() => setDropdownOpen((v) => !v)}
                   className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                 >
-                  <UserAvatar avatar={user.avatar} name={user.name} />
+                  <UserAvatar avatar={user.avatar} userId={user.id} name={user.name} />
                   <ChevronDown size={14} className={`text-zinc-400 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-64 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl overflow-hidden">
                     <div className="px-4 py-3 border-b border-white/10 flex items-center gap-3">
-                      <UserAvatar avatar={user.avatar} name={user.name} size="md" />
+                      <UserAvatar avatar={user.avatar} userId={user.id} name={user.name} size="md" />
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                         <p className="text-xs text-zinc-400 truncate">{user.email}</p>
@@ -188,7 +187,7 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
             {user ? (
               <>
                 <div className="flex items-center gap-3 px-3 py-2.5">
-                  <UserAvatar avatar={user.avatar} name={user.name} />
+                  <UserAvatar avatar={user.avatar} userId={user.id} name={user.name} />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-white truncate">{user.name}</p>
                     <p className="text-xs text-zinc-400 truncate">{user.email}</p>

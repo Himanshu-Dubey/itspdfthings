@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -103,15 +104,30 @@ class AuthController extends Controller
         }
 
         $file = $request->file('avatar');
-        $path = $file->store('avatars', 'public');
-        $filename = basename($path);
+        $randomName = Str::random(40) . '.webp';
+        $destPath = storage_path('app/public/avatars/' . $randomName);
 
-        $user->avatar = 'avatars/' . $filename;
+        $imagick = new \Imagick($file->getRealPath());
+        $imagick->setImageFormat('webp');
+        $imagick->setImageCompressionQuality(80);
+
+        $width = $imagick->getImageWidth();
+        $height = $imagick->getImageHeight();
+        $maxSize = 256;
+
+        if ($width > $maxSize || $height > $maxSize) {
+            $imagick->thumbnailImage($maxSize, $maxSize, true);
+        }
+
+        file_put_contents($destPath, $imagick->getImageBlob());
+        $imagick->destroy();
+
+        $user->avatar = 'avatars/' . $randomName;
         $user->save();
 
         return response()->json([
             'user' => $user,
-            'avatar_url' => '/api/files/avatars/' . $filename,
+            'avatar_url' => '/api/avatar/' . $user->id,
         ]);
     }
 }

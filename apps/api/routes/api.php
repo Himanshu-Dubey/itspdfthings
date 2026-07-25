@@ -112,6 +112,26 @@ Route::get('/files/{path}', function (string $path) {
 
 /*
 |--------------------------------------------------------------------------
+| User avatar — serves avatar by user ID (masked path)
+|--------------------------------------------------------------------------
+*/
+Route::get('/avatar/{userId}', function (int $userId) {
+    $user = \App\Models\User::find($userId);
+    if (!$user || !$user->avatar || str_ends_with($user->avatar, '/')) {
+        abort(404);
+    }
+    $full = realpath(storage_path('app/public/' . $user->avatar));
+    if (!$full || !file_exists($full)) {
+        abort(404);
+    }
+    return response()->file($full, [
+        'Content-Type'  => 'image/webp',
+        'Cache-Control' => 'public, max-age=604800',
+    ]);
+})->where('userId', '[0-9]+');
+
+/*
+|--------------------------------------------------------------------------
 | Billing (Stripe Checkout + Cashier, or Razorpay Subscriptions)
 |--------------------------------------------------------------------------
 | Checkout/portal require a logged-in user and branch internally on

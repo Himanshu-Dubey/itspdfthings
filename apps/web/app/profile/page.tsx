@@ -59,7 +59,7 @@ export default function ProfilePage() {
             <div className="px-5 pt-6 pb-5 border-b border-border-soft">
               <div className="flex flex-col items-center text-center gap-3">
                 {user.avatar ? (
-                  <img src={`/api/files/${user.avatar}`} alt={user.name} className="h-16 w-16 rounded-full object-cover shadow-[0_4px_16px_rgba(220,38,38,0.35)]" />
+                  <img src={`/api/avatar/${user.id}`} alt={user.name} className="h-16 w-16 rounded-full object-cover shadow-[0_4px_16px_rgba(220,38,38,0.35)]" />
                 ) : (
                   <div className="h-16 w-16 rounded-full bg-gradient-to-br from-brand to-orange-400 flex items-center justify-center text-white text-xl font-bold shadow-[0_4px_16px_rgba(220,38,38,0.35)]">
                     {initials || "U"}
@@ -158,13 +158,13 @@ function ProfileSection({
   user,
   refreshUser,
 }: {
-  user: { name: string; email: string; plan: string; avatar: string | null; email_verified_at: string | null; created_at: string };
+  user: { id: number; name: string; email: string; plan: string; avatar: string | null; email_verified_at: string | null; created_at: string };
   refreshUser: () => Promise<void>;
 }) {
   const [name, setName] = useState(user.name);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isPending, start] = useTransition();
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar ? `/api/files/${user.avatar}` : null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar ? `/api/avatar/${user.id}` : null);
   const [uploading, setUploading] = useState(false);
   const [uploadFeedback, setUploadFeedback] = useState<Feedback | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

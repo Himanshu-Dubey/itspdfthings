@@ -141,7 +141,7 @@ export default function UserDetailPage() {
             <CardBody className="space-y-3 text-sm">
               <div className="flex items-center gap-3 mb-2">
                 {user.avatar ? (
-                  <img src={`/api/files/${user.avatar}`} alt="" className="h-12 w-12 rounded-full object-cover" />
+                  <img src={`/api/avatar/${user.id}`} alt="" className="h-12 w-12 rounded-full object-cover" />
                 ) : (
                   <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-400 text-white text-sm font-bold">
                     {user.name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("")}

@@ -124,7 +124,7 @@ export default function UsersPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {user.avatar ? (
-                        <img src={`/api/files/${user.avatar}`} alt="" className="h-8 w-8 rounded-full object-cover" />
+                        <img src={`/api/avatar/${user.id}`} alt="" className="h-8 w-8 rounded-full object-cover" />
                       ) : (
                         <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-400 text-white text-xs font-bold">
                           {user.name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("")}
