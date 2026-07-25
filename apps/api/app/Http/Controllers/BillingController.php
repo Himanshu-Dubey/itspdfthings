@@ -140,18 +140,11 @@ class BillingController extends Controller
 
         $api = new RazorpayApi($key, $secret);
 
-        $appUrl = config('app.url');
-        // For local dev, use the web app URL; for production, use the same domain
-        $webUrl = app()->environment('local')
-            ? 'http://localhost:3000'
-            : 'https://itspdfthings.com';
-
         $subscription = $api->subscription->create([
             'plan_id'         => $planIdRz,
             'customer_notify' => 1,
             'total_count'     => 12,
             'notes'           => ['user_id' => (string) $user->id],
-            'redirect_url'    => $webUrl . '/payment/success',
         ]);
 
         $user->forceFill([
