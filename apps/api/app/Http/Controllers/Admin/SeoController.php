@@ -16,7 +16,8 @@ class SeoController extends Controller
     {
         $all = Setting::allAsMap();
 
-        $global = json_decode($all['seo_global'] ?? '{}', true) ?? [];
+        $globalVal = $all['seo_global'] ?? '{}';
+        $global = is_array($globalVal) ? $globalVal : (json_decode($globalVal, true) ?? []);
         $pages = [];
 
         $pageKeys = [
@@ -28,7 +29,11 @@ class SeoController extends Controller
 
         foreach ($pageKeys as $key) {
             $raw = $all["seo_{$key}"] ?? null;
-            $pages[$key] = $raw ? json_decode($raw, true) : null;
+            if ($raw === null) {
+                $pages[$key] = null;
+            } else {
+                $pages[$key] = is_array($raw) ? $raw : (json_decode($raw, true) ?? null);
+            }
         }
 
         return response()->json([
