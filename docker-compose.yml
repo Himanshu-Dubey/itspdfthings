@@ -20,7 +20,7 @@ services:
       context: ./apps/api
       dockerfile: Dockerfile
     restart: unless-stopped
-    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=120
+    command: php artisan queue:work redis --queue=high,default --sleep=3 --tries=3 --timeout=120
     volumes:
       - ./apps/api:/var/www/html
       - /var/www/html/vendor

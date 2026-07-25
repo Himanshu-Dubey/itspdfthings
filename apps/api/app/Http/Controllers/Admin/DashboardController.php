@@ -42,10 +42,14 @@ class DashboardController extends Controller
     public function queueStatus(): JsonResponse
     {
         try {
-            $pending = DB::table('queue_jobs')->where('queue', 'default')->count();
+            $pendingHigh = DB::table('queue_jobs')->where('queue', 'high')->count();
+            $pendingDefault = DB::table('queue_jobs')->where('queue', 'default')->count();
+            $pending = $pendingHigh + $pendingDefault;
             $failed = DB::table('failed_jobs')->count();
         } catch (\Throwable) {
             $pending = 0;
+            $pendingHigh = 0;
+            $pendingDefault = 0;
             $failed = 0;
         }
 
@@ -54,6 +58,8 @@ class DashboardController extends Controller
         return response()->json([
             'queue' => [
                 'pending' => $pending,
+                'pending_high' => $pendingHigh,
+                'pending_default' => $pendingDefault,
                 'processing' => $processing,
                 'failed' => $failed,
             ],

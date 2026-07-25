@@ -16,6 +16,7 @@ class PdfJob extends Model
         'user_id',
         'tool_type',
         'status',
+        'priority',
         'input_path',
         'output_path',
         'error_message',

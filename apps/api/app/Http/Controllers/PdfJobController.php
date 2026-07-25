@@ -114,16 +114,20 @@ class PdfJobController extends Controller
             Storage::disk()->putFileAs(dirname($inputPath), $file, basename($inputPath));
         }
 
+        $isPremium = $request->user()?->isPremium() ?? false;
+
         $pdfJob = PdfJob::create([
             'user_id'      => $request->user()?->id,
             'tool_type'    => $toolType,
             'status'       => 'pending',
+            'priority'     => $isPremium ? 'high' : 'normal',
             'input_path'   => $inputPath,
             'options'      => $options ?: null,
             'delete_after' => now()->addHours(12),
         ]);
 
-        self::JOB_MAP[$toolType]::dispatch($pdfJob->id);
+        $queue = $isPremium ? 'high' : 'default';
+        self::JOB_MAP[$toolType]::dispatch($pdfJob->id)->onQueue($queue);
 
         return response()->json([
             'job' => [
