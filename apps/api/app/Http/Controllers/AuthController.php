@@ -95,9 +95,9 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        if ($user->avatar) {
+        if ($user->avatar && !str_ends_with($user->avatar, '/')) {
             $oldPath = storage_path('app/public/' . $user->avatar);
-            if (file_exists($oldPath)) {
+            if (is_file($oldPath)) {
                 unlink($oldPath);
             }
         }
