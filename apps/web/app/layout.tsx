@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import CookieConsent from "@/components/CookieConsent";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { Wrench } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -136,6 +137,7 @@ export default async function RootLayout({
               {children}
             </SiteChrome>
             <CookieConsent />
+            <FeedbackWidget />
             <script
               dangerouslySetInnerHTML={{
                 __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{})})}`,

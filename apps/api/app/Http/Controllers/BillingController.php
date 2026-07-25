@@ -140,11 +140,18 @@ class BillingController extends Controller
 
         $api = new RazorpayApi($key, $secret);
 
+        $appUrl = config('app.url');
+        // For local dev, use the web app URL; for production, use the same domain
+        $webUrl = app()->environment('local')
+            ? 'http://localhost:3000'
+            : 'https://itspdfthings.com';
+
         $subscription = $api->subscription->create([
             'plan_id'         => $planIdRz,
             'customer_notify' => 1,
             'total_count'     => 12,
             'notes'           => ['user_id' => (string) $user->id],
+            'redirect_url'    => $webUrl . '/payment/success',
         ]);
 
         $user->forceFill([
@@ -153,5 +160,100 @@ class BillingController extends Controller
         ])->save();
 
         return response()->json(['checkout_url' => $subscription->short_url]);
+    }
+
+    /**
+     * Get the current user's subscription details (Stripe or Razorpay) + invoices.
+     */
+    public function subscriptionDetail(Request $request): JsonResponse
+    {
+        $user    = $request->user();
+        $key     = config('services.razorpay.key');
+        $secret  = config('services.razorpay.secret');
+        $country = $request->input('country', 'US');
+
+        $result = [
+            'provider'     => null,
+            'subscription' => null,
+            'invoices'     => [],
+        ];
+
+        // Stripe subscription
+        if ($user->hasStripeId() && config('cashier.secret')) {
+            try {
+                $stripe = new \Stripe\StripeClient(config('cashier.secret'));
+                $subs   = $stripe->subscriptions->all([
+                    'customer' => $user->stripe_id,
+                    'limit'    => 1,
+                ]);
+
+                if (count($subs->data) > 0) {
+                    $sub = $subs->data[0];
+                    $result['provider'] = 'stripe';
+                    $result['subscription'] = [
+                        'id'         => $sub->id,
+                        'status'     => $sub->status,
+                        'current_period_end' => $sub->current_period_end,
+                        'cancel_at_period_end' => $sub->cancel_at_period_end,
+                        'plan'       => $sub->items->data[0]->plan->id ?? null,
+                    ];
+
+                    // Fetch recent invoices
+                    $invoices = $stripe->invoices->all([
+                        'customer' => $user->stripe_id,
+                        'limit'    => 5,
+                    ]);
+                    $result['invoices'] = collect($invoices->data)->map(fn($inv) => [
+                        'id'         => $inv->id,
+                        'amount'     => $inv->amount_paid,
+                        'currency'   => $inv->currency,
+                        'status'     => $inv->status,
+                        'created_at' => $inv->created,
+                        'pdf_url'    => $inv->invoice_pdf,
+                    ])->toArray();
+                }
+            } catch (\Exception) {
+                // Stripe unreachable
+            }
+        }
+
+        // Razorpay subscription
+        if (! $result['provider'] && $user->razorpay_subscription_id && $key && $secret) {
+            try {
+                $api = new RazorpayApi($key, $secret);
+                $subscription = $api->subscription->fetch($user->razorpay_subscription_id);
+
+                $result['provider'] = 'razorpay';
+                $result['subscription'] = [
+                    'id'           => $subscription->id,
+                    'status'       => $subscription->status,
+                    'current_start' => $subscription->current_start,
+                    'current_end'  => $subscription->current_end,
+                    'charged_count' => $subscription->charged_count,
+                    'total_count'  => $subscription->total_count,
+                    'plan_id'      => $subscription->plan_id,
+                ];
+
+                // Fetch invoices
+                $invoices = $api->invoice->all([
+                    'subscription_id' => $user->razorpay_subscription_id,
+                    'count'           => 5,
+                ]);
+                $result['invoices'] = collect($invoices->items ?? [])->map(fn($inv) => [
+                    'id'         => $inv->id,
+                    'invoice_id' => $inv->invoice_number ?? $inv->id,
+                    'amount'     => $inv->amount,
+                    'currency'   => $inv->currency,
+                    'status'     => $inv->status,
+                    'paid_at'    => $inv->paid_at,
+                    'created_at' => $inv->created_at,
+                    'pdf_url'    => $inv->short_url,
+                ])->toArray();
+            } catch (\Exception) {
+                // Razorpay unreachable
+            }
+        }
+
+        return response()->json($result);
     }
 }

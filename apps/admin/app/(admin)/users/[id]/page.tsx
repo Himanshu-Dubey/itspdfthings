@@ -16,6 +16,9 @@ import {
   Trash2,
   Crown,
   Zap,
+  CreditCard,
+  Download,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -178,6 +181,60 @@ export default function UserDetailPage() {
             </CardBody>
           </Card>
         </div>
+
+        {/* Subscription details */}
+        {(data?.subscription || user.plan === "premium") && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="normal-case text-sm font-semibold text-ink tracking-normal flex items-center gap-2">
+                <CreditCard size={14} className="text-ink-2" /> Subscription
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3 text-sm">
+              {data?.subscription ? (
+                <>
+                  <Row label="Provider" value={data.subscription.provider === "stripe" ? "Stripe" : "Razorpay"} />
+                  <Row label="Status" value={data.subscription.status ?? "—"} />
+                  <Row label="Subscription ID" value={data.subscription.id ?? "—"} />
+                  {data.subscription.plan_id && <Row label="Plan ID" value={data.subscription.plan_id} />}
+                  {data.subscription.charged_count != null && (
+                    <Row label="Charged" value={`${data.subscription.charged_count} / ${data.subscription.total_count}`} />
+                  )}
+                  {data.subscription.current_end && (
+                    <Row label="Current period ends" value={new Date(data.subscription.current_end * 1000).toLocaleDateString()} />
+                  )}
+                  {data.subscription.cancel_at_period_end && (
+                    <p className="text-xs text-amber-600 font-medium">Cancels at period end</p>
+                  )}
+                </>
+              ) : (
+                <p className="text-ink-2">User is on Premium plan but no active subscription found.</p>
+              )}
+
+              {data?.invoices && data.invoices.length > 0 && (
+                <div className="pt-2">
+                  <p className="text-xs font-bold text-ink-2 uppercase tracking-wider mb-2">Recent Invoices</p>
+                  <div className="divide-y divide-border-soft border border-border-soft rounded-xl overflow-hidden">
+                    {data.invoices.map((inv: any) => (
+                      <div key={inv.id} className="px-4 py-2.5 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-ink">{inv.invoice_id ?? inv.id}</span>
+                          <span className="text-ink-2">{inv.currency} {(inv.amount / 100).toFixed(2)}</span>
+                          <Badge variant={inv.status === "paid" ? "success" : "warning"}>{inv.status}</Badge>
+                        </div>
+                        {inv.pdf_url && (
+                          <a href={inv.pdf_url} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline inline-flex items-center gap-1">
+                            <Download size={11} /> PDF
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        )}
 
         {/* Actions */}
         <Card>

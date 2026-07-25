@@ -16,6 +16,7 @@ import {
   Crown,
   ShieldCheck,
   ChevronRight,
+  Download,
 } from "lucide-react";
 
 type Section = "profile" | "security" | "billing";
@@ -292,6 +293,8 @@ function BillingSection({ plan }: { plan: string }) {
   const [allPlans, setAllPlans] = useState<Plan[]>([]);
   const [isIndia, setIsIndia] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(true);
+  const [subDetail, setSubDetail] = useState<{ provider: string | null; subscription: any; invoices: any[] } | null>(null);
+  const [loadingSub, setLoadingSub] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -301,7 +304,16 @@ function BillingSection({ plan }: { plan: string }) {
       setAllPlans(plansRes.plans);
       setIsIndia(geoRes.is_india);
     }).finally(() => setLoadingPlans(false));
-  }, []);
+
+    if (plan === "premium") {
+      billing.subscriptionDetail()
+        .then(setSubDetail)
+        .catch(() => {})
+        .finally(() => setLoadingSub(false));
+    } else {
+      setLoadingSub(false);
+    }
+  }, [plan]);
 
   const premiumPlan = allPlans.find(
     (p) => p.interval === "month" && p.slug !== "free"
@@ -363,6 +375,63 @@ function BillingSection({ plan }: { plan: string }) {
           ))}
         </ul>
       </div>
+
+      {/* Subscription details */}
+      {isPremium && subDetail?.subscription && (
+        <div className="rounded-xl border border-border-soft bg-page p-5 mb-5 space-y-3">
+          <p className="text-sm font-semibold text-ink flex items-center gap-1.5">
+            <CreditCard size={13} className="text-ink-2" /> Subscription
+          </p>
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <p className="text-ink-2">Provider</p>
+              <p className="font-medium text-ink capitalize">{subDetail.provider}</p>
+            </div>
+            <div>
+              <p className="text-ink-2">Status</p>
+              <p className="font-medium text-ink capitalize">{subDetail.subscription.status}</p>
+            </div>
+            {subDetail.subscription.current_end && (
+              <div>
+                <p className="text-ink-2">Next billing</p>
+                <p className="font-medium text-ink">
+                  {new Date(subDetail.subscription.current_end * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                </p>
+              </div>
+            )}
+            {subDetail.subscription.current_period_end && (
+              <div>
+                <p className="text-ink-2">Renews on</p>
+                <p className="font-medium text-ink">
+                  {new Date(subDetail.subscription.current_period_end * 1000).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Recent invoices */}
+          {subDetail.invoices.length > 0 && (
+            <div className="pt-2 border-t border-border-soft">
+              <p className="text-xs font-semibold text-ink-2 uppercase mb-2">Recent invoices</p>
+              <div className="space-y-1.5">
+                {subDetail.invoices.slice(0, 3).map((inv: any) => (
+                  <div key={inv.id} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-ink">{inv.invoice_id ?? inv.id}</span>
+                      <span className="text-ink-2">{inv.currency} {(inv.amount / 100).toFixed(2)}</span>
+                    </div>
+                    {inv.pdf_url && (
+                      <a href={inv.pdf_url} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline inline-flex items-center gap-1">
+                        <Download size={10} /> PDF
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {error && (
         <p className="flex items-center gap-1.5 text-xs text-brand-dark mb-4">

@@ -4,10 +4,10 @@ import { useAuth } from "@/lib/auth-context";
 import { UpgradeButton } from "@/components/billing/UpgradeButton";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { plans as plansApi, geo } from "@/lib/api";
-import { Check, Crown, Zap } from "lucide-react";
+import { plans as plansApi, geo, billing } from "@/lib/api";
+import { Check, Crown, Zap, CreditCard, Download, Calendar, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import type { Plan, PlanInterval } from "@/types/api";
+import type { Plan } from "@/types/api";
 
 function parseFeatures(features: string[] | string | null): string[] {
   if (!features) return [];
@@ -24,12 +24,26 @@ function formatPrice(plan: Plan, isIndia: boolean): string {
   return `$${Number(plan.price).toFixed(2)}`;
 }
 
+function fmtDate(ts: number | string | null) {
+  if (!ts) return "—";
+  const d = typeof ts === "number" ? new Date(ts * 1000) : new Date(ts);
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+interface SubscriptionDetail {
+  provider: string | null;
+  subscription: any;
+  invoices: any[];
+}
+
 export default function BillingPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [allPlans, setAllPlans] = useState<Plan[]>([]);
   const [isIndia, setIsIndia] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(true);
+  const [subDetail, setSubDetail] = useState<SubscriptionDetail | null>(null);
+  const [loadingSub, setLoadingSub] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) router.push("/login");
@@ -44,6 +58,17 @@ export default function BillingPage() {
       setIsIndia(geoRes.is_india);
     }).finally(() => setLoadingPlans(false));
   }, []);
+
+  useEffect(() => {
+    if (user?.plan === "premium") {
+      billing.subscriptionDetail()
+        .then(setSubDetail)
+        .catch(() => {})
+        .finally(() => setLoadingSub(false));
+    } else {
+      setLoadingSub(false);
+    }
+  }, [user]);
 
   if (loading || !user) {
     return <div className="max-w-2xl mx-auto px-4 py-16 text-sm text-ink-2">Loading…</div>;
@@ -119,6 +144,92 @@ export default function BillingPage() {
           </p>
         )}
       </div>
+
+      {/* Subscription details (premium users only) */}
+      {isPremium && subDetail?.subscription && (
+        <div className="rounded-2xl border border-border-soft bg-surface p-6 space-y-4">
+          <h2 className="text-sm font-bold text-ink flex items-center gap-2">
+            <CreditCard size={14} className="text-ink-2" /> Subscription Details
+          </h2>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-xs text-ink-2">Provider</p>
+              <p className="font-medium text-ink capitalize">{subDetail.provider}</p>
+            </div>
+            <div>
+              <p className="text-xs text-ink-2">Status</p>
+              <p className="font-medium text-ink capitalize">{subDetail.subscription.status}</p>
+            </div>
+            <div>
+              <p className="text-xs text-ink-2">Subscription ID</p>
+              <p className="font-mono text-xs text-ink truncate">{subDetail.subscription.id}</p>
+            </div>
+            {subDetail.subscription.plan_id && (
+              <div>
+                <p className="text-xs text-ink-2">Plan ID</p>
+                <p className="font-mono text-xs text-ink truncate">{subDetail.subscription.plan_id}</p>
+              </div>
+            )}
+            {subDetail.subscription.current_end && (
+              <div className="flex items-center gap-1.5">
+                <Calendar size={12} className="text-ink-2" />
+                <div>
+                  <p className="text-xs text-ink-2">Next billing</p>
+                  <p className="font-medium text-ink">{fmtDate(subDetail.subscription.current_end)}</p>
+                </div>
+              </div>
+            )}
+            {subDetail.subscription.current_period_end && (
+              <div className="flex items-center gap-1.5">
+                <Calendar size={12} className="text-ink-2" />
+                <div>
+                  <p className="text-xs text-ink-2">Renews on</p>
+                  <p className="font-medium text-ink">{fmtDate(subDetail.subscription.current_period_end)}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          {subDetail.subscription.cancel_at_period_end && (
+            <p className="text-xs text-amber-600 font-medium bg-amber-50 px-3 py-2 rounded-lg">
+              Your subscription will cancel at the end of the current billing period.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Invoices */}
+      {isPremium && subDetail?.invoices && subDetail.invoices.length > 0 && (
+        <div className="rounded-2xl border border-border-soft bg-surface p-6 space-y-3">
+          <h2 className="text-sm font-bold text-ink">Invoice History</h2>
+          <div className="divide-y divide-border-soft">
+            {subDetail.invoices.map((inv: any) => (
+              <div key={inv.id} className="py-3 flex items-center justify-between text-sm">
+                <div>
+                  <p className="font-mono text-xs text-ink">{inv.invoice_id ?? inv.id}</p>
+                  <p className="text-xs text-ink-2">
+                    {inv.currency} {(inv.amount / 100).toFixed(2)} — {fmtDate(inv.paid_at ?? inv.created_at)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${inv.status === "paid" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                    {inv.status}
+                  </span>
+                  {inv.pdf_url && (
+                    <a
+                      href={inv.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-brand hover:underline"
+                    >
+                      <Download size={11} /> PDF
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Premium upgrade card (shown only for free users) */}
       {!isPremium && premiumPlan && (

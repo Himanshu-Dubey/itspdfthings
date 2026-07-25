@@ -408,3 +408,18 @@ export interface TagsResponse {
 export interface CommentsResponse {
   comments: { data: Comment[]; current_page: number; last_page: number; total: number; per_page: number };
 }
+
+export interface FeedbackEntry {
+  id: number;
+  name: string | null;
+  email: string | null;
+  type: string;
+  subject: string | null;
+  message: string;
+  user_id: number | null;
+  user: AdminUser | null;
+  status: string;
+  ip_address: string | null;
+  created_at: string;
+  updated_at: string;
+}

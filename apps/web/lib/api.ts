@@ -239,4 +239,8 @@ export const billing = {
   async sync(): Promise<AuthUserResponse> {
     return request<AuthUserResponse>("POST", "/billing/sync");
   },
+
+  async subscriptionDetail(): Promise<{ provider: string | null; subscription: any; invoices: any[] }> {
+    return request<{ provider: string | null; subscription: any; invoices: any[] }>("GET", "/billing/subscription");
+  },
 };

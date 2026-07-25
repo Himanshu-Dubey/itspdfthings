@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CommentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\JobsAdminController;
+use App\Http\Controllers\Admin\FeedbackController as AdminFeedbackController;
 use App\Http\Controllers\Admin\LeadsController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\PostController;
@@ -76,9 +77,10 @@ Route::middleware('auth.admin')->group(function () {
     Route::patch('razorpay/config', [\App\Http\Controllers\Admin\RazorpayConfigController::class, 'update']);
     Route::post('razorpay/test',    [\App\Http\Controllers\Admin\RazorpayConfigController::class, 'test']);
 
-    // Subscriptions (Cashier data)
-    Route::get('subscriptions',         [SubscriptionAdminController::class, 'index']);
-    Route::get('subscriptions/metrics', [SubscriptionAdminController::class, 'metrics']);
+    // Subscriptions (Cashier + Razorpay data)
+    Route::get('subscriptions',               [SubscriptionAdminController::class, 'index']);
+    Route::get('subscriptions/metrics',       [SubscriptionAdminController::class, 'metrics']);
+    Route::get('subscriptions/razorpay-detail', [SubscriptionAdminController::class, 'razorpayDetail']);
 
     // Plans management
     Route::get('plans',          [PlanController::class, 'index']);
@@ -99,6 +101,13 @@ Route::middleware('auth.admin')->group(function () {
     Route::get('leads/{id}',     [LeadsController::class, 'show']);
     Route::patch('leads/{id}',   [LeadsController::class, 'update']);
     Route::delete('leads/{id}',  [LeadsController::class, 'destroy']);
+
+    // Feedback
+    Route::get('feedback',          [AdminFeedbackController::class, 'index']);
+    Route::get('feedback/stats',    [AdminFeedbackController::class, 'stats']);
+    Route::get('feedback/{id}',     [AdminFeedbackController::class, 'show']);
+    Route::patch('feedback/{id}',   [AdminFeedbackController::class, 'update']);
+    Route::delete('feedback/{id}',  [AdminFeedbackController::class, 'destroy']);
 
     // Cache management
     Route::post('cache/clear',   [CacheController::class, 'clear']);

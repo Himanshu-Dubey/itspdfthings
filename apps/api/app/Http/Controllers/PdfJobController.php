@@ -43,7 +43,7 @@ class PdfJobController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        if (Setting::get('maintenance_mode', '0') === '1') {
+        if (Setting::get('maintenance_mode', false)) {
             return response()->json(['message' => 'The service is temporarily down for maintenance. Please try again shortly.'], 503);
         }
 

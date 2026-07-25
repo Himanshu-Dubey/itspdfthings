@@ -67,10 +67,95 @@ class UserController extends Controller
             ->limit(20)
             ->get();
 
+        $subscription = null;
+        $invoices = [];
+
+        // Fetch Razorpay subscription details if user has one
+        if ($user->razorpay_subscription_id) {
+            $key    = config('services.razorpay.key');
+            $secret = config('services.razorpay.secret');
+
+            if ($key && $secret) {
+                try {
+                    $api = new \Razorpay\Api\Api($key, $secret);
+                    $sub = $api->subscription->fetch($user->razorpay_subscription_id);
+
+                    $subscription = [
+                        'provider'     => 'razorpay',
+                        'id'           => $sub->id,
+                        'status'       => $sub->status,
+                        'plan_id'      => $sub->plan_id,
+                        'current_start' => $sub->current_start,
+                        'current_end'  => $sub->current_end,
+                        'charged_count' => $sub->charged_count,
+                        'total_count'  => $sub->total_count,
+                    ];
+
+                    $invRes = $api->invoice->all(['subscription_id' => $user->razorpay_subscription_id, 'count' => 5]);
+                    $invoices = collect($invRes->items ?? [])->map(fn($inv) => [
+                        'id'         => $inv->id,
+                        'invoice_id' => $inv->invoice_number ?? $inv->id,
+                        'amount'     => $inv->amount,
+                        'currency'   => $inv->currency,
+                        'status'     => $inv->status,
+                        'paid_at'    => $inv->paid_at,
+                        'pdf_url'    => $inv->short_url,
+                    ])->toArray();
+                } catch (\Exception) {
+                    // Razorpay unreachable — show what we have
+                    $subscription = [
+                        'provider' => 'razorpay',
+                        'id'       => $user->razorpay_subscription_id,
+                        'status'   => $user->razorpay_subscription_status,
+                    ];
+                }
+            } else {
+                $subscription = [
+                    'provider' => 'razorpay',
+                    'id'       => $user->razorpay_subscription_id,
+                    'status'   => $user->razorpay_subscription_status,
+                ];
+            }
+        }
+
+        // Fetch Stripe subscription if user has one
+        if (! $subscription && $user->hasStripeId() && config('cashier.secret')) {
+            try {
+                $stripe = new \Stripe\StripeClient(config('cashier.secret'));
+                $subs   = $stripe->subscriptions->all(['customer' => $user->stripe_id, 'limit' => 1]);
+
+                if (count($subs->data) > 0) {
+                    $sub = $subs->data[0];
+                    $subscription = [
+                        'provider' => 'stripe',
+                        'id'       => $sub->id,
+                        'status'   => $sub->status,
+                        'plan'     => $sub->items->data[0]->plan->id ?? null,
+                        'current_period_end' => $sub->current_period_end,
+                        'cancel_at_period_end' => $sub->cancel_at_period_end,
+                    ];
+
+                    $invRes = $stripe->invoices->all(['customer' => $user->stripe_id, 'limit' => 5]);
+                    $invoices = collect($invRes->data)->map(fn($inv) => [
+                        'id'         => $inv->id,
+                        'amount'     => $inv->amount_paid,
+                        'currency'   => $inv->currency,
+                        'status'     => $inv->status,
+                        'created_at' => $inv->created,
+                        'pdf_url'    => $inv->invoice_pdf,
+                    ])->toArray();
+                }
+            } catch (\Exception) {
+                // Stripe unreachable
+            }
+        }
+
         return response()->json([
-            'user' => $user,
-            'recent_jobs' => $jobs,
-            'job_counts'  => $user->pdfJobs()->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status'),
+            'user'         => $user,
+            'recent_jobs'  => $jobs,
+            'job_counts'   => $user->pdfJobs()->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status'),
+            'subscription' => $subscription,
+            'invoices'     => $invoices,
         ]);
     }
 

@@ -22,6 +22,7 @@ import {
   FolderOpen,
   Tags,
   MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 import { useAdminAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
@@ -29,6 +30,7 @@ import { useRouter } from "next/navigation";
 const navItems = [
   { label: "Dashboard",    href: "/dashboard",    icon: LayoutDashboard, section: "main" },
   { label: "Leads",        href: "/leads",        icon: MessageSquare,   section: "main" },
+  { label: "Feedback",     href: "/feedback",     icon: MessageSquare,   section: "main" },
   { label: "Users",        href: "/users",        icon: Users,           section: "main" },
   { label: "Subscriptions",href: "/subscriptions",icon: CreditCard,      section: "main" },
   { label: "Quotas & Tools", href: "/pricing",    icon: Tag,             section: "main" },
@@ -68,11 +70,22 @@ export function AdminSidebar() {
     <aside className="w-64 shrink-0 h-screen sticky top-0 p-3">
       <div className="h-full flex flex-col rounded-2xl bg-surface border border-border-soft shadow-soft">
         {/* Logo */}
-        <div className="h-16 flex items-center px-5 shrink-0">
-          <span className="text-ink font-extrabold text-base tracking-tight">PDFThings</span>
-          <span className="ml-2 text-brand text-[10px] font-bold bg-red-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
-            Admin
-          </span>
+        <div className="h-16 flex items-center justify-between px-5 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-ink font-extrabold text-base tracking-tight">PDFThings</span>
+            <span className="text-brand text-[10px] font-bold bg-red-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
+              Admin
+            </span>
+          </div>
+          <a
+            href={process.env.NEXT_PUBLIC_SITE_URL || "https://itspdfthings.com"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink-2 hover:text-brand transition-colors"
+            title="View site"
+          >
+            <ExternalLink size={14} />
+          </a>
         </div>
         <div className="mx-4 h-px bg-border-soft shrink-0" />
 

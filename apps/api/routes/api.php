@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\PdfJobController;
 use App\Http\Controllers\PlansController;
 use App\Http\Controllers\RazorpayWebhookController;
@@ -72,6 +73,13 @@ Route::post('/contact', [ContactController::class, 'store'])->middleware('thrott
 
 /*
 |--------------------------------------------------------------------------
+| Feedback form (public — saves to database)
+|--------------------------------------------------------------------------
+*/
+Route::post('/feedback', [FeedbackController::class, 'store'])->middleware('throttle:5,1');
+
+/*
+|--------------------------------------------------------------------------
 | Plans (public — no auth required)
 |--------------------------------------------------------------------------
 */
@@ -113,6 +121,7 @@ Route::middleware('auth:sanctum')->prefix('billing')->group(function () {
     Route::post('/checkout', [BillingController::class, 'checkout']);
     Route::get('/portal',    [BillingController::class, 'portal']);
     Route::post('/sync',     [BillingController::class, 'sync']);
+    Route::get('/subscription', [BillingController::class, 'subscriptionDetail']);
 });
 
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);

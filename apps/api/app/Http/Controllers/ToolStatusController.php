@@ -10,7 +10,7 @@ class ToolStatusController extends Controller
     public function index(): JsonResponse
     {
         return response()->json([
-            'maintenance_mode' => Setting::get('maintenance_mode', '0') === '1',
+            'maintenance_mode' => (bool) Setting::get('maintenance_mode', false),
             'tools_enabled'    => is_string($raw = Setting::get('tools_enabled', '{}')) ? (json_decode($raw, true) ?? []) : $raw,
             'announcement'     => [
                 'message'    => Setting::get('announcement_banner') ?: null,

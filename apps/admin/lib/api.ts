@@ -181,6 +181,9 @@ export const adminApi = {
   getSubscriptionMetrics: () =>
     request<SubscriptionMetrics>("/subscriptions/metrics"),
 
+  getRazorpaySubscriptionDetail: (subscriptionId: string) =>
+    request<{ subscription: any; invoices: any[] }>(`/subscriptions/razorpay-detail?subscription_id=${encodeURIComponent(subscriptionId)}`),
+
   // ── Plans management ──────────────────────────────────────────────────────────
   getPlans: () =>
     request<PlansResponse>("/plans"),
@@ -382,4 +385,24 @@ export const adminApi = {
 
   deleteComment: (id: number) =>
     request<{ message: string }>(`/comments/${id}`, { method: "DELETE" }),
+
+  // ── Feedback ────────────────────────────────────────────────────────────
+  getFeedback: (params: Record<string, string | number> = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).map(([k, v]) => [k, String(v)]),
+    ).toString();
+    return request<FeedbackEntry[]>(`/feedback${qs ? "?" + qs : ""}`);
+  },
+
+  getFeedbackStats: () =>
+    request<{ total: number; new: number; read: number; closed: number }>("/feedback/stats"),
+
+  getFeedbackDetail: (id: number) =>
+    request<FeedbackEntry>(`/feedback/${id}`),
+
+  updateFeedback: (id: number, data: { status?: string }) =>
+    request<FeedbackEntry>(`/feedback/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+
+  deleteFeedback: (id: number) =>
+    request<{ message: string }>(`/feedback/${id}`, { method: "DELETE" }),
 };
