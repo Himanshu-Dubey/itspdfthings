@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { Heart, Menu, X, LogOut, User, CreditCard, ChevronDown } from "lucide-react";
+import { Heart, Menu, X, LogOut, User, CreditCard, ChevronDown, FileText } from "lucide-react";
 import { DarkModeToggle } from "./DarkModeToggle";
 
 const TOOL_LINKS = [
@@ -104,20 +104,20 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
 
                     <div className="py-1.5">
                       <Link
-                        href="/dashboard"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
-                      >
-                        <CreditCard size={14} className="shrink-0" />
-                        Dashboard
-                      </Link>
-                      <Link
                         href="/profile"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-2.5 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
                       >
                         <User size={14} className="shrink-0" />
                         Profile & Settings
+                      </Link>
+                      <Link
+                        href="/dashboard"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white transition-colors"
+                      >
+                        <FileText size={14} className="shrink-0" />
+                        PDF Jobs
                       </Link>
                       {user.plan === "free" && (
                         <Link
@@ -195,18 +195,18 @@ export function SiteHeader({ headerPages = [] }: { headerPages?: NavPage[] }) {
                   </div>
                 </div>
                 <Link
-                  href="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link
                   href="/profile"
                   onClick={() => setMobileOpen(false)}
                   className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
                 >
                   Profile & Settings
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileOpen(false)}
+                  className="block px-3 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                  PDF Jobs
                 </Link>
                 {user.plan === "free" && (
                   <Link

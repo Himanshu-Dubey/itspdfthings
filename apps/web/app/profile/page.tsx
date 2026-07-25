@@ -190,8 +190,8 @@ function ProfileSection({
     if (!file) return;
     setUploadFeedback(null);
 
-    if (file.size > 1024 * 1024) {
-      setUploadFeedback({ type: "error", message: "Image must be 1 MB or smaller." });
+    if (file.size > 2 * 1024 * 1024) {
+      setUploadFeedback({ type: "error", message: "Image must be 2 MB or smaller." });
       return;
     }
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
@@ -249,7 +249,7 @@ function ProfileSection({
         />
         <div className="text-xs text-ink-2">
           <p className="font-medium text-ink">Profile photo</p>
-          <p>Max 1 MB. JPG, PNG, or WebP.</p>
+          <p>Max 2 MB. JPG, PNG, or WebP.</p>
           {uploadFeedback && <FeedbackMsg feedback={uploadFeedback} />}
         </div>
       </div>
