@@ -6,7 +6,7 @@ use App\Models\PdfJob;
 
 class WatermarkPdfJob extends ProcessPdfJob
 {
-    private const DPI = 200;
+    private const FONT = '/usr/share/fonts/noto/NotoSans-Bold.ttf';
 
     protected function process(PdfJob $pdfJob, string $scratchDir): void
     {
@@ -18,20 +18,52 @@ class WatermarkPdfJob extends ProcessPdfJob
         $layer      = ($options['layer'] ?? 'above') === 'below' ? 'below' : 'above';
         $outputPath = $scratchDir.'/watermarked.pdf';
 
-        $fillR = 128; $fillG = 128; $fillB = 128;
-        $fillColor = sprintf('rgba(%d,%d,%d,%.2f)', $fillR, $fillG, $fillB, $opacity);
-        $pointsize = (int) round(60 * (self::DPI / 72));
+        $fillColor = sprintf('rgba(128,128,128,%.2f)', $opacity);
 
+        if ($layer === 'below') {
+            $this->processBelow($inputFile, $outputPath, $text, $fillColor, $angle, $scratchDir);
+        } else {
+            $this->processAbove($inputFile, $outputPath, $text, $fillColor, $angle);
+        }
+
+        $pdfJob->update(['output_path' => $this->upload($outputPath, $pdfJob->id, 'watermarked.pdf')]);
+    }
+
+    /**
+     * Above: direct annotation on PDF — preserves original vector quality.
+     */
+    private function processAbove(string $inputFile, string $outputPath, string $text, string $fillColor, int $angle): void
+    {
+        $this->exec([
+            $this->tool('imagemagick'),
+            '-density', '150',
+            $inputFile,
+            '-gravity',    'Center',
+            '-font',       self::FONT,
+            '-pointsize',  '60',
+            '-fill',       $fillColor,
+            '-annotate',   (string) $angle,
+            $text,
+            $outputPath,
+        ]);
+    }
+
+    /**
+     * Below: rasterize → transparent content → watermark layer → composite back.
+     */
+    private function processBelow(string $inputFile, string $outputPath, string $text, string $fillColor, int $angle, string $scratchDir): void
+    {
+        $dpi       = 200;
+        $pointsize = (int) round(60 * ($dpi / 72));
         $pageCount = $this->getPageCount($inputFile);
 
         for ($i = 0; $i < $pageCount; $i++) {
-            $pageFile    = $scratchDir.'/page_'.$i.'.png';
-            $annotated   = $scratchDir.'/wm_page_'.$i.'.png';
+            $pageFile = $scratchDir.'/page_'.$i.'.png';
 
-            // 1. Rasterize this page (force TrueColor to preserve colors)
+            // Rasterize preserving color
             $this->exec([
                 $this->tool('imagemagick'),
-                '-density', (string) self::DPI,
+                '-density', (string) $dpi,
                 $inputFile.'['.$i.']',
                 '-type', 'TrueColor',
                 '-alpha', 'remove',
@@ -39,61 +71,49 @@ class WatermarkPdfJob extends ProcessPdfJob
                 $pageFile,
             ]);
 
-            if ($layer === 'below') {
-                $dims    = @getimagesize($pageFile);
-                $w       = $dims ? $dims[0] : 2480;
-                $h       = $dims ? $dims[1] : 3508;
+            $dims = @getimagesize($pageFile);
+            $w    = $dims ? $dims[0] : 2480;
+            $h    = $dims ? $dims[1] : 3508;
 
-                // 1. Create watermark layer: white bg + grey watermark text
-                $wmLayer = $scratchDir.'/wm_layer_'.$i.'.png';
-                $this->exec([
-                    $this->tool('imagemagick'),
-                    '-size', $w.'x'.$h, 'xc:white',
-                    '-gravity',    'Center',
-                    '-font',       '/usr/share/fonts/noto/NotoSans-Bold.ttf',
-                    '-pointsize',  (string) $pointsize,
-                    '-fill',       $fillColor,
-                    '-annotate',   (string) $angle,
-                    $text,
-                    $wmLayer,
-                ]);
+            // Watermark layer: white bg + grey text
+            $wmLayer = $scratchDir.'/wm_layer_'.$i.'.png';
+            $this->exec([
+                $this->tool('imagemagick'),
+                '-size', $w.'x'.$h, 'xc:white',
+                '-gravity',    'Center',
+                '-font',       self::FONT,
+                '-pointsize',  (string) $pointsize,
+                '-fill',       $fillColor,
+                '-annotate',   (string) $angle,
+                $text,
+                $wmLayer,
+            ]);
 
-                // 2. Remove white bg from original → transparent (content only)
-                $contentFile = $scratchDir.'/content_'.$i.'.png';
-                $this->exec([
-                    $this->tool('imagemagick'),
-                    $pageFile,
-                    '-fuzz', '8%',
-                    '-transparent', 'white',
-                    $contentFile,
-                ]);
+            // Content with transparent bg
+            $contentFile = $scratchDir.'/content_'.$i.'.png';
+            $this->exec([
+                $this->tool('imagemagick'),
+                $pageFile,
+                '-type', 'TrueColor',
+                '-fuzz', '8%',
+                '-transparent', 'white',
+                $contentFile,
+            ]);
 
-                // 3. Composite: content on top of watermark → watermark shows behind
-                $this->exec([
-                    $this->tool('imagemagick'),
-                    $wmLayer,
-                    $contentFile,
-                    '-gravity', 'center',
-                    '-composite',
-                    $annotated,
-                ]);
-            } else {
-                // "above" — annotate directly on the rasterized page (watermark on top)
-                $this->exec([
-                    $this->tool('imagemagick'),
-                    $pageFile,
-                    '-gravity',    'Center',
-                    '-font',       '/usr/share/fonts/noto/NotoSans-Bold.ttf',
-                    '-pointsize',  (string) $pointsize,
-                    '-fill',       $fillColor,
-                    '-annotate',   (string) $angle,
-                    $text,
-                    $annotated,
-                ]);
-            }
+            // Composite: watermark behind, content on top
+            $annotated = $scratchDir.'/wm_page_'.$i.'.png';
+            $this->exec([
+                $this->tool('imagemagick'),
+                $wmLayer,
+                $contentFile,
+                '-gravity', 'center',
+                '-composite',
+                '-type', 'TrueColor',
+                $annotated,
+            ]);
         }
 
-        // Merge all annotated pages into a single PDF
+        // Merge all pages into PDF
         $pages = [];
         for ($i = 0; $i < $pageCount; $i++) {
             $pages[] = $scratchDir.'/wm_page_'.$i.'.png';
@@ -101,11 +121,9 @@ class WatermarkPdfJob extends ProcessPdfJob
 
         $this->exec(array_merge([
             $this->tool('imagemagick'),
-            '-density', (string) self::DPI,
+            '-density', (string) $dpi,
             '-type', 'TrueColor',
         ], $pages, [$outputPath]));
-
-        $pdfJob->update(['output_path' => $this->upload($outputPath, $pdfJob->id, 'watermarked.pdf')]);
     }
 
     private function getPageCount(string $pdfPath): int
