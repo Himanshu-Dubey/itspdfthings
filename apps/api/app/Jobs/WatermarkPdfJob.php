@@ -35,9 +35,9 @@ class WatermarkPdfJob extends ProcessPdfJob
 {$grey} setgray
 306 396 translate
 {$angle} rotate
-({$psText}) dup stringwidth exch -2 div exch -3 div rmoveto
-0 0 moveto
-show
+({$psText}) stringwidth
+pop 2 div neg -25 moveto
+({$psText}) show
 %%EOF
 PS;
 
