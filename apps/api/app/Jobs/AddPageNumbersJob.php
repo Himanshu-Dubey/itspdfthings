@@ -51,7 +51,7 @@ class AddPageNumbersJob extends ProcessPdfJob
             $pageN = $i + 1;
             $psLines[] = "%%Page: {$pageN} {$pageN}";
             $psLines[] = "%%PageMedia: {$pageWidth} {$pageHeight}";
-            $psLines[] = '/Helvetica findfont 12 scalefont setfont';
+            $psLines[] = '/NimbusSans-Regular findfont 12 scalefont setfont';
             $psLines[] = '0 0 0 setgray';
 
             // Right-align for bottom-right, left-align for bottom-left, center for bottom-center

@@ -18,21 +18,20 @@ class WatermarkPdfJob extends ProcessPdfJob
 
         $gs = $this->tool('ghostscript');
 
-        // Get page dimensions from the first page of the input PDF using qpdf
+        // Get page dimensions from the first page using qpdf
         $pageWidth  = 612.0;
         $pageHeight = 792.0;
         $infoProc = new \Symfony\Component\Process\Process([
-            $this->tool('qpdf'), '--show-npages', $inputFile,
+            $this->tool('qpdf'), '--json', $inputFile,
         ]);
         $infoProc->run();
-
-        // Try pdfinfo for page dimensions (more reliable)
-        $infoProc2 = new \Symfony\Component\Process\Process(['pdfinfo', $inputFile]);
-        $infoProc2->run();
-        if ($infoProc2->isSuccessful()) {
-            if (preg_match('/Page size:\s+([\d.]+)\s+x\s+([\d.]+)/', $infoProc2->getOutput(), $m)) {
-                $pageWidth  = (float) $m[1];
-                $pageHeight = (float) $m[2];
+        if ($infoProc->isSuccessful()) {
+            $json = json_decode($infoProc->getOutput(), true);
+            $pages = $json['pages'] ?? [];
+            $first = reset($pages) ?: [];
+            if (!empty($first['MediaBox'])) {
+                $pageWidth  = (float) $first['MediaBox'][2];
+                $pageHeight = (float) $first['MediaBox'][3];
             }
         }
 
@@ -53,7 +52,7 @@ class WatermarkPdfJob extends ProcessPdfJob
 %%Page: 1 1
 %%BoundingBox: 0 0 {$pageWidth} {$pageHeight}
 %%PageMedia: {$pageWidth} {$pageHeight}
-/Helvetica-Bold findfont 60 scalefont setfont
+/NimbusSans-Bold findfont 60 scalefont setfont
 {$grey} setgray
 {$cx} {$cy} translate
 {$angle} rotate
