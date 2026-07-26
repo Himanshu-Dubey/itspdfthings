@@ -65,12 +65,22 @@ export default async function WatermarkPdfPage() {
                   { value: "90", label: "Vertical (90°)" },
                 ],
               },
+              {
+                name: "layer",
+                label: "Placement",
+                type: "select",
+                defaultValue: "above",
+                options: [
+                  { value: "above", label: "Above content (on top)" },
+                  { value: "below", label: "Below content (behind)" },
+                ],
+              },
             ],
           }}
         />
 
         <ToolInfoCard title="About watermarks">
-          <p>The watermark is rendered in grey at your chosen opacity and angle, centered on every page.</p>
+          <p>The watermark is rendered in grey at your chosen opacity and angle, centered on every page. Choose above or below your content.</p>
         </ToolInfoCard>
 
         <JsonLd data={buildToolJsonLd("watermark-pdf")} />
