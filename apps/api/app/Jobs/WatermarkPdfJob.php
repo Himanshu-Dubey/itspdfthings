@@ -65,6 +65,7 @@ class WatermarkPdfJob extends ProcessPdfJob
                 $this->tool('imagemagick'),
                 '-density', (string) $dpi,
                 $inputFile.'['.$i.']',
+                '-colorspace', 'sRGB',
                 '-type', 'TrueColor',
                 '-alpha', 'remove',
                 '-alpha', 'off',
@@ -80,6 +81,7 @@ class WatermarkPdfJob extends ProcessPdfJob
             $this->exec([
                 $this->tool('imagemagick'),
                 '-size', $w.'x'.$h, 'xc:white',
+                '-colorspace', 'sRGB',
                 '-gravity',    'Center',
                 '-font',       self::FONT,
                 '-pointsize',  (string) $pointsize,
@@ -94,7 +96,8 @@ class WatermarkPdfJob extends ProcessPdfJob
             $this->exec([
                 $this->tool('imagemagick'),
                 $pageFile,
-                '-type', 'TrueColor',
+                '-colorspace', 'sRGB',
+                '-type', 'TrueColorMatte',
                 '-fuzz', '8%',
                 '-transparent', 'white',
                 $contentFile,
@@ -106,9 +109,10 @@ class WatermarkPdfJob extends ProcessPdfJob
                 $this->tool('imagemagick'),
                 $wmLayer,
                 $contentFile,
+                '-colorspace', 'sRGB',
+                '-type', 'TrueColor',
                 '-gravity', 'center',
                 '-composite',
-                '-type', 'TrueColor',
                 $annotated,
             ]);
         }
@@ -122,6 +126,7 @@ class WatermarkPdfJob extends ProcessPdfJob
         $this->exec(array_merge([
             $this->tool('imagemagick'),
             '-density', (string) $dpi,
+            '-colorspace', 'sRGB',
             '-type', 'TrueColor',
         ], $pages, [$outputPath]));
     }
