@@ -172,11 +172,7 @@ class PdfJobController extends Controller
         ];
 
         if ($pdfJob->isCompleted() && $pdfJob->output_path) {
-            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-            $disk = Storage::disk();
-            $response['download_url'] = $disk->providesTemporaryUrls()
-                ? $disk->temporaryUrl($pdfJob->output_path, now()->addMinutes(15))
-                : $disk->url($pdfJob->output_path);
+            $response['download_url'] = url("/api/jobs/{$pdfJob->id}/download");
         }
 
         if ($pdfJob->isFailed()) {
@@ -184,6 +180,27 @@ class PdfJobController extends Controller
         }
 
         return response()->json(['job' => $response]);
+    }
+
+    public function download(string $id)
+    {
+        $pdfJob = PdfJob::findOrFail($id);
+
+        if (! $pdfJob->isCompleted() || ! $pdfJob->output_path) {
+            abort(404);
+        }
+
+        $disk = Storage::disk();
+        $mime = $disk->mimeType($pdfJob->output_path) ?? 'application/pdf';
+        $filename = basename($pdfJob->output_path);
+
+        return response()->streamDownload(function () use ($disk, $pdfJob) {
+            $stream = $disk->readStream($pdfJob->output_path);
+            fpassthru($stream);
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }, $filename, ['Content-Type' => $mime]);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

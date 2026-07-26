@@ -39,6 +39,7 @@ Route::post('/jobs', [PdfJobController::class, 'store'])
 
 Route::get('/jobs', [PdfJobController::class, 'index'])->middleware('auth:sanctum');
 Route::get('/jobs/{id}', [PdfJobController::class, 'show']);
+Route::get('/jobs/{id}/download', [PdfJobController::class, 'download']);
 
 /*
 |--------------------------------------------------------------------------
