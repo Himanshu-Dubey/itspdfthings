@@ -172,7 +172,7 @@ class PdfJobController extends Controller
         ];
 
         if ($pdfJob->isCompleted() && $pdfJob->output_path) {
-            $response['download_url'] = url("/api/jobs/{$pdfJob->id}/download");
+            $response['download_url'] = secure_url("/api/jobs/{$pdfJob->id}/download");
         }
 
         if ($pdfJob->isFailed()) {
