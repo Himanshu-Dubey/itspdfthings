@@ -16,7 +16,7 @@ abstract class ProcessPdfJob implements ShouldQueue
 {
     use Queueable;
 
-    public int $timeout = 300;
+    public int $timeout = 900;
     public int $tries   = 1;
 
     public function __construct(protected string $pdfJobId) {}

@@ -20,7 +20,7 @@ services:
       context: ./apps/api
       dockerfile: Dockerfile
     restart: unless-stopped
-    command: php artisan queue:work redis --queue=high,default --sleep=3 --tries=3 --timeout=310
+    command: php artisan queue:work redis --queue=high,default --sleep=3 --tries=3 --timeout=1810
     volumes:
       - ./apps/api:/var/www/html
       - /var/www/html/vendor
@@ -34,7 +34,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1g
+          memory: 2g
 
   horizon:
     build:
