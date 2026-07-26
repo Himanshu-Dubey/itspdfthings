@@ -172,7 +172,12 @@ class PdfJobController extends Controller
         ];
 
         if ($pdfJob->isCompleted() && $pdfJob->output_path) {
-            $response['download_url'] = secure_url("/api/jobs/{$pdfJob->id}/download");
+            $filename = 'output.pdf';
+            $response['download_url'] = Storage::disk()->temporaryUrl(
+                $pdfJob->output_path,
+                now()->addMinutes(15),
+                ['ResponseContentDisposition' => 'attachment; filename="'.$filename.'"']
+            );
         }
 
         if ($pdfJob->isFailed()) {
