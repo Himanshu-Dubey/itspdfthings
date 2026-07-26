@@ -63,7 +63,8 @@ class PdfJobController extends Controller
 
         $toolType = $request->input('tool_type');
 
-        $toolsEnabled = json_decode(Setting::get('tools_enabled', '{}'), true) ?? [];
+        $toolsEnabledRaw = Setting::get('tools_enabled', '{}');
+        $toolsEnabled = is_array($toolsEnabledRaw) ? $toolsEnabledRaw : (json_decode($toolsEnabledRaw, true) ?? []);
         if (($toolsEnabled[$toolType] ?? true) === false) {
             return response()->json(['message' => 'This tool is temporarily unavailable.'], 503);
         }
