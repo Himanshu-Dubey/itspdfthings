@@ -18,6 +18,27 @@ class WatermarkPdfJob extends ProcessPdfJob
 
         $gs = $this->tool('ghostscript');
 
+        // Get page dimensions from the first page of the input PDF using qpdf
+        $pageWidth  = 612.0;
+        $pageHeight = 792.0;
+        $infoProc = new \Symfony\Component\Process\Process([
+            $this->tool('qpdf'), '--show-npages', $inputFile,
+        ]);
+        $infoProc->run();
+
+        // Try pdfinfo for page dimensions (more reliable)
+        $infoProc2 = new \Symfony\Component\Process\Process(['pdfinfo', $inputFile]);
+        $infoProc2->run();
+        if ($infoProc2->isSuccessful()) {
+            if (preg_match('/Page size:\s+([\d.]+)\s+x\s+([\d.]+)/', $infoProc2->getOutput(), $m)) {
+                $pageWidth  = (float) $m[1];
+                $pageHeight = (float) $m[2];
+            }
+        }
+
+        $cx = $pageWidth / 2;
+        $cy = $pageHeight / 2;
+
         // Grey level: 0 = black, 1 = white. Higher opacity → darker text.
         $grey = number_format(1.0 - $opacity, 2, '.', '');
 
@@ -25,16 +46,16 @@ class WatermarkPdfJob extends ProcessPdfJob
         $psText = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $text);
 
         // Create a single-page PDF with centered, rotated watermark text.
-        // Uses Ghostscript's built-in Helvetica-Bold font (no system fonts needed).
         $overlayPdf = $scratchDir.'/overlay.pdf';
         $psContent = <<<PS
 %!PS-Adobe-3.0
 %%Pages: 1
 %%Page: 1 1
-%%BoundingBox: 0 0 612 792
+%%BoundingBox: 0 0 {$pageWidth} {$pageHeight}
+%%PageMedia: {$pageWidth} {$pageHeight}
 /Helvetica-Bold findfont 60 scalefont setfont
 {$grey} setgray
-306 396 translate
+{$cx} {$cy} translate
 {$angle} rotate
 ({$psText}) stringwidth
 pop 2 div neg -25 moveto
@@ -44,12 +65,12 @@ PS;
 
         file_put_contents($scratchDir.'/overlay.ps', $psContent);
 
-        // Convert PS → single-page PDF
+        // Convert PS → single-page PDF matching input page size
         $this->exec([
             $gs,
             '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
             '-sDEVICE=pdfwrite',
-            '-dDEVICEWIDTHPOINTS=612', '-dDEVICEHEIGHTPOINTS=792',
+            "-dDEVICEWIDTHPOINTS={$pageWidth}", "-dDEVICEHEIGHTPOINTS={$pageHeight}",
             '-sOutputFile='.$overlayPdf,
             $scratchDir.'/overlay.ps',
         ]);
