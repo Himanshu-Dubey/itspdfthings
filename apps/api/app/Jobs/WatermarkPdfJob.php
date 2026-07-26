@@ -13,6 +13,7 @@ class WatermarkPdfJob extends ProcessPdfJob
         $text       = $options['text']     ?? 'DRAFT';
         $opacity    = max(0.05, min(1.0, (float) ($options['opacity'] ?? 0.25)));
         $angle      = (int) ($options['angle']  ?? 45);
+        $layer      = ($options['layer'] ?? 'above') === 'below' ? '--underlay' : '--overlay';
         $outputPath = $scratchDir.'/watermarked.pdf';
 
         $gs = $this->tool('ghostscript');
@@ -53,11 +54,11 @@ PS;
             $scratchDir.'/overlay.ps',
         ]);
 
-        // Overlay the watermark PDF onto every page of the input
+        // Overlay or underlay the watermark PDF onto every page of the input
         $this->exec([
             $this->tool('qpdf'),
             $inputFile,
-            '--overlay', $overlayPdf, '--repeat=1-1',
+            $layer, $overlayPdf, '--repeat=1-1',
             '--', $outputPath,
         ]);
 
