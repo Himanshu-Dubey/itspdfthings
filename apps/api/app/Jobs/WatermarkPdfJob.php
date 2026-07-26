@@ -57,7 +57,7 @@ PS;
         $this->exec([
             $this->tool('qpdf'),
             $inputFile,
-            '--overlay', $overlayPdf, '--repeat=1-',
+            '--overlay', $overlayPdf, '--repeat=1-1',
             '--', $outputPath,
         ]);
 
