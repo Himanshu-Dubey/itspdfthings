@@ -16,8 +16,6 @@ class WatermarkPdfJob extends ProcessPdfJob
         $layer      = ($options['layer'] ?? 'above') === 'below' ? '--underlay' : '--overlay';
         $outputPath = $scratchDir.'/watermarked.pdf';
 
-        $gs = $this->tool('ghostscript');
-
         // Get page dimensions from the first page using qpdf
         $pageWidth  = 612.0;
         $pageHeight = 792.0;
@@ -44,7 +42,7 @@ class WatermarkPdfJob extends ProcessPdfJob
         // Escape text for PostScript string literal
         $psText = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $text);
 
-        // Create a single-page PDF with centered, rotated watermark text.
+        // Create a single-page transparent PDF with centered, rotated watermark text.
         $overlayPdf = $scratchDir.'/overlay.pdf';
         $psContent = <<<PS
 %!PS-Adobe-3.0
@@ -59,14 +57,16 @@ class WatermarkPdfJob extends ProcessPdfJob
 ({$psText}) stringwidth
 pop 2 div neg -25 moveto
 ({$psText}) show
+[ /Page [/Group << /S /Transparency >>] ] /PUT pdfmark
+showpage
 %%EOF
 PS;
 
         file_put_contents($scratchDir.'/overlay.ps', $psContent);
 
-        // Convert PS → single-page PDF matching input page size
+        // Convert PS → single-page transparent PDF
         $this->exec([
-            $gs,
+            $this->tool('ghostscript'),
             '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
             '-sDEVICE=pdfwrite',
             "-dDEVICEWIDTHPOINTS={$pageWidth}", "-dDEVICEHEIGHTPOINTS={$pageHeight}",
