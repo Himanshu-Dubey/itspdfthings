@@ -30,7 +30,7 @@ class CompressPdfJob extends ProcessPdfJob
             '-dBATCH',
             "-sOutputFile={$outputPath}",
             $inputFile,
-        ]);
+        ], 300);
 
         $pdfJob->update(['output_path' => $this->upload($outputPath, $pdfJob->id, 'compressed.pdf')]);
     }
