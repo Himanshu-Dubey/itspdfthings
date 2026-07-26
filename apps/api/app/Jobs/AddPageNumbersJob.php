@@ -7,9 +7,9 @@ use App\Models\PdfJob;
 class AddPageNumbersJob extends ProcessPdfJob
 {
     private const POSITIONS = [
-        'bottom-center' => [306, 50],
-        'bottom-left'   => [72, 50],
-        'bottom-right'  => [540, 50],
+        'bottom-center' => [306, 120],
+        'bottom-left'   => [72, 120],
+        'bottom-right'  => [540, 120],
     ];
 
     protected function process(PdfJob $pdfJob, string $scratchDir): void
