@@ -172,28 +172,8 @@ export function PdfToolWidget({ config }: { config: ToolConfig }) {
   const actionLabel = config.actionLabel ?? config.label;
 
   // ── Done state ───────────────────────────────────────────────────────────────
-  const handleDownload = useCallback(async (url: string) => {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      const filename = url.split("/").pop()?.split("?")[0] || "result.pdf";
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
-    } catch {
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "";
-      a.target = "_blank";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
+  const handleDownload = useCallback((url: string) => {
+    window.location.href = url;
   }, []);
 
   if (phase.name === "done") {
