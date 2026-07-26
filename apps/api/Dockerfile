@@ -13,6 +13,7 @@ RUN apk add --no-cache \
     autoconf \
     g++ \
     make \
+    font-noto \
     && docker-php-ext-install pdo_mysql mbstring zip pcntl posix bcmath \
     && pecl install imagick \
     && docker-php-ext-enable imagick
