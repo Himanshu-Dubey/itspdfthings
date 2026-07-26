@@ -13,73 +13,20 @@ class WatermarkPdfJob extends ProcessPdfJob
         $text       = $options['text']     ?? 'DRAFT';
         $opacity    = max(0.05, min(1.0, (float) ($options['opacity'] ?? 0.25)));
         $angle      = (int) ($options['angle']  ?? 45);
-        $layer      = ($options['layer'] ?? 'above') === 'below' ? '--underlay' : '--overlay';
         $outputPath = $scratchDir.'/watermarked.pdf';
 
-        // Get page dimensions from the first page using qpdf
-        $pageWidth  = 612.0;
-        $pageHeight = 792.0;
-        $infoProc = new \Symfony\Component\Process\Process([
-            $this->tool('qpdf'), '--json', $inputFile,
-        ]);
-        $infoProc->run();
-        if ($infoProc->isSuccessful()) {
-            $json = json_decode($infoProc->getOutput(), true);
-            $pages = $json['pages'] ?? [];
-            $first = reset($pages) ?: [];
-            if (!empty($first['MediaBox'])) {
-                $pageWidth  = (float) $first['MediaBox'][2];
-                $pageHeight = (float) $first['MediaBox'][3];
-            }
-        }
+        $fillColor = sprintf('rgba(128,128,128,%.2f)', $opacity);
 
-        $cx = $pageWidth / 2;
-        $cy = $pageHeight / 2;
-
-        // Grey level: 0 = black, 1 = white. Higher opacity → darker text.
-        $grey = number_format(1.0 - $opacity, 2, '.', '');
-
-        // Escape text for PostScript string literal
-        $psText = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $text);
-
-        // Create a single-page transparent PDF with centered, rotated watermark text.
-        $overlayPdf = $scratchDir.'/overlay.pdf';
-        $psContent = <<<PS
-%!PS-Adobe-3.0
-%%Pages: 1
-%%Page: 1 1
-%%BoundingBox: 0 0 {$pageWidth} {$pageHeight}
-%%PageMedia: {$pageWidth} {$pageHeight}
-/NimbusSans-Bold findfont 60 scalefont setfont
-{$grey} setgray
-{$cx} {$cy} translate
-{$angle} rotate
-({$psText}) stringwidth
-pop 2 div neg -25 moveto
-({$psText}) show
-[ /Page [/Group << /S /Transparency >>] ] /PUT pdfmark
-showpage
-%%EOF
-PS;
-
-        file_put_contents($scratchDir.'/overlay.ps', $psContent);
-
-        // Convert PS → single-page transparent PDF
         $this->exec([
-            $this->tool('ghostscript'),
-            '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
-            '-sDEVICE=pdfwrite',
-            "-dDEVICEWIDTHPOINTS={$pageWidth}", "-dDEVICEHEIGHTPOINTS={$pageHeight}",
-            '-sOutputFile='.$overlayPdf,
-            $scratchDir.'/overlay.ps',
-        ]);
-
-        // Overlay or underlay the watermark PDF onto every page of the input
-        $this->exec([
-            $this->tool('qpdf'),
+            $this->tool('imagemagick'),
+            '-density', '150',
             $inputFile,
-            $layer, $overlayPdf, '--repeat=1-1',
-            '--', $outputPath,
+            '-gravity',    'Center',
+            '-pointsize',  '60',
+            '-fill',       $fillColor,
+            '-annotate',   (string) $angle,
+            $text,
+            $outputPath,
         ]);
 
         $pdfJob->update(['output_path' => $this->upload($outputPath, $pdfJob->id, 'watermarked.pdf')]);
