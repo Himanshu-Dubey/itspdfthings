@@ -20,7 +20,7 @@ class PdfToImageJob extends ProcessPdfJob
             '-density', (string) $dpi,
             $inputFile,
             $scratchDir."/page.{$format}",
-        ]);
+        ], 300);
 
         $zipPath = $scratchDir.'/images.zip';
         $zip     = new ZipArchive();
