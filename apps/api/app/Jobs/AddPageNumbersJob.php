@@ -6,20 +6,12 @@ use App\Models\PdfJob;
 
 class AddPageNumbersJob extends ProcessPdfJob
 {
-    private const POSITIONS = [
-        'bottom-center' => [306, 120],
-        'bottom-left'   => [72, 120],
-        'bottom-right'  => [540, 120],
-    ];
-
     protected function process(PdfJob $pdfJob, string $scratchDir): void
     {
         $inputFile = $this->download($pdfJob->input_path, $scratchDir);
         $options   = $pdfJob->options ?? [];
         $posKey    = $options['position'] ?? 'bottom-center';
         $startAt   = max(1, (int) ($options['start_at'] ?? 1));
-
-        [$x, $y] = self::POSITIONS[$posKey] ?? self::POSITIONS['bottom-center'];
 
         // Count pages
         $countProc = new \Symfony\Component\Process\Process([
@@ -28,15 +20,49 @@ class AddPageNumbersJob extends ProcessPdfJob
         $countProc->run();
         $pageCount = max(1, (int) trim($countProc->getOutput()));
 
+        // Get page size from first page
+        $infoProc = new \Symfony\Component\Process\Process([
+            $this->tool('qpdf'), '--show-pages', '--json', $inputFile,
+        ]);
+        $infoProc->run();
+        $pageWidth = 612;
+        $pageHeight = 792;
+        $info = json_decode($infoProc->getOutput(), true);
+        if (isset($info['pages']['1'])) {
+            $p = $info['pages']['1'];
+            $pageWidth = (int) ($p['MediaBox'][2] ?? 612);
+            $pageHeight = (int) ($p['MediaBox'][3] ?? 792);
+        }
+
+        // Position coordinates based on actual page size
+        // Use 36pt (0.5 inch) margin from edges
+        $margin = 36;
+        $positions = [
+            'bottom-center' => [$pageWidth / 2, $margin],
+            'bottom-left'   => [$margin, $margin],
+            'bottom-right'  => [$pageWidth - $margin, $margin],
+        ];
+        [$x, $y] = $positions[$posKey] ?? $positions['bottom-center'];
+
         // Build a multi-page PostScript file — one page per PDF page with its number
-        $psLines = ['%!PS-Adobe-3.0', "%%Pages: {$pageCount}"];
+        $psLines = ['%!PS-Adobe-3.0', "%%Pages: {$pageCount}", "%%BoundingBox: 0 0 {$pageWidth} {$pageHeight}"];
         for ($i = 0; $i < $pageCount; $i++) {
             $num   = $startAt + $i;
             $pageN = $i + 1;
             $psLines[] = "%%Page: {$pageN} {$pageN}";
-            $psLines[] = '/Helvetica findfont 24 scalefont setfont';
+            $psLines[] = "%%PageMedia: {$pageWidth} {$pageHeight}";
+            $psLines[] = '/Helvetica findfont 12 scalefont setfont';
             $psLines[] = '0 0 0 setgray';
-            $psLines[] = "{$x} {$y} moveto";
+
+            // Right-align for bottom-right, left-align for bottom-left, center for bottom-center
+            if ($posKey === 'bottom-right') {
+                $psLines[] = "({$num}) stringwidth pop neg {$x} add {$y} moveto";
+            } elseif ($posKey === 'bottom-left') {
+                $psLines[] = "{$x} {$y} moveto";
+            } else {
+                $psLines[] = "({$num}) stringwidth pop 2 div neg {$x} add {$y} moveto";
+            }
+
             $psLines[] = "({$num}) show";
             $psLines[] = 'showpage';
         }
@@ -45,12 +71,13 @@ class AddPageNumbersJob extends ProcessPdfJob
         $psFile = $scratchDir.'/numbers.ps';
         file_put_contents($psFile, implode("\n", $psLines));
 
-        // Convert PS → multi-page PDF (one overlay page per input page)
+        // Convert PS → multi-page PDF matching the input page size
         $overlayPdf = $scratchDir.'/numbers_overlay.pdf';
         $this->exec([
             $this->tool('ghostscript'),
             '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
             '-sDEVICE=pdfwrite',
+            "-dDEVICEWIDTHPOINTS={$pageWidth}", "-dDEVICEHEIGHTPOINTS={$pageHeight}",
             '-sOutputFile='.$overlayPdf,
             $psFile,
         ]);
