@@ -6,7 +6,8 @@ use App\Models\PdfJob;
 
 class WatermarkPdfJob extends ProcessPdfJob
 {
-    private const DPI = 200;
+    private const DPI      = 200;
+    private const FONT_PATH = '/usr/share/fonts/noto/NotoSans-Bold.ttf';
 
     protected function process(PdfJob $pdfJob, string $scratchDir): void
     {
@@ -49,7 +50,7 @@ class WatermarkPdfJob extends ProcessPdfJob
                     $this->tool('imagemagick'),
                     '-size', $w.'x'.$h, 'xc:white',
                     '-gravity',    'Center',
-                    '-font',       'Noto-Sans-Bold',
+                    '-font',       self::FONT_PATH,
                     '-pointsize',  (string) $pointsize,
                     '-fill',       $fillColor,
                     '-annotate',   (string) $angle,
@@ -82,7 +83,7 @@ class WatermarkPdfJob extends ProcessPdfJob
                     $this->tool('imagemagick'),
                     $pageFile,
                     '-gravity',    'Center',
-                    '-font',       'Noto-Sans-Bold',
+                    '-font',       self::FONT_PATH,
                     '-pointsize',  (string) $pointsize,
                     '-fill',       $fillColor,
                     '-annotate',   (string) $angle,
