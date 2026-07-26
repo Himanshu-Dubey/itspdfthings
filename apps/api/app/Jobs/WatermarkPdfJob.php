@@ -28,11 +28,12 @@ class WatermarkPdfJob extends ProcessPdfJob
             $pageFile    = $scratchDir.'/page_'.$i.'.png';
             $annotated   = $scratchDir.'/wm_page_'.$i.'.png';
 
-            // 1. Rasterize this page
+            // 1. Rasterize this page (force TrueColor to preserve colors)
             $this->exec([
                 $this->tool('imagemagick'),
                 '-density', (string) self::DPI,
                 $inputFile.'['.$i.']',
+                '-type', 'TrueColor',
                 '-alpha', 'remove',
                 '-alpha', 'off',
                 $pageFile,
@@ -101,6 +102,7 @@ class WatermarkPdfJob extends ProcessPdfJob
         $this->exec(array_merge([
             $this->tool('imagemagick'),
             '-density', (string) self::DPI,
+            '-type', 'TrueColor',
         ], $pages, [$outputPath]));
 
         $pdfJob->update(['output_path' => $this->upload($outputPath, $pdfJob->id, 'watermarked.pdf')]);
