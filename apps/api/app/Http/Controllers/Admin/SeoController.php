@@ -46,23 +46,41 @@ class SeoController extends Controller
     {
         $admin = Auth::guard('admin')->user();
 
-        $data = $request->validate([
-            'settings'              => ['required', 'array'],
-            'settings.seo_global'   => ['nullable', 'string', 'max:5000'],
-            'settings.seo_*'        => ['nullable', 'string', 'max:10000'],
+        \Log::channel('daily')->info('SEO update request', [
+            'method'      => $request->method(),
+            'content_type'=> $request->header('Content-Type'),
+            'all_keys'    => array_keys($request->all()),
+            'has_settings'=> $request->has('settings'),
+            'settings_type'=> gettype($request->input('settings')),
+            'input_raw'   => substr($request->getContent(), 0, 500),
         ]);
+
+        $settings = $request->input('settings');
+
+        if (!is_array($settings)) {
+            $settings = [];
+            foreach ($request->all() as $key => $value) {
+                if (str_starts_with($key, 'seo_')) {
+                    $settings[$key] = $value;
+                }
+            }
+        }
+
+        if (empty($settings)) {
+            return response()->json(['error' => 'No settings provided', 'debug' => $request->all()], 422);
+        }
 
         $before = Setting::allAsMap();
 
-        Setting::setMany($data['settings']);
+        Setting::setMany($settings);
 
         AdminAuditLog::record(
             adminId:     $admin->id,
             action:      'seo.update',
             subjectType: 'seo',
             subjectId:   0,
-            before:      array_filter($before, fn ($k) => str_starts_with($k, 'seo_'), ARRAY_FILTER_USE_KEY),
-            after:       array_filter(Setting::allAsMap(), fn ($k) => str_starts_with($k, 'seo_'), ARRAY_FILTER_USE_KEY),
+            before:      array_filter($before, fn ($k) => str_starts_with((string) $k, 'seo_'), ARRAY_FILTER_USE_KEY),
+            after:       array_filter(Setting::allAsMap(), fn ($k) => str_starts_with((string) $k, 'seo_'), ARRAY_FILTER_USE_KEY),
             ip:          $request->ip(),
         );
 
