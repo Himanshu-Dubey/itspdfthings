@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getAllProgrammaticRoutes } from "@/lib/programmatic/catalog";
 
 const BASE_URL = "https://itspdfthings.com";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://api.itspdfthings.com";
@@ -32,6 +33,7 @@ async function getBlogPosts(): Promise<{ slug: string; updated_at: string }[]> {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const posts = await getBlogPosts();
+  const programmaticRoutes = getAllProgrammaticRoutes();
 
   return [
     { url: BASE_URL, lastModified: now, changeFrequency: "weekly", priority: 1 },
@@ -52,6 +54,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.9,
+    })),
+    ...programmaticRoutes.map(({ tool, variant }) => ({
+      url: `${BASE_URL}/${tool}/${variant}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
     })),
   ];
 }
