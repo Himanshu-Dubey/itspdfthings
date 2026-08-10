@@ -10,6 +10,14 @@ class SplitPdfJob extends ProcessPdfJob
     protected function process(PdfJob $pdfJob, string $scratchDir): void
     {
         $inputFile = $this->download($pdfJob->input_path, $scratchDir);
+
+        // Repair structural issues (missing MediaBox, broken xref) before qpdf
+        try {
+            $inputFile = $this->repairPdf($inputFile, $scratchDir);
+        } catch (\Throwable) {
+            // If repair fails, try processing the original anyway
+        }
+
         $options   = $pdfJob->options ?? [];
 
         $range = $options['pages'] ?? null;

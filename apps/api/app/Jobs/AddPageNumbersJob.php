@@ -9,6 +9,14 @@ class AddPageNumbersJob extends ProcessPdfJob
     protected function process(PdfJob $pdfJob, string $scratchDir): void
     {
         $inputFile = $this->download($pdfJob->input_path, $scratchDir);
+
+        // Repair structural issues before qpdf
+        try {
+            $inputFile = $this->repairPdf($inputFile, $scratchDir);
+        } catch (\Throwable) {
+            // If repair fails, try processing the original anyway
+        }
+
         $options   = $pdfJob->options ?? [];
         $posKey    = $options['position'] ?? 'bottom-center';
         $startAt   = max(1, (int) ($options['start_at'] ?? 1));

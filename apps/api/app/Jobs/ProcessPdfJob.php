@@ -112,6 +112,24 @@ abstract class ProcessPdfJob implements ShouldQueue
         return (string) config('pdf.tools.'.$name, $name);
     }
 
+    /**
+     * Repair a PDF using Ghostscript — fixes missing MediaBox, broken
+     * cross-reference tables, and other structural issues that qpdf
+     * rejects. Returns the path to the repaired file.
+     */
+    protected function repairPdf(string $inputFile, string $scratchDir): string
+    {
+        $repaired = $scratchDir.'/repaired_'.basename($inputFile);
+        $this->exec([
+            $this->tool('ghostscript'),
+            '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
+            '-sDEVICE=pdfwrite',
+            '-sOutputFile='.$repaired,
+            $inputFile,
+        ], 120);
+        return $repaired;
+    }
+
     private function wipeScratch(string $dir): void
     {
         if (is_dir($dir)) {

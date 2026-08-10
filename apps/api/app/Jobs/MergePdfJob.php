@@ -9,7 +9,8 @@ class MergePdfJob extends ProcessPdfJob
 {
     protected function process(PdfJob $pdfJob, string $scratchDir): void
     {
-        $inputPaths = json_decode($pdfJob->input_path, true);
+        $decoded    = json_decode($pdfJob->input_path, true);
+        $inputPaths = is_array($decoded) ? $decoded : [$pdfJob->input_path];
 
         $localFiles = [];
         foreach ($inputPaths as $i => $storagePath) {

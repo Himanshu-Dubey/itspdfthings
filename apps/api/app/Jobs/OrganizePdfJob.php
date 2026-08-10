@@ -9,6 +9,14 @@ class OrganizePdfJob extends ProcessPdfJob
     protected function process(PdfJob $pdfJob, string $scratchDir): void
     {
         $inputFile = $this->download($pdfJob->input_path, $scratchDir);
+
+        // Repair structural issues before qpdf
+        try {
+            $inputFile = $this->repairPdf($inputFile, $scratchDir);
+        } catch (\Throwable) {
+            // If repair fails, try processing the original anyway
+        }
+
         $options   = $pdfJob->options ?? [];
 
         // Step 1: page selection (e.g. "1,3,5-8" or "1-z" for all)
