@@ -88,7 +88,7 @@ abstract class ProcessPdfJob implements ShouldQueue
      * level in production (queue-worker container has no network egress and
      * a Docker memory limit) — that isn't achievable portably from PHP itself.
      */
-    protected function exec(array $args, int $timeoutSeconds = 60): void
+    protected function exec(array $args, int $timeoutSeconds = 60, bool $allowWarnings = false): void
     {
         $process = new Process($args);
         $process->setTimeout($timeoutSeconds);
@@ -100,8 +100,19 @@ abstract class ProcessPdfJob implements ShouldQueue
         }
 
         if (! $process->isSuccessful()) {
+            $stderr = $process->getErrorOutput();
+            // Some tools (qpdf) exit 1 with non-fatal warnings. If allowWarnings
+            // is set and stderr only has WARNING lines, treat as success.
+            if ($allowWarnings && $process->getExitCode() === 1) {
+                $lines = array_filter(array_map('trim', explode("\n", $stderr)));
+                $onlyWarnings = ! empty($lines) && array_reduce($lines, fn ($carry, $line) => $carry && str_starts_with($line, 'WARNING:'), true);
+                if ($onlyWarnings) {
+                    return;
+                }
+            }
+
             throw new \RuntimeException(
-                $this->humanizeError($process->getErrorOutput().$process->getOutput())
+                $this->humanizeError($stderr.$process->getOutput())
             );
         }
     }

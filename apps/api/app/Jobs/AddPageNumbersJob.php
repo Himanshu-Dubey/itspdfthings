@@ -97,7 +97,7 @@ class AddPageNumbersJob extends ProcessPdfJob
             $inputFile,
             '--overlay', $overlayPdf, '--to=1-'.$pageCount, '--from=1-'.$pageCount,
             '--', $outputPath,
-        ]);
+        ], 60, true);
 
         $pdfJob->update(['output_path' => $this->upload($outputPath, $pdfJob->id, 'numbered.pdf')]);
     }

@@ -32,7 +32,7 @@ class SplitPdfJob extends ProcessPdfJob
             foreach ($groups as $i => $group) {
                 $safeGroup = str_replace('-', '_', $group);
                 $out = $scratchDir.'/'.$baseName.'_pages_'.$safeGroup.'.pdf';
-                $this->exec([$this->tool('qpdf'), '--empty', '--pages', $inputFile, $group, '--', $out]);
+                $this->exec([$this->tool('qpdf'), '--empty', '--pages', $inputFile, $group, '--', $out], 60, true);
                 $files[] = $out;
             }
 
@@ -55,7 +55,7 @@ class SplitPdfJob extends ProcessPdfJob
             $pdfJob->update(['output_path' => $this->upload($zipPath, $pdfJob->id, 'split.zip')]);
         } else {
             // No range specified → split every page into its own file.
-            $this->exec([$this->tool('qpdf'), $inputFile, '--split-pages', $scratchDir.'/page-%d.pdf']);
+            $this->exec([$this->tool('qpdf'), $inputFile, '--split-pages', $scratchDir.'/page-%d.pdf'], 60, true);
 
             $baseName = pathinfo($pdfJob->input_path, PATHINFO_FILENAME);
             $zipPath  = $scratchDir.'/split.zip';
