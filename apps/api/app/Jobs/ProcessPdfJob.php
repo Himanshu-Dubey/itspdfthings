@@ -101,12 +101,11 @@ abstract class ProcessPdfJob implements ShouldQueue
 
         if (! $process->isSuccessful()) {
             $stderr = $process->getErrorOutput();
-            // Some tools (qpdf) exit 1 with non-fatal warnings. If allowWarnings
-            // is set and stderr only has WARNING lines, treat as success.
+            // Some tools (qpdf, gs) exit 1 with non-fatal warnings. If allowWarnings
+            // is set and stderr has no ERROR/FATAL lines, treat as success.
             if ($allowWarnings && $process->getExitCode() === 1) {
-                $lines = array_filter(array_map('trim', explode("\n", $stderr)));
-                $onlyWarnings = ! empty($lines) && array_reduce($lines, fn ($carry, $line) => $carry && str_starts_with($line, 'WARNING:'), true);
-                if ($onlyWarnings) {
+                $lower = strtolower($stderr);
+                if (! str_contains($lower, 'error:') && ! str_contains($lower, 'fatal')) {
                     return;
                 }
             }
