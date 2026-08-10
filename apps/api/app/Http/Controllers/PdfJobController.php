@@ -173,7 +173,8 @@ class PdfJobController extends Controller
 
         if ($pdfJob->isCompleted() && $pdfJob->output_path) {
             $originalName = pathinfo(basename($pdfJob->input_path), PATHINFO_FILENAME);
-            $filename = $originalName.'_'.$pdfJob->tool_type.'.pdf';
+            $ext = $pdfJob->tool_type === 'pdf-to-image' ? 'zip' : 'pdf';
+            $filename = $originalName.'_'.$pdfJob->tool_type.'.'.$ext;
             $response['download_url'] = Storage::disk()->temporaryUrl(
                 $pdfJob->output_path,
                 now()->addMinutes(15),
@@ -199,7 +200,8 @@ class PdfJobController extends Controller
         $disk = Storage::disk();
         $mime = $disk->mimeType($pdfJob->output_path) ?? 'application/pdf';
         $originalName = pathinfo(basename($pdfJob->input_path), PATHINFO_FILENAME);
-        $filename = $originalName.'_'.$pdfJob->tool_type.'.pdf';
+        $ext = $pdfJob->tool_type === 'pdf-to-image' ? 'zip' : 'pdf';
+        $filename = $originalName.'_'.$pdfJob->tool_type.'.'.$ext;
 
         return response()->streamDownload(function () use ($disk, $pdfJob) {
             $stream = $disk->readStream($pdfJob->output_path);
