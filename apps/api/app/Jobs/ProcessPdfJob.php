@@ -101,9 +101,9 @@ abstract class ProcessPdfJob implements ShouldQueue
 
         if (! $process->isSuccessful()) {
             $stderr = $process->getErrorOutput();
-            // Some tools (qpdf, gs) exit 1 with non-fatal warnings. If allowWarnings
-            // is set and stderr has no ERROR/FATAL lines, treat as success.
-            if ($allowWarnings && $process->getExitCode() === 1) {
+            // Some tools (qpdf exit 3, gs exit 1) emit warnings without fatal errors.
+            // If allowWarnings is set and stderr has no ERROR/FATAL lines, treat as success.
+            if ($allowWarnings) {
                 $lower = strtolower($stderr);
                 if (! str_contains($lower, 'error:') && ! str_contains($lower, 'fatal')) {
                     return;
