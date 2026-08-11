@@ -66,6 +66,38 @@ export default async function BlogPage() {
 
   return (
     <div className="min-h-screen">
+      {/* ── Schema ─────────────────────────────────────────────────────────── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Blog | PDFThings",
+            description: "PDF tips, tutorials, and product updates from PDFThings.",
+            url: "https://itspdfthings.com/blog",
+            isPartOf: {
+              "@type": "WebSite",
+              name: "PDFThings",
+              url: "https://itspdfthings.com",
+            },
+            hasPart: posts.map((post) => ({
+              "@type": "Article",
+              headline: post.title,
+              url: `https://itspdfthings.com/blog/${post.slug}`,
+              datePublished: post.published_at || undefined,
+              author: { "@type": "Organization", name: "PDFThings" },
+              publisher: {
+                "@type": "Organization",
+                name: "PDFThings",
+                url: "https://itspdfthings.com",
+                logo: { "@type": "ImageObject", url: "https://itspdfthings.com/file.svg" },
+              },
+            })),
+          }),
+        }}
+      />
+
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-border-soft">
         <div className="absolute inset-0 bg-gradient-to-br from-red-50/80 via-white to-orange-50/60" aria-hidden="true" />
