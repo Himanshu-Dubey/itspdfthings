@@ -78,8 +78,8 @@ export function buildToolJsonLd(slug: string): Record<string, unknown> {
   const tool = TOOL_NAMES[slug] ?? { name: slug, desc: "" };
   return {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: tool.name,
+    "@type": "SoftwareApplication",
+    name: `PDFThings — ${tool.name}`,
     url: `${SITE_URL}/${slug}`,
     description: tool.desc,
     applicationCategory: "UtilitiesApplication",
@@ -88,7 +88,15 @@ export function buildToolJsonLd(slug: string): Record<string, unknown> {
       "@type": "Offer",
       price: "0",
       priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
     },
+    provider: {
+      "@type": "Organization",
+      name: "PDFThings",
+      url: SITE_URL,
+    },
+    featureList: tool.desc,
+    screenshot: `${SITE_URL}/og/default.png`,
   };
 }
 

@@ -121,18 +121,22 @@ export default async function BlogDetailPage({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Article",
+              "@type": "BlogPosting",
               headline: post.title,
               description: post.excerpt || undefined,
               image: ogImageUrl || undefined,
               datePublished: post.published_at || undefined,
+              dateModified: post.published_at || undefined,
               author: post.author ? { "@type": "Person", name: post.author.name } : undefined,
               publisher: {
                 "@type": "Organization",
                 name: "PDFThings",
-                logo: { "@type": "ImageObject", url: `${baseUrl}/logo.png` },
+                url: baseUrl,
+                logo: { "@type": "ImageObject", url: `${baseUrl}/file.svg` },
               },
               mainEntityOfPage: { "@type": "WebPage", "@id": `${baseUrl}/blog/${post.slug}` },
+              about: post.category ? { "@type": "Thing", name: post.category.name } : undefined,
+              wordCount: post.content ? post.content.split(/\s+/).length : undefined,
             }),
           }}
         />
