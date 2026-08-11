@@ -9,7 +9,10 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("split-pdf", seo);
+  return buildPageMetadata("split-pdf", seo, {
+    title: "Split PDF Online Free — Extract Pages | PDFThings",
+    description: "Split a PDF into separate files or extract specific pages online for free. No sign-up, no software install. Files deleted after 12 hours.",
+  });
 }
 
 export default async function SplitPdfPage() {
@@ -21,7 +24,7 @@ export default async function SplitPdfPage() {
       <ToolPageHeader
         icon={Scissors}
         title="Split PDF"
-        description="Split every page into a separate file, or extract a specific range of pages."
+        description="Break a large PDF into smaller files, or pull out just the pages you need, in seconds."
         iconBg="bg-orange-50"
         iconText="text-orange-600"
         glow="from-orange-50/60"
@@ -45,11 +48,10 @@ export default async function SplitPdfPage() {
         />
 
         <ToolInfoCard title="How to split a PDF">
-          <ol>
-            <li>Upload your PDF.</li>
-            <li>Optionally enter a page range (e.g. <code>1-5,8</code>) to extract only those pages.</li>
-            <li>Click <strong>Split PDF</strong> — you&apos;ll download a ZIP of all pages.</li>
-          </ol>
+          <p className="mb-3">Break a large PDF into smaller files, or pull out just the pages you need, in seconds. Choose to split by page range for extracting a specific section, or split every page into its own file.</p>
+          <p className="mb-3">This is the right tool when you only need part of a document — a single chapter from a report, one form from a scanned batch, or a smaller file that fits under an email attachment limit. Upload your PDF, choose your split method, select your pages, and download the results.</p>
+          <p className="mb-3">All uploads are encrypted in transit and automatically deleted within 12 hours. No sign-up needed, and no limit on how many PDFs you can split.</p>
+          <p>Looking to combine files instead? Try <a href="/merge-pdf" className="text-brand hover:underline">Merge PDF</a> to bring separate documents back into one file, or <a href="/organize-pdf" className="text-brand hover:underline">Organize PDF</a> to reorder pages without creating new files.</p>
         </ToolInfoCard>
 
         <JsonLd data={buildToolJsonLd("split-pdf")} />

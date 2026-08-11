@@ -9,7 +9,10 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("organize-pdf", seo);
+  return buildPageMetadata("organize-pdf", seo, {
+    title: "Organize PDF Online Free — Rotate & Reorder Pages | PDFThings",
+    description: "Rotate, reorder, or delete PDF pages online for free. No sign-up required. Fix page order or orientation in seconds.",
+  });
 }
 
 export default async function OrganizePdfPage() {
@@ -21,7 +24,7 @@ export default async function OrganizePdfPage() {
       <ToolPageHeader
         icon={ListOrdered}
         title="Organize PDF"
-        description="Select specific pages to keep and optionally rotate them."
+        description="Fix page order, rotate sideways scans, or delete unwanted pages from a PDF."
         iconBg="bg-violet-50"
         iconText="text-violet-600"
         glow="from-violet-50/60"
@@ -56,13 +59,11 @@ export default async function OrganizePdfPage() {
           }}
         />
 
-        <ToolInfoCard title="Page range syntax">
-          <ul>
-            <li><code>1,3,5</code> — pages 1, 3, and 5 only</li>
-            <li><code>2-5</code> — pages 2 through 5</li>
-            <li><code>1-3,7-9</code> — pages 1–3 and 7–9</li>
-            <li>Leave blank to keep all pages</li>
-          </ul>
+        <ToolInfoCard title="How to organize a PDF">
+          <p className="mb-3">Fix page order, rotate sideways scans, or delete unwanted pages from a PDF — all without creating a new file or losing any quality. Drag pages into the order you want, rotate any page that&apos;s upside down or sideways, and remove pages you don&apos;t need.</p>
+          <p className="mb-3">This is the tool to reach for when a scanner saves pages out of order, a page comes through rotated, or a document has extra blank pages you want gone before sending it on. Upload your file, make your edits visually, and download — the rest of the document stays exactly as it was.</p>
+          <p className="mb-3">Files are encrypted in transit and deleted automatically within 12 hours. No account or sign-up needed.</p>
+          <p>If you need to combine several files instead of reordering one, try <a href="/merge-pdf" className="text-brand hover:underline">Merge PDF</a>; if you need to pull specific pages into their own file, use <a href="/split-pdf" className="text-brand hover:underline">Split PDF</a>.</p>
         </ToolInfoCard>
 
         <JsonLd data={buildToolJsonLd("organize-pdf")} />

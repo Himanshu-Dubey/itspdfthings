@@ -9,7 +9,10 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("compress-pdf", seo);
+  return buildPageMetadata("compress-pdf", seo, {
+    title: "Compress PDF Online Free — Reduce File Size | PDFThings",
+    description: "Shrink PDF file size without losing quality. Free online compressor with no sign-up. Choose low, medium, or high compression.",
+  });
 }
 
 export default async function CompressPdfPage() {
@@ -21,7 +24,7 @@ export default async function CompressPdfPage() {
       <ToolPageHeader
         icon={Minimize2}
         title="Compress PDF"
-        description="Reduce your PDF file size. Choose how aggressively to compress."
+        description="Reduce your PDF file size without making text blurry or images unusable."
         iconBg="bg-amber-50"
         iconText="text-amber-600"
         glow="from-amber-50/60"
@@ -50,11 +53,10 @@ export default async function CompressPdfPage() {
         />
 
         <ToolInfoCard title="Compression levels explained">
-          <ul>
-            <li><strong>Low</strong> — 72 dpi, smallest possible file. Good for email attachments.</li>
-            <li><strong>Medium</strong> — 150 dpi, balanced. Good for most uses (recommended).</li>
-            <li><strong>High</strong> — 300 dpi, near-print quality with modest size reduction.</li>
-          </ul>
+          <p className="mb-3">Reduce your PDF&apos;s file size without making the text blurry or the images unusable. Choose from low, medium, or high compression depending on whether the file needs to stay print-quality or just needs to be small enough to email.</p>
+          <p className="mb-3">Most PDFs are large because of uncompressed images, not text — so this tool shrinks image data intelligently while keeping every word sharp, since text in a PDF is stored as vector data and isn&apos;t affected by compression. Medium compression works well for most everyday documents like resumes, reports, and invoices; use low compression for anything print-quality or photo-heavy.</p>
+          <p className="mb-3">Your file is encrypted during upload and deleted automatically within 12 hours — nothing is stored longer than it needs to be, and no account is required.</p>
+          <p>Need to send several files as one? <a href="/merge-pdf" className="text-brand hover:underline">Merge PDF</a> first, then compress the combined file here to keep the final attachment small.</p>
         </ToolInfoCard>
 
         <JsonLd data={buildToolJsonLd("compress-pdf")} />

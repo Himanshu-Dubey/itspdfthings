@@ -9,7 +9,10 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("merge-pdf", seo);
+  return buildPageMetadata("merge-pdf", seo, {
+    title: "Merge PDF Files Online Free — No Sign-Up | PDFThings",
+    description: "Combine multiple PDF files into one document in seconds. Free, no sign-up, no watermark. Files auto-deleted after 12 hours.",
+  });
 }
 
 export default async function MergePdfPage() {
@@ -21,7 +24,7 @@ export default async function MergePdfPage() {
       <ToolPageHeader
         icon={Combine}
         title="Merge PDF"
-        description="Combine multiple PDF files into a single document. Select all files at once."
+        description="Combine multiple PDF files into one document in seconds — no installs, no account, no watermark."
         iconBg="bg-red-50"
         iconText="text-red-600"
         glow="from-red-50/60"
@@ -39,11 +42,10 @@ export default async function MergePdfPage() {
         />
 
         <ToolInfoCard title="How to merge PDFs">
-          <ol>
-            <li>Click the upload area or drag your PDF files in.</li>
-            <li>Select as many files as you need (up to 20).</li>
-            <li>Click <strong>Merge PDFs</strong> and download the combined file.</li>
-          </ol>
+          <p className="mb-3">Combine multiple PDF files into a single document in seconds — no installs, no account, and no watermark on your final file. Drag in as many PDFs as you need, arrange them in the order you want, and download one clean, merged document.</p>
+          <p className="mb-3">Merging is the fastest way to turn scattered files into one professional document, whether you&apos;re putting together a job application with a resume and cover letter, combining invoices for a client, or assembling a portfolio. Just upload your files, drag to reorder them, and click merge — the whole process usually takes under a minute.</p>
+          <p className="mb-3">Every file you upload is encrypted in transit and automatically deleted from our servers within 12 hours, so there&apos;s nothing left behind after you download your merged PDF. No account required, and no limit on how many times you can use the tool.</p>
+          <p>Need to go the other direction? Try our <a href="/split-pdf" className="text-brand hover:underline">Split PDF</a> tool to pull pages back out of a document, or <a href="/compress-pdf" className="text-brand hover:underline">Compress PDF</a> if your merged file ends up too large to email.</p>
         </ToolInfoCard>
 
         <JsonLd data={buildToolJsonLd("merge-pdf")} />

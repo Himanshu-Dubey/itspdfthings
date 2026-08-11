@@ -9,7 +9,10 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("pdf-to-image", seo);
+  return buildPageMetadata("pdf-to-image", seo, {
+    title: "Convert PDF to JPG/PNG Online Free | PDFThings",
+    description: "Convert PDF pages to JPG or PNG images online for free. Export individual pages or the whole document. No sign-up required.",
+  });
 }
 
 export default async function PdfToImagePage() {
@@ -21,7 +24,7 @@ export default async function PdfToImagePage() {
       <ToolPageHeader
         icon={FileImage}
         title="PDF → Image"
-        description="Export every page of your PDF as an image. Choose format and resolution."
+        description="Export any PDF page as a JPG or PNG image — for slides, social media, or sharing."
         iconBg="bg-cyan-50"
         iconText="text-cyan-600"
         glow="from-cyan-50/60"
@@ -59,8 +62,11 @@ export default async function PdfToImagePage() {
           }}
         />
 
-        <ToolInfoCard title="Output">
-          <p>You&apos;ll receive a ZIP archive containing one image per PDF page (e.g. <code>page-1.jpg</code>, <code>page-2.jpg</code>, …).</p>
+        <ToolInfoCard title="How to convert PDF to images">
+          <p className="mb-3">Export any PDF page as a JPG or PNG image — useful for pulling a single page into a slide deck, sharing a document preview on social media, or extracting a diagram or photo that was embedded in a PDF. Upload your file, choose which pages to convert, and download individual image files.</p>
+          <p className="mb-3">This is the tool to use when you need a visual, not a document — for example, dropping a contract page into an email as an image, or grabbing a chart from a report to reuse elsewhere. Each exported image reflects exactly what&apos;s on the PDF page at a resolution suitable for screen or print use.</p>
+          <p className="mb-3">All files are encrypted in transit and deleted automatically within 12 hours. No account needed, and no limit on how many pages you can export.</p>
+          <p>Need to go the other direction instead? Use <a href="/image-to-pdf" className="text-brand hover:underline">Image → PDF</a> to combine photos or scans into a single PDF file.</p>
         </ToolInfoCard>
 
         <JsonLd data={buildToolJsonLd("pdf-to-image")} />
