@@ -233,7 +233,7 @@ export default async function BlogPage() {
 
           {/* ── Sidebar (right) ──────────────────────────────────────────────── */}
           <aside className="w-full lg:w-72 shrink-0">
-            <div className="lg:sticky lg:top-8 space-y-6">
+            <div className="lg:sticky lg:top-24 space-y-6">
               {/* Categories */}
               {categories.length > 0 && (
                 <div className="rounded-2xl border border-border-soft bg-surface p-5">
