@@ -43,7 +43,9 @@ class BlogController extends Controller
 
         $posts = $query->paginate(12);
 
-        $categories = Category::ordered()->get(['id', 'name', 'slug']);
+        $categories = Category::ordered()
+            ->withCount(['posts' => fn($q) => $q->published()])
+            ->get(['id', 'name', 'slug']);
 
         return response()->json([
             'posts'      => $posts,
