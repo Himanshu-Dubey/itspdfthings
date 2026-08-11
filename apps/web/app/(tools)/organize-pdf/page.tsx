@@ -10,7 +10,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
   return buildPageMetadata("organize-pdf", seo, {
-    title: "Organize PDF Online Free — Rotate & Reorder Pages | PDFThings",
+    title: "Organize PDF Online Free — Rotate & Reorder Pages",
     description: "Rotate, reorder, or delete PDF pages online for free. No sign-up required. Fix page order or orientation in seconds.",
   });
 }

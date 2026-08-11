@@ -10,7 +10,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
   return buildPageMetadata("split-pdf", seo, {
-    title: "Split PDF Online Free — Extract Pages | PDFThings",
+    title: "Split PDF Online Free — Extract Pages",
     description: "Split a PDF into separate files or extract specific pages online for free. No sign-up, no software install. Files deleted after 12 hours.",
   });
 }

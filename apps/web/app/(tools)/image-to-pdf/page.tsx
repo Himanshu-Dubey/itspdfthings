@@ -10,7 +10,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
   return buildPageMetadata("image-to-pdf", seo, {
-    title: "Convert JPG/PNG to PDF Online Free | PDFThings",
+    title: "Convert JPG/PNG to PDF Online Free",
     description: "Convert JPG or PNG images to PDF online for free. Combine multiple images into one PDF. No sign-up, no watermark.",
   });
 }

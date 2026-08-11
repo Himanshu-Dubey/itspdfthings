@@ -10,7 +10,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
   return buildPageMetadata("protect-pdf", seo, {
-    title: "Password Protect or Unlock PDF Online Free | PDFThings",
+    title: "Password Protect or Unlock PDF Online Free",
     description: "Add or remove a password from your PDF online for free. Encrypt sensitive documents or unlock files you own. No sign-up needed.",
   });
 }

@@ -10,7 +10,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
   return buildPageMetadata("watermark-pdf", seo, {
-    title: "Add Watermark to PDF Online Free | PDFThings",
+    title: "Add Watermark to PDF Online Free",
     description: "Add a text or image watermark to your PDF online for free. Mark documents as draft, confidential, or branded in seconds.",
   });
 }

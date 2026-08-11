@@ -10,7 +10,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
   return buildPageMetadata("merge-pdf", seo, {
-    title: "Merge PDF Files Online Free — No Sign-Up | PDFThings",
+    title: "Merge PDF Files Online Free — No Sign-Up",
     description: "Combine multiple PDF files into one document in seconds. Free, no sign-up, no watermark. Files auto-deleted after 12 hours.",
   });
 }
