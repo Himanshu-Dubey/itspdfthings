@@ -9,10 +9,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("compress-pdf", seo, {
-    title: "Compress PDF Online Free — Reduce File Size",
-    description: "Shrink PDF file size without losing quality. Free online compressor with no sign-up. Choose low, medium, or high compression.",
-  });
+  return buildPageMetadata("compress-pdf", seo);
 }
 
 export default async function CompressPdfPage() {

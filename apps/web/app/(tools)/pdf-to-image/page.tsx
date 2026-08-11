@@ -9,10 +9,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("pdf-to-image", seo, {
-    title: "Convert PDF to JPG/PNG Online Free",
-    description: "Convert PDF pages to JPG or PNG images online for free. Export individual pages or the whole document. No sign-up required.",
-  });
+  return buildPageMetadata("pdf-to-image", seo);
 }
 
 export default async function PdfToImagePage() {

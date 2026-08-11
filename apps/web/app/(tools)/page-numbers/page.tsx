@@ -9,10 +9,7 @@ import { FaqSection } from "@/components/tools/FaqSection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoData();
-  return buildPageMetadata("page-numbers", seo, {
-    title: "Add Page Numbers to PDF Online Free",
-    description: "Add sequential page numbers to your PDF online for free. Choose position and starting number. No sign-up required.",
-  });
+  return buildPageMetadata("page-numbers", seo);
 }
 
 export default async function PageNumbersPage() {
