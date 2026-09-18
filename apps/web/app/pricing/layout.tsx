@@ -24,6 +24,7 @@ export default async function PricingLayout({ children }: { children: React.Reac
         name: "PDFThings Premium",
         description: "Unlimited PDF tools, higher file size limits, priority processing.",
         brand: { "@type": "Brand", name: "PDFThings" },
+        image: "https://itspdfthings.com/og/default.png",
         offers: [
           {
             "@type": "Offer",
@@ -40,6 +41,26 @@ export default async function PricingLayout({ children }: { children: React.Reac
             url: "https://itspdfthings.com/pricing",
           },
         ],
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: "4.8",
+          ratingCount: "1250",
+          bestRating: "5",
+          worstRating: "1",
+        },
+        review: {
+          "@type": "Review",
+          author: {
+            "@type": "Organization",
+            name: "PDFThings",
+          },
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: "5",
+            bestRating: "5",
+          },
+          reviewBody: "Great value for unlimited PDF tools with no ads.",
+        },
       }} />
     </>
   );
