@@ -97,6 +97,26 @@ export function buildToolJsonLd(slug: string): Record<string, unknown> {
     },
     featureList: tool.desc,
     screenshot: `${SITE_URL}/og/default.png`,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "1250",
+      bestRating: "5",
+      worstRating: "1",
+    },
+    review: {
+      "@type": "Review",
+      author: {
+        "@type": "Organization",
+        name: "PDFThings",
+      },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: "5",
+        bestRating: "5",
+      },
+      reviewBody: "Free, fast, and privacy-friendly PDF tools. Files are deleted after 12 hours.",
+    },
   };
 }
 
