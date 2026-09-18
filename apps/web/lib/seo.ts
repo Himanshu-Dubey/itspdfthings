@@ -95,6 +95,7 @@ export function buildToolJsonLd(slug: string): Record<string, unknown> {
       name: "PDFThings",
       url: SITE_URL,
     },
+    image: `${SITE_URL}/og/default.png`,
     featureList: tool.desc,
     screenshot: `${SITE_URL}/og/default.png`,
     aggregateRating: {
